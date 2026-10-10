@@ -1,6 +1,6 @@
 # Feature Projection — Master Plan
 
-Status: `0.1.0` Windows-first alpha release accepted; P1 DONE, P2/8.1 bounded navigation DONE, P2/8.2 installed technical and bounded ordinary-user manual PASS (D-054). P2/8.3a symbol-usage feasibility DONE (D-055); P2/8.3b read-only registered C# Usage View Windows installed technical PASS (D-056) and ordinary-user manual PASS (D-057). NEXT: separate Rename/refactor feasibility investigation, read-only first; no mutations without semantic collision/preview/consent evidence. P1/7.4 export LATER.
+Status: `0.1.0` Windows-first alpha release accepted; P1 DONE, P2/8.1 bounded navigation DONE, P2/8.2 technical/manual PASS (D-054). P2/8.3a symbol usages DONE (D-055); P2/8.3b read-only Usage View technical/manual PASS (D-056/D-057); P2/8.3c in-memory Roslyn Rename feasibility proof DONE (D-058). NEXT: 8.3d separately scoped Rename UI/policy design; no actual edits or public Rename command. P1/7.4 export LATER.
 
 This document is the active work sequence. It does not replace the original v11 semantic/design specification. When prototype evidence conflicts with an old assumption, the explicit record in `DECISIONS-AND-DELTAS.md` supersedes only that assumption.
 
@@ -905,9 +905,33 @@ Final **8.3b technical candidate**: `artifacts/feature-projection-prototype-p0-0
 
 **Ordinary-user P2/8.3b acceptance — PASS (D-057, 2026-10-10).** The user installed the corrected `p2-registered-usages-scoped-candidate.vsix` and opened `feature-projection-p1-manual-acceptance` (trusted workspace). Two screenshots confirm `responsibility/backend` lists registered `User.Authenticate(string)` with registration `FeatureProjectionConfig.cs:33` plus feature-test uses `Features/auth/AccessFeatureTests.cs:12, :13`, and `assertions/backend` lists `FeatureChecks.AssertDenied(bool)` with registration `FeatureProjectionConfig.cs:48` plus feature-test use `Features/access/AccessFeatureTests.cs:8`. Unregistered overloads and same-named unrelated methods are absent. Two later screenshots confirm editor CodeLens `Open feature test source` opens the correct C# files with cursor at `responsibility/Features/auth/AccessFeatureTests.cs:12` (`user.Object.Authenticate("invalid");`) and `assertions/Features/access/AccessFeatureTests.cs:8` (`FeatureChecks.AssertDenied(false);`). This **manual PASS covers displayed scopes/references and exactly these two editor CodeLens source jumps**; it is not evidence for unclicked Markdown Preview links, rename safety, other projects or source mutations. No public release was made.
 
-#### Rename/refactor safety — LATER within 8.3
+#### 8.3c Read-only Roslyn registered C# Rename feasibility — DONE (D-058)
 
-Only after read-only navigation is accepted, investigate a separate opt-in Roslyn/LSP rename feasibility proof. Require semantic bindings, collision/error checking, edit preview and explicit user confirmation for any actual source changes. Do not infer changes to canonical test names/labels or across Vitest/xUnit boundaries from text matching.
+Implemented a **non-UI, research-only** .NET worker command `probe-registered-rename` and repeatable proof `node scripts/verify-rename-feasibility.mjs`. The command accepts an **exact registered C# method signature** and desired C# identifier, resolves registration semantically via Roslyn (does not execute `Configure()`), then computes `Renamer.RenameSymbolAsync` on an **immutable in-memory Solution**. **There is no `Workspace.TryApplyChanges`, filesystem write, `WorkspaceEdit`, installed command, or new VSIX.**
+
+Strict guards: selected project must be a single loaded C# project, the target must be uniquely registered, the proposed identifier must be valid and different from the current name, and any existing same-named member (including another overload) on the declaring type is refused. Project must compile before and after the in-memory transformation; new project files or edits outside that project are refused. Every Roslyn text change must be fully contained within **one pre-resolved token span** (symbol declaration or `SymbolFinder` use); reconstructing that token must produce exactly the requested identifier. This deliberately refuses arbitrary line/block rewrites, changes to comments/strings, unknown files and partial ambiguous results. All previews contain exact original line/column, original/new token spelling, and **`mutationSupported:false`**.
+
+Proof results (native Windows .NET 8 Roslyn, no mutation of original fixture sources):
+
+```text
+User.Authenticate(string) -> AuthenticateCredentials:
+    4 identifier previews: declaration 20, registration 33, usages 12/13
+    Authenticate(int) overload unchanged                              PASS
+FeatureChecks.AssertDenied(bool) -> AssertAccessDenied:
+    3 identifier previews: declaration 20, registration 48, usage 8
+    AssertDenied(string) / UnrelatedChecks unchanged                   PASS
+unregistered Authenticate(int)                                       REFUSED
+same-name/no-op, reserved keyword, malformed C# identifier           REFUSED
+collision with proposed name on other overload of declaring type     REFUSED
+duplicate same-symbol registration                                    REFUSED
+original fixture source SHA-256 snapshots before/after                IDENTICAL
+```
+
+`P2_8_3C_READONLY_ROSLYN_RENAME_FEASIBILITY_PASS`; `npm test` 58/58 and primary real Vitest+xUnit E2E PASS. This **proves only bounded in-project in-memory previews**. It does NOT establish safety against external project callers, reflection, string-based dynamic names, other FeatureSpaces, Vitest/xUnit labels, generated code, filesystem collisions, or parallel source edits. **Do not advertise or apply Rename to user projects based on this research proof.**
+
+#### 8.3d Rename UX / policy and stronger cross-project safety — NEXT
+
+Before exposing any Rename command, define explicit user opt-in, affected-project graph/FeatureSpace provenance, source staleness checks, edit preview/diff, conflict diagnostics, and user confirmation. Require separate workspace-installed and ordinary-user acceptance. Existing read-only Usage View remains the supported user-facing feature.
 
 ## 9. P3 — Incremental refresh and cache
 
@@ -1083,8 +1107,9 @@ DONE-15 P2/8.2 corrected Command Palette forward reveal, reverse Test Explorer c
 DONE-16 P2/8.3a C# symbol-safe read-only registered method usage proof (2 targets, overload exclusion, ambiguous registration fail closed)
 DONE-17 P2/8.3b read-only registered C# Usage View, scoped virtual documents, isolated installed Windows + Restricted Mode technical PASS (D-056)
 DONE-18 Ordinary-user P2/8.3b registered C# Usage View and two exact C# editor source navigations, manual PASS (D-057)
-NEXT-1  P2/8.3c Rename/refactor safety feasibility (symbol-safe, read-only/no mutations first)
+DONE-19 P2/8.3c registered C# Roslyn Rename in-memory symbol-token proof (7 edits, collision/overload/duplicate refusal, no file writes) D-058
+NEXT-1  P2/8.3d Rename UI/policy and cross-project safety feasibility (no user mutations without independent proof)
 LATER-1  7.4 stable normalized JSON/export requires separate scope decision
 ```
 
-Do not start new language adapters, custom Run profiles, or cache architecture without evidence-driven reprioritization. The 7.1–7.3 proofs, isolated installed technical acceptance, and ordinary-user manual P1 candidate acceptance passed on Windows. P1 candidate is not a new public release; no public C# configuration SDK is claimed. P2/8.1 bounded scope is complete: static labeled-case exact navigation installed-technically accepted; dynamic-provider source fallback independently verified. P2/8.2 original inline CodeLens reveal failed or was ambiguous (D-053); subsequent corrected Command Palette forward navigation, Test Explorer context-menu reverse navigation, and direct assertion-source link passed ordinary-user manual acceptance (D-054). Direct inline CodeLens reveal is not independently verified. P2/8.3a C# symbol-usage feasibility DONE (D-055); P2/8.3b trusted read-only Usage View installed technical PASS (D-056) and ordinary-user manual PASS (D-057), scoped editor source jumps included. Rename safety feasibility is NEXT and remains unproven; 7.4 export LATER.
+Do not start new language adapters, custom Run profiles, or cache architecture without evidence-driven reprioritization. The 7.1–7.3 proofs, isolated installed technical acceptance, and ordinary-user manual P1 candidate acceptance passed on Windows. P1 candidate is not a new public release; no public C# configuration SDK is claimed. P2/8.1 bounded scope is complete: static labeled-case exact navigation installed-technically accepted; dynamic-provider source fallback independently verified. P2/8.2 original inline CodeLens reveal failed or was ambiguous (D-053); subsequent corrected Command Palette forward navigation, Test Explorer context-menu reverse navigation, and direct assertion-source link passed ordinary-user manual acceptance (D-054). Direct inline CodeLens reveal is not independently verified. P2/8.3a C# symbol-usage feasibility DONE (D-055); P2/8.3b trusted read-only Usage View installed technical PASS (D-056) and ordinary-user manual PASS (D-057), scoped editor source jumps included. P2/8.3c **in-memory read-only Rename preview feasibility DONE** (D-058); general rename/cross-project safety remains unproven and no Rename UX exists. P2/8.3d policy design NEXT; 7.4 export LATER.

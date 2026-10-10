@@ -111,6 +111,14 @@ Proof: source `npm test` **58/58 PASS**; 8.3a Roslyn reference/duplicate guard P
 
 **NEXT:** P2/8.3c Rename/refactor **feasibility investigation**, beginning without any mutations or user source file edits; no new public release. P1/7.4 normalized JSON/export remains LATER.
 
+## P2/8.3c read-only C# Rename feasibility — source proof PASS (D-058)
+
+**Worker-only research, no user-facing Rename command or VSIX.** Added `probe-registered-rename` to the .NET worker. It semantically resolves exactly one registered C# method, uses Roslyn `Renamer.RenameSymbolAsync` on an immutable in-memory Solution and returns a read-only list of symbol-token changes. This does not invoke `Workspace.TryApplyChanges`, `WorkspaceEdit`, or filesystem writes. The method project must compile before and after. All proposed edits must occur entirely inside original symbol declaration/reference spans; changes outside one exact identifier, across projects, or colliding with any same-named declaring-type member fail closed.
+
+Repeatable proof: `node scripts/verify-rename-feasibility.mjs` — **PASS**. `User.Authenticate(string) → AuthenticateCredentials` previews 4 tokens (declaration, registration, 2 uses); `FeatureChecks.AssertDenied(bool) → AssertAccessDenied` previews 3 tokens. Wrong overloads and unrelated types do not change. Unregistered overload, no-op name, invalid/keyword identifier, an existing overload with the requested name, and duplicate same-symbol registration all refuse the preview with **zero edits**. Original C# fixture sources remain byte-identical. Existing `npm test` **58/58 PASS** and primary real Vitest+xUnit E2E PASS.
+
+**Limitation:** this proves only bounded one-project previews, not a safe general Rename operation. Cross-project consumers, reflection/strings, generated code, FeatureSpace boundaries, runtime labels, staleness and user consent are still unproven. P2/8.3c feasibility DONE; **NEXT P2/8.3d** define opt-in Rename UX/policy and stronger semantic safety proof. No new VSIX or public release; historic P2/8.3b manual PASS remains unchanged.
+
 ## Packaging warnings not treated as local-alpha blockers
 
 `vsce` still warns about a missing repository field and LICENSE file. These remain marketplace/publication metadata work; local VSIX packaging and installed acceptance succeed.

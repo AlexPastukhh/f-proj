@@ -865,3 +865,19 @@ User installed corrected internal VSIX `feature-projection-prototype-p0-0.1.0-p2
 **Manual PASS** for both read-only C# Usage View screens, FeatureSpace separation, and exact editor CodeLens navigation to the tested symbol references. **Not tested manually:** Markdown Preview link clicking, other-project usage completeness, Rename/refactoring safety, source edits, cross-language links. Technical installed acceptance remains PASS per D-056 with source tests 58/58; do not rebuild or publish a new VSIX solely for this documentation update. No existing release/acceptance artifact is modified.
 
 NEXT: separate P2/8.3c Rename/refactor semantic feasibility, read-only first with collision/preview/consent safeguards; no automatic mutations.
+
+## 2026-10-10 — P2/8.3c in-memory Roslyn Rename semantic feasibility PASS (no file edits)
+
+### Scope and execution
+
+Canonical repository: `C:\Users\alexa\Repos\feature-projection`; remote `AlexPastukhh/f-proj`. User opened this workspace. The new source-only worker proof adds `probe-registered-rename` dispatch and `RoslynRenameFeasibilityProbe.cs`. It resolves exact code-first registration method symbols and computes `Renamer.RenameSymbolAsync` inside the loaded Roslyn project **without ApplyChanges**. It does not run `Configure()`, change source files or expose a public Rename command.
+
+### Proof evidence
+
+`node scripts/verify-rename-feasibility.mjs` PASS: `User.Authenticate(string)` to `AuthenticateCredentials` yielded four exact token previews (declaration/registration/two calls), and `FeatureChecks.AssertDenied(bool)` to `AssertAccessDenied` yielded three (declaration/registration/call). The unrelated overloads and similarly named other methods were not edited. Each proposed change was contained within a Roslyn-resolved declaration/reference span; the *full reconstructed method token* must equal the requested name, even when Roslyn's raw text diff is only an insertion. In-memory compilation before and after has zero errors. SHA-256 snapshots confirm fixture .cs/.csproj files unchanged.
+
+Negative proof cases — unregistered overload, same-name no-op, C# keyword, malformed identifier, same-declaring-type overload collision in disposable clone, and duplicate registration in disposable clone — all produced explicit refusals and **zero preview edits**. C# worker `dotnet build -c Release --no-restore` PASS; `npm test` **58/58 PASS**; primary real Vitest+xUnit E2E PASS.
+
+### Classification and next gate
+
+**8.3c read-only research/proof PASS; Rename as a user-visible or mutating feature remains NOT IMPLEMENTED.** This proof does not certify cross-project callers, reflected string usages, FeatureSpace/canonical label references or editor buffer freshness. No new user VSIX or public release and no ordinary-user Rename acceptance. Next 8.3d: design explicit opt-in review/consent UX, validate workspace/project graphs and collision/staleness handling before permitting edits. See D-058.

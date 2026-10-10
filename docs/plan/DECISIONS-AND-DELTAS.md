@@ -1066,3 +1066,24 @@ Evidence from two follow-up user screenshots after `Open feature test source` Co
 Result: **P2/8.3b manual PASS for the two scoped Usage View displays, exactly matched Roslyn registrations and reference locations, and these two editor CodeLens source-navigation actions.** This does not prove standalone manual Markdown Preview link clicking, generalized Find References, rename safety, cross-language usage, Runtime Run/Debug or any source mutation; do not claim those. The earlier shared-URI failed intermediate candidate remains rejected as documented by D-056. Technical installed PASS remains unchanged: 58/58 unit tests, source reference guards, isolated installed trusted + Restricted Mode and P2/8.2 regression. The corrected candidate is internal version 0.1.0, **not a new release**, and older VSIX/ZIP artifacts are preserved.
 
 Next planned investigation is **P2/8.3c Rename/refactor safety feasibility**; research must start read-only and avoid edits until semantics, scope, conflict detection, edit preview and explicit consent are independently demonstrated. P1/7.4 JSON/export remains LATER.
+
+## D-058 — P2/8.3c in-memory Roslyn Rename feasibility, not a general Rename feature
+
+Status: SOURCE PROOF PASS / READ-ONLY RESEARCH / WINDOWS / 2026-10-10
+
+The approved P2/8.3b user-facing feature remains the read-only registered C# Usage View (D-056/D-057). P2/8.3c explored **whether semantic rename previews are technically possible without touching user code**, after moving the canonical source to the GitHub-backed checkout `C:\Users\alexa\Repos\feature-projection`.
+
+Added `workers/dotnet/RoslynRenameFeasibilityProbe.cs` and an explicitly selected internal command `probe-registered-rename` in the existing .NET worker; request metadata gains optional `symbol` and `newName` properties. The worker resolves exact `FeatureProjection.IFeatureProjectionConfiguration` registrations through Roslyn symbols (it never executes `Configure()`). It refuses ambiguous/duplicate registrations, unknown or unregistered overloads, non-identifiers/keywords/no-op names, and any existing same-name member on the declaring type, including a differently typed overload. A selected project must be a single loaded C# project with no compilation errors. The worker uses `Renamer.RenameSymbolAsync` to obtain an **immutable in-memory Solution only**. It rejects edits outside the project, additional/removed documents, or compiler errors after the hypothetical rename.
+
+Roslyn's `GetTextChangesAsync` can express a one-token rename as *an insertion or a partial substitution*, so checking that every raw `TextChange` equals a full method name was an overly strict first probe and was correctly rejected. The accepted proof instead binds each proposed text change to exactly one previously resolved **declaration/reference identifier span**, reconstructs that whole token in memory, and requires its value to equal the requested new identifier. Changes to any other text or multiple token owners fail closed. The preview reports only those validated token locations, not an applicable `WorkspaceEdit`.
+
+Repeated Windows source proof `scripts/verify-rename-feasibility.mjs` **PASS**:
+- `User.Authenticate(string) → AuthenticateCredentials`: 4 token previews, declaration (20), registration (33), feature-test calls (12, 13). `Authenticate(int)` unaffected.
+- `FeatureChecks.AssertDenied(bool) → AssertAccessDenied`: 3 token previews, declaration (20), registration (48), call (8). Other overload/type unaffected.
+- Refusals with **zero edits**: `Authenticate(int)` unregistered; no-op requested name; reserved keyword; invalid identifier; new name colliding with a different overload; duplicate same-symbol registration in disposable temporary clone.
+- SHA-256 snapshots of original C# source and .csproj files before and after previews were equal. Any temporary cloned fixture changes were deleted; no original user source files were written.
+- Previous `npm test` 58/58 and primary Vitest+xUnit real E2E PASS after the worker change.
+
+**Boundary:** proof is read-only, not an implemented user Rename feature. It does not prove safe renaming across referenced projects, Features/Outcomes/Situations, generated/runtime labels, dynamic/reflection string callers, workspace race/staleness, file names, or conflicting workspace edits. No public extension command, editor RenameProvider, source mutation, VSIX or release is supplied. Do not claim safe Rename merely because a one-project in-memory preview compiles.
+
+**Next:** 8.3d explicit-user-opt-in Rename UX/policy and deeper cross-project/conflict proof before any hypothetical mutation. Read-only Usage View remains supported; P1/7.4 normalized export remains LATER.
