@@ -14,7 +14,8 @@
                              "onCommand:featureProjection.refresh",
                              "onCommand:featureProjection.showOutput",
                              "onCommand:featureProjection.configure",
-                             "onCommand:featureProjection.showRegisteredUsages"
+                             "onCommand:featureProjection.showRegisteredUsages",
+                             "onCommand:featureProjection.previewRegisteredRename"
                          ],
     "contributes":  {
                         "commands":  [
@@ -45,6 +46,10 @@
                                          {
                                              "command":  "featureProjection.showRegisteredUsages",
                                              "title":  "Feature Projection: Show Registered C# Usages"
+                                         },
+                                         {
+                                             "command":  "featureProjection.previewRegisteredRename",
+                                             "title":  "Feature Projection: Preview Registered C# Rename (Read-Only)"
                                          }
                                      ],
                         "menus":  {

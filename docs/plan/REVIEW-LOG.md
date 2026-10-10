@@ -881,3 +881,21 @@ Negative proof cases — unregistered overload, same-name no-op, C# keyword, mal
 ### Classification and next gate
 
 **8.3c read-only research/proof PASS; Rename as a user-visible or mutating feature remains NOT IMPLEMENTED.** This proof does not certify cross-project callers, reflected string usages, FeatureSpace/canonical label references or editor buffer freshness. No new user VSIX or public release and no ordinary-user Rename acceptance. Next 8.3d: design explicit opt-in review/consent UX, validate workspace/project graphs and collision/staleness handling before permitting edits. See D-058.
+
+## 2026-10-10 — P2/8.3d read-only C# Rename Preview: installed technical PASS, manual PENDING
+
+### Scope / implementation
+
+Added `Feature Projection: Preview Registered C# Rename (Read-Only)` to the normal VS Code Command Palette and exposed a separate `feature-projection:/rename-preview/` virtual-document branch with independent per-scope source-navigation CodeLens. The user explicitly chooses a FeatureSpace/source, semantic registered symbol and proposed new identifier. It requires a trusted one-folder workspace. `src/core/renamePreview.ts` defensively validates read-only output from `probe-registered-rename`, including project/workspace realpaths, exact symbol identity, original/current C# text, line/column, duplicate spans and non-partial failure results. Dirty project documents are refused. There is **no mutation path**.
+
+### Evidence and iteration
+
+The first experimental candidate had a smoke test dispatcher omission; it invoked Configure and failed before exercising the preview. Fixed the dispatcher and kept the earlier VSIX separate. The acceptance PowerShell script also required restoration of a missing `$LASTEXITCODE` check during construction; it was corrected. Neither preliminary failure was counted as a feature PASS.
+
+Final corrected candidate: `artifacts/feature-projection-prototype-p0-0.1.0-p2-rename-preview-readonly-fixed-candidate.vsix` (20,489,453 bytes, SHA-256 `23C01AC1CEFFE89DE9D2A38A5CEC17ED2494636F7D9E9BFB7EDA47409753B416`). Source `npm test` **62/62 PASS**, earlier registered-symbol usage and Roslyn in-memory Rename proofs PASS. Fresh isolated Windows VS Code installed profile: normal commands without hidden test hooks PASS; `responsibility/backend` and `assertions/backend` show 4/3 separate accurate preview token links and editor CodeLens jumps PASS; no-op Rename explicitly REFUSED with zero links; unknown/unregistered method refused.
+
+Additional installed checks on the **same corrected VSIX**: Restricted Mode blocked public preview and spawned no C# usage/rename worker, PASS. Existing P2 cross-navigation smoke passed for 6 Situations in accounts/billing with 10 source/10 assertion action links, correct scope isolation. Historical artifacts kept separate and SHA-256 unchanged.
+
+### Acceptance classification / next gate
+
+**P2/8.3d installed technical PASS; ordinary-user manual acceptance PENDING.** Install only the corrected candidate, then in the prepared trusted `feature-projection-p1-manual-acceptance` workspace preview `User.Authenticate(string) → AuthenticateCredentials` and `FeatureChecks.AssertDenied(bool) → AssertAccessDenied`. Verify 4/3 exact proposals, source-navigation and no edits. Do not claim cross-project Rename safety or actual application. P2/8.3e mutation-consent/cross-project feasibility LATER; P1/7.4 normalized export LATER.

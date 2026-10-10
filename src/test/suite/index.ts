@@ -65,6 +65,9 @@ async function runNormalHooks(folder: vscode.WorkspaceFolder, extension: any): P
   assert.ok(!commands.includes('featureProjection.__debugState'), 'normal installed session must not register __debugState');
   assert.ok(!commands.includes('featureProjection.__registeredUsageResult'), 'normal installed session must not register hidden usage probe');
   assert.ok(!commands.includes('featureProjection.__showRegisteredUsages'), 'normal installed session must not register hidden usage view action');
+  assert.ok(!commands.includes('featureProjection.__registeredRenamePreviewResult'), 'normal installed session must not register hidden rename preview query');
+  assert.ok(!commands.includes('featureProjection.__showRegisteredRenamePreview'), 'normal installed session must not register hidden rename preview editor action');
+  assert.ok(commands.includes('featureProjection.previewRegisteredRename'), 'public read-only Rename Preview must be registered');
   writeResult({
     ok:true,
     mode:'normal-hooks',
@@ -114,6 +117,13 @@ async function runUntrusted(folder: vscode.WorkspaceFolder, extension: any): Pro
   assert.ok(!ruleIds.includes('worker/dotnet-worker-missing'), 'Restricted Mode must not require the packaged .NET worker');
   assert.match(settled.markdown, /Situation: refresh_token_expired/);
   assert.match(settled.markdown, /Backend: \[unmatched\]/);
+  assert.equal(await vscode.commands.executeCommand('featureProjection.previewRegisteredRename'),false,
+    'read-only Rename preview must refuse Restricted Mode');
+  await assert.rejects(
+    vscode.commands.executeCommand('featureProjection.__registeredRenamePreviewResult',
+      'app','backend','User.Authenticate(string)','SomeNewName'),
+    /trusted workspace/
+  );
 
   writeResult({
     ok:true,
@@ -441,6 +451,79 @@ async function runP1InstalledProofs(folder: vscode.WorkspaceFolder, extension: a
   const situationNodes = flattenTestingTree(settled.testingTree ?? []).filter((node:any) => node.kind === 'situation');
   assert.equal(situationNodes.length, 2);
 
+  if (process.env.FEATURE_PROJECTION_SMOKE_MODE === 'p2-rename-preview') {
+    const contributed = extension.packageJSON.contributes?.commands?.find(
+      (x:any)=>x.command==='featureProjection.previewRegisteredRename');
+    assert.equal(contributed?.title, 'Feature Projection: Preview Registered C# Rename (Read-Only)');
+    const scenarios=[
+      {space:'responsibility',symbol:'User.Authenticate(string)',name:'AuthenticateCredentials',count:4,lines:[20,33,12,13]},
+      {space:'assertions',symbol:'FeatureChecks.AssertDenied(bool)',name:'AssertAccessDenied',count:3,lines:[20,48,8]},
+    ];
+    const results:any[]=[];
+    for (const s of scenarios) {
+      const result:any=await vscode.commands.executeCommand(
+        'featureProjection.__registeredRenamePreviewResult',s.space,'backend',s.symbol,s.name
+      );
+      assert.equal(result.preview.probeOnly,true);
+      assert.equal(result.preview.mutationSupported,false);
+      assert.equal(result.preview.projectScopeOnly,true);
+      assert.equal(result.preview.accepted,true);
+      assert.equal(result.preview.edits.length,s.count);
+      assert.deepEqual(result.preview.edits.map((e:any)=>e.line).sort((a:number,b:number)=>a-b),
+        [...s.lines].sort((a,b)=>a-b));
+      assert.equal(await vscode.commands.executeCommand(
+        'featureProjection.__showRegisteredRenamePreview',s.space,'backend',s.symbol,s.name
+      ),true);
+      const editor=vscode.window.activeTextEditor;
+      assert.ok(editor);
+      assert.ok(editor.document.uri.path.startsWith('/rename-preview/'+s.space+'/backend/'));
+      const markdown=editor.document.getText();
+      assert.match(markdown,/READ-ONLY RESEARCH PREVIEW/);
+      assert.match(markdown,/No files are changed/);
+      assert.ok(markdown.includes(s.symbol));
+      assert.ok(markdown.includes(s.name));
+      const lenses:any[]=await vscode.commands.executeCommand(
+        'vscode.executeCodeLensProvider',editor.document.uri,100
+      ) ?? [];
+      const nav=lenses.filter((lens:any)=>lens.command?.command==='featureProjection.openSource');
+      assert.equal(nav.length,s.count);
+      for (const lens of nav) {
+        const source=lens.command.arguments[0];
+        assertWorkspaceSource(source,folder,extension);
+        assert.ok(markdown.includes(expectedSourceHref(source)));
+      }
+      await assertProjectionOpenSource({
+        source:nav.find((l:any)=>l.command.arguments[0].line===s.lines.at(-1))?.command.arguments[0]
+      });
+      results.push({space:s.space,symbol:s.symbol,previewEdits:s.count});
+    }
+    const rejected:any=await vscode.commands.executeCommand(
+      'featureProjection.__registeredRenamePreviewResult',
+      'responsibility','backend','User.Authenticate(string)','Authenticate'
+    );
+    assert.equal(rejected.preview.accepted,false);
+    assert.deepEqual(rejected.preview.edits,[]);
+    assert.ok(rejected.preview.diagnostics.length>0);
+    assert.equal(await vscode.commands.executeCommand(
+      'featureProjection.__showRegisteredRenamePreview',
+      'responsibility','backend','User.Authenticate(string)','Authenticate'
+    ),true);
+    const refusalEditor=vscode.window.activeTextEditor;
+    assert.match(refusalEditor?.document.getText()??'',/REFUSED — no preview edits/);
+    assert.deepEqual(await vscode.commands.executeCommand(
+      'vscode.executeCodeLensProvider',refusalEditor?.document.uri,100
+    ) ?? [],[]);
+    await assert.rejects(
+      vscode.commands.executeCommand('featureProjection.__registeredRenamePreviewResult',
+        'responsibility','backend','User.Authenticate(int)','BadRename'),
+      /Only a uniquely registered method/
+    );
+    writeResult({ok:true,mode:'p2-rename-preview',trusted:true,
+      version:extension.packageJSON.version,extensionPath:extension.extensionPath,
+      uiState:settled.uiState,readOnly:true,scoped:true,
+      scenarios:results,refusal:true,nonApplied:true,links:7});
+    return;
+  }
   if (process.env.FEATURE_PROJECTION_SMOKE_MODE === 'p2-registered-usages') {
     const cmd = extension.packageJSON.contributes?.commands?.find(
       (c:any)=>c.command==='featureProjection.showRegisteredUsages'
@@ -584,7 +667,8 @@ export async function run(): Promise<void> {
   if (process.env.FEATURE_PROJECTION_SMOKE_MODE === 'scope-isolation' ||
       process.env.FEATURE_PROJECTION_SMOKE_MODE === 'p2-cross-navigation') return await runScopeIsolation(folder, extension);
   if (process.env.FEATURE_PROJECTION_SMOKE_MODE === 'p1-proofs' ||
-      process.env.FEATURE_PROJECTION_SMOKE_MODE === 'p2-registered-usages') {
+      process.env.FEATURE_PROJECTION_SMOKE_MODE === 'p2-registered-usages' ||
+      process.env.FEATURE_PROJECTION_SMOKE_MODE === 'p2-rename-preview') {
     try {return await runP1InstalledProofs(folder, extension);}
     catch(err:any){
       writeResult({ok:false,mode:process.env.FEATURE_PROJECTION_SMOKE_MODE,

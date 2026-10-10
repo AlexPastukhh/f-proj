@@ -119,6 +119,16 @@ Repeatable proof: `node scripts/verify-rename-feasibility.mjs` — **PASS**. `Us
 
 **Limitation:** this proves only bounded one-project previews, not a safe general Rename operation. Cross-project consumers, reflection/strings, generated code, FeatureSpace boundaries, runtime labels, staleness and user consent are still unproven. P2/8.3c feasibility DONE; **NEXT P2/8.3d** define opt-in Rename UX/policy and stronger semantic safety proof. No new VSIX or public release; historic P2/8.3b manual PASS remains unchanged.
 
+## P2/8.3d read-only registered C# Rename Preview — installed technical PASS, manual PENDING (D-059)
+
+A new explicitly invoked **Command Palette** action `Feature Projection: Preview Registered C# Rename (Read-Only)` selects an exact FeatureSpace/source, one Roslyn-registered C# method signature and a proposed new identifier. It computes a **read-only, one-project in-memory Roslyn preview**: no Apply, RenameProvider, WorkspaceEdit, filesystem mutation or automatic refresh. The extension validates the worker response, selected project path, existing token bytes, line/column, expected old and new spelling, unique location and partial-refusal contract. Open unsaved C# project documents cause a refusal. Each preview is stored under its **own FeatureSpace/source/symbol/newName virtual URI** with Markdown links and CodeLens to inspect original source positions. A Roslyn refusal displays diagnostics and zero proposed changes.
+
+**Technical PASS** for corrected internally packaged candidate `artifacts/feature-projection-prototype-p0-0.1.0-p2-rename-preview-readonly-fixed-candidate.vsix` — **20,489,453 bytes**, SHA-256 `23C01AC1CEFFE89DE9D2A38A5CEC17ED2494636F7D9E9BFB7EDA47409753B416`. Source unit tests **62/62 PASS**; 8.3a and 8.3c read-only Roslyn proofs PASS; installed real VS Code two-scope preview PASS (4 `Authenticate(string)` + 3 `AssertDenied(bool)` references, source CodeLens, refusal with zero edits). Installed normal profile hides test hooks; installed Restricted Mode denies Rename worker; same installed candidate retains P2/8.2 6-Situation/10-assertion-link regression PASS. Historical release/candidate SHA-256 preserved.
+
+**Failed smoke history:** a first experimental candidate `p2-rename-preview-readonly-candidate.vsix`, SHA-256 `65420265212EE335093A08D5A1735D588DC96F1C2E71649DFD9A344BC0E384FA`, was not accepted because the test dispatcher mistakenly invoked the Configure test, not the preview route. The separate corrected candidate above completed installed smoke. Do not recommend the failed probe.
+
+**Acceptance boundary:** ordinary-user manual acceptance is **PENDING**. We do not claim a safe multi-project Rename, editable diff, commit consent/rollback, cross-language usage or new public release. P2/8.3e general mutating Rename safety remains LATER; P1/7.4 export remains LATER.
+
 ## Packaging warnings not treated as local-alpha blockers
 
 `vsce` still warns about a missing repository field and LICENSE file. These remain marketplace/publication metadata work; local VSIX packaging and installed acceptance succeed.

@@ -7,6 +7,7 @@ import { buildTestingTree, TestingTreeNode } from './core/testingTree';
 import { ProjectionSourceAction, ProjectionSituationAction, renderProjection } from './core/projection';
 import { runProcess, runJsonWorker } from './core/process';
 import { normalizeRegisteredUsages, renderRegisteredUsages, UsageAction } from './core/registeredUsages';
+import { normalizeRenamePreview, renderRenamePreview, RenamePreviewAction } from './core/renamePreview';
 import { resolveExternalNodeRuntime, sanitizeExternalNodeEnvironment } from './core/nodeRuntime';
 import { validatePrototypeConfig } from './core/configValidation';
 import { applySourceConfigurationChange, SourceConfigurationChange } from './core/configureModel';
@@ -16,6 +17,8 @@ const scheme = 'feature-projection';
 const projectionUri = vscode.Uri.parse(`${scheme}:/projection.md`);
 const registeredUsagesUri = (featureSpaceId:string, sourceId:string) =>
   vscode.Uri.parse(`${scheme}:/usages/${encodeURIComponent(featureSpaceId)}/${encodeURIComponent(sourceId)}.md`);
+const registeredRenameUri = (featureSpaceId:string, sourceId:string, symbol:string, newName:string) =>
+  vscode.Uri.parse(`${scheme}:/rename-preview/${encodeURIComponent(featureSpaceId)}/${encodeURIComponent(sourceId)}/${encodeURIComponent(symbol)}/${encodeURIComponent(newName)}.md`);
 let lastMarkdown = '# Feature Projection\n\nRun **Feature Projection: Refresh**.';
 let lastSourceActions: ProjectionSourceAction[] = [];
 let lastAssertionSourceActions: ProjectionSourceAction[] = [];
@@ -23,6 +26,7 @@ let lastSituationActions: ProjectionSituationAction[] = [];
 let lastUsageMarkdown = '# Registered C# Usages\n\nRun **Feature Projection: Show Registered C# Usages**.';
 let lastUsageActions: UsageAction[] = [];
 const usageDocuments = new Map<string, {markdown:string; actions:UsageAction[]}>();
+const renameDocuments = new Map<string, {markdown:string; actions:RenamePreviewAction[]}>();
 
 function sourceDeepLink(source: SourceRange): string {
   const normalized = source.file.replace(/\\/g, '/');
@@ -39,7 +43,9 @@ export function activate(context: any) {
   const output = vscode.window.createOutputChannel('Feature Projection');
   const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
   const provider = { onDidChange: emitter.event, provideTextDocumentContent: (uri:any) =>
-    uri.path.startsWith('/usages/')
+    uri.path.startsWith('/rename-preview/')
+      ? (renameDocuments.get(uri.toString())?.markdown ?? '# Rename Preview\n\nNo query has been run.')
+      : uri.path.startsWith('/usages/')
       ? (usageDocuments.get(uri.toString())?.markdown ?? '# Registered C# Usages\n\nNo query has been run.')
       : lastMarkdown };
   const testController = vscode.tests.createTestController('featureProjection', 'Feature Projection');
@@ -207,7 +213,15 @@ export function activate(context: any) {
   };
 
   const codeLensProvider = {
-    provideCodeLenses: (doc:any) => doc.uri.path.startsWith('/usages/')
+    provideCodeLenses: (doc:any) => doc.uri.path.startsWith('/rename-preview/')
+      ? (renameDocuments.get(doc.uri.toString())?.actions ?? []).map(action => new vscode.CodeLens(
+        new vscode.Range(action.line,0,action.line,0),{
+          title:action.label,
+          command:'featureProjection.openSource',
+          arguments:[action.source],
+        },
+      ))
+      : doc.uri.path.startsWith('/usages/')
       ? (usageDocuments.get(doc.uri.toString())?.actions ?? []).map(action => new vscode.CodeLens(
         new vscode.Range(action.line,0,action.line,0), {
           title:action.label,
@@ -728,6 +742,8 @@ export function activate(context: any) {
     if (!result.ok) throw new Error(`C# usage worker failed: ${result.error ?? 'unknown error'}`);
     return {
       featureSpaceId, sourceId, projectRoot:realProjectRoot,
+      projectFile:realProjectFile, sourceRoot:realSourceRoot,
+      workspaceRoot,
       result:normalizeRegisteredUsages(result.value,workspaceRoot,realProjectRoot),
     };
   };
@@ -786,11 +802,122 @@ export function activate(context: any) {
     }
   };
 
+  // P2/8.3d: explicitly invoked read-only Rename preview.
+  // This UI has no mutation callback, no ApplyChanges and no WorkspaceEdit.
+  const queryRegisteredRenamePreview = async (
+    featureSpaceId:string, sourceId:string, symbol:string, newName:string,
+  ) => {
+    const scope = await queryRegisteredUsages(featureSpaceId,sourceId);
+    if (!scope.result.targets.some(t => t.symbol === symbol))
+      throw new Error('Only a uniquely registered method from this exact C# source may be previewed.');
+    if (!newName.trim()) throw new Error('A nonempty proposed C# method name is required.');
+    const inside = (root:string, file:string) => {
+      const rel = path.relative(root,file);
+      return rel === '' || (!path.isAbsolute(rel) &&
+        rel !== '..' && !rel.startsWith('..'+path.sep));
+    };
+    const hasDirtyFile = () => vscode.workspace.textDocuments.some((doc:any) =>
+      doc.isDirty && doc.uri.scheme === 'file' &&
+      inside(scope.projectRoot,path.resolve(doc.uri.fsPath))
+    );
+    if (hasDirtyFile())
+      throw new Error('Unsaved C# project documents exist. Save or discard edits before requesting a preview.');
+    const input = {
+      command:'probe-registered-rename',
+      featureSpaceId, symbol, newName, source:{
+        id:sourceId,role:'backend',adapter:'xunit-v3',
+        root:scope.sourceRoot,frameworkProject:scope.projectRoot,projectFile:scope.projectFile,
+      },
+    };
+    const config = getConfig();
+    const result = await runJsonWorker<any>(
+      'dotnet',[await ensureDotnetWorker(config)],input,scope.workspaceRoot,
+      config.workerTimeoutMs ?? 30000,
+      {label:`rename-preview:${featureSpaceId}/${sourceId}`,log},
+    );
+    if (!result.ok)
+      throw new Error(`C# rename preview worker failed: ${result.error ?? 'unknown error'}`);
+    if (hasDirtyFile())
+      throw new Error('C# editor became dirty during Rename preview; please rerun.');
+    return {scope,preview:normalizeRenamePreview(
+      result.value,scope.workspaceRoot,scope.projectRoot,symbol,newName,
+    )};
+  };
+
+  const showRegisteredRenamePreview = async (selection?: {
+    featureSpaceId:string;sourceId:string;symbol:string;newName:string;
+  }):Promise<boolean> => {
+    if (!vscode.workspace.isTrusted || vscode.workspace.workspaceFolders?.length !== 1) {
+      void vscode.window.showWarningMessage(
+        'Feature Projection: C# Rename Preview requires exactly one trusted workspace folder.'
+      );
+      return false;
+    }
+    try {
+      let chosen = selection;
+      if (!chosen) {
+        const cfg = getConfig();
+        const choices = cfg.featureSpaces.flatMap(space =>
+          (space.sources ?? []).filter(src => src.adapter === 'xunit-v3')
+            .map(src => ({label:`${space.id} / ${src.id}`,
+              description:`${src.role} · ${src.frameworkProject}`,
+              spaceId:space.id,sourceId:src.id})),
+        );
+        if (!choices.length) {
+          void vscode.window.showInformationMessage('Feature Projection: no registered xUnit sources.');
+          return false;
+        }
+        const picked = await vscode.window.showQuickPick(choices,{
+          placeHolder:'Select an exact FeatureSpace / C# source for read-only Rename preview',
+        });
+        if (!picked) return false;
+        const usage = await queryRegisteredUsages(picked.spaceId,picked.sourceId);
+        if (usage.result.diagnostics.length)
+          throw new Error('Registered methods are ambiguous; Rename preview refused.');
+        const method = await vscode.window.showQuickPick(
+          usage.result.targets.map(t => ({
+            label:t.symbol,description:t.kind, symbol:t.symbol,
+          })),
+          {placeHolder:'Choose the registered C# method (not an overload by name)'},
+        );
+        if (!method) return false;
+        const newName = await vscode.window.showInputBox({
+          title:'C# Rename Preview — no files will be changed',
+          prompt:`Proposed name for ${method.symbol} (read-only preview)`,
+          placeHolder:'NewMethodName',ignoreFocusOut:true,
+        });
+        if (!newName) return false;
+        chosen = {featureSpaceId:picked.spaceId,sourceId:picked.sourceId,
+          symbol:method.symbol,newName:newName.trim()};
+      }
+      const {scope,preview} = await queryRegisteredRenamePreview(
+        chosen.featureSpaceId,chosen.sourceId,chosen.symbol,chosen.newName,
+      );
+      const rendered = renderRenamePreview(preview,scope.featureSpaceId,
+        scope.sourceId,scope.projectRoot,sourceDeepLink);
+      const uri = registeredRenameUri(scope.featureSpaceId,scope.sourceId,
+        chosen.symbol,chosen.newName);
+      renameDocuments.set(uri.toString(),rendered);
+      emitter.fire(uri);
+      const doc = await vscode.workspace.openTextDocument(uri);
+      await vscode.window.showTextDocument(doc,{preview:false});
+      log(`rename-preview: ${scope.featureSpaceId}/${scope.sourceId} ${chosen.symbol} -> ${chosen.newName}; accepted=${preview.accepted}; edits=${preview.edits.length}; read-only=true`);
+      return true;
+    } catch(err:any) {
+      log(`rename-preview: refused: ${err?.stack ?? err}`);
+      void vscode.window.showWarningMessage(
+        `Feature Projection: C# Rename Preview unavailable: ${err?.message ?? err}`,
+      );
+      return false;
+    }
+  };
+
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.show', show));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.refresh', refresh));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.configure', configure));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.showOutput', showOutput));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.showRegisteredUsages', () => showRegisteredUsages()));
+  context.subscriptions.push(vscode.commands.registerCommand('featureProjection.previewRegisteredRename', () => showRegisteredRenamePreview()));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.openSource', openSource));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.revealSituationInTestExplorer', revealSituationInTestExplorer));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.openSituationInProjection', openSituationInProjection));
@@ -804,6 +931,12 @@ export function activate(context: any) {
       await queryRegisteredUsages(spaceId,sourceId)));
     context.subscriptions.push(vscode.commands.registerCommand('featureProjection.__showRegisteredUsages', async (spaceId:string,sourceId:string) =>
       await showRegisteredUsages({featureSpaceId:spaceId,sourceId})));
+    context.subscriptions.push(vscode.commands.registerCommand('featureProjection.__registeredRenamePreviewResult',
+      async (spaceId:string,sourceId:string,symbol:string,newName:string) =>
+        await queryRegisteredRenamePreview(spaceId,sourceId,symbol,newName)));
+    context.subscriptions.push(vscode.commands.registerCommand('featureProjection.__showRegisteredRenamePreview',
+      async (spaceId:string,sourceId:string,symbol:string,newName:string) =>
+        await showRegisteredRenamePreview({featureSpaceId:spaceId,sourceId,symbol,newName})));
     context.subscriptions.push(vscode.commands.registerCommand('featureProjection.__debugState', () => ({
       usageMarkdown:lastUsageMarkdown,
       usageActions:lastUsageActions,
