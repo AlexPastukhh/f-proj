@@ -181,3 +181,35 @@ for a fresh complete technical run; the script pins the final VSIX SHA.
 `docs/plan/MVP-RELEASE-GATE.md`; manual acceptance PENDING (D-060).
 No actual Rename, public release, version bump, tag or Marketplace
 publication has been made or authorized.
+
+## D-062 — User-approved Rename Preview deferral (MVP scope change)
+
+The combined manual acceptance surfaced an important user-facing UX
+problem: after typing a proposed name the read-only Rename Preview
+displayed correct source references but had no useful next step.
+The user clicked the feature-test source link and then explicitly
+approved **excluding Rename Preview from the imminent MVP**.
+
+Current user-facing scope: Configure/explicit Refresh, Projection,
+Testing API and source links, scoped Projection ↔ Test Explorer
+navigation and read-only Registered C# Usages. **No public Rename
+Preview command, activation event, RenameProvider or Apply action.**
+
+The code-first Roslyn rename worker, strict read-only preview
+normalization and internal source/installed proof tests remain for
+later opt-in semantic Rename research. These are **test-only** and
+not part of the ordinary user interaction.
+
+Replacement internal VSIX:
+`artifacts/feature-projection-prototype-p0-0.1.0-mvp-no-rename-preview-candidate.vsix`
+size 20,490,605 bytes, SHA-256
+`09E71D305560DD7E3ECCF7E161DA35FA6585D05992B4E9CE36AFD7B25FCB68A0`.
+The earlier D-061 cumulative candidate remains preserved as
+historical technical evidence but is superseded for release scope.
+
+**Manual acceptance PENDING**: the user's screenshot/click confirm
+only a particular research preview and source navigation, not
+end-to-end MVP acceptance. The final checklist in
+`docs/plan/MVP-RELEASE-GATE.md` has removed Rename Preview.
+Do not release/tag/version-bump without the remaining manual
+acceptance and explicit release authorization.

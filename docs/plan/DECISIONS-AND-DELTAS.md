@@ -1187,3 +1187,60 @@ historical test profiles remain in the Windows temporary smoke root.
 candidate is not tagged, version-bumped, publicly released or published.
 One combined ordinary-user acceptance session remains REQUIRED by D-060.
 Mutating/cross-project Rename, P1/7.4 JSON/export, P3–P6 remain LATER.
+
+## D-062 — Defer experimental Rename Preview from the user-facing MVP
+
+Status: USER-APPROVED SCOPE CHANGE / INSTALLED TECHNICAL PASS / MANUAL PENDING / 2026-10-10
+
+During the single MVP manual acceptance session, the user entered a new
+name for `FeatureChecks.AssertDenied(bool)` and saw 3 proposed positions
+in the read-only Markdown Rename Preview (declaration, registration and
+the feature-test call). The user verified that the third CodeLens action
+opened `assertions/Features/access/AccessFeatureTests.cs:8`. The UX was
+confusing because the user expected a complete Rename but saw only an
+unapplied list of source references. The assistant proposed removing
+this experimental feature from the imminent MVP until a semantic
+rename flow with review, explicit consent and safe application exists;
+the user explicitly approved this exclusion.
+
+**Release scope change:** Do not expose Rename Preview in the normal
+VS Code Command Palette, activation events or publicly registered
+commands. Preserve `src/core/renamePreview.ts`, source/Roslyn worker
+research and automated fail-closed proofs. In the installed regression
+environment, hidden test hooks can still exercise its read-only
+implementation; **this does not constitute a shipped user capability**.
+Both the public command's absence and direct invocation rejection are
+required independent installed normal-profile assertions.
+
+Replacement VSIX (internal 0.1.0, never overwrite earlier artifacts):
+`artifacts/feature-projection-prototype-p0-0.1.0-mvp-no-rename-preview-candidate.vsix`
+20,490,605 bytes; SHA-256
+`09E71D305560DD7E3ECCF7E161DA35FA6585D05992B4E9CE36AFD7B25FCB68A0`.
+The previous D-061 cumulative candidate is historical, not accepted
+for the next public release. The release gate now checks only supported
+Configure/Refresh, Projection, Test Explorer cross-navigation, scoped
+registered C# usages and source navigation in the manual UX session.
+
+**Acceptance boundary:** only the observed 3-token read-only preview
+display and the single source jump were manually exercised in that
+session; they are not acceptance of a complete Rename feature or
+the wider MVP. The acceptance session has been **paused** pending
+installation of a newly tested replacement VSIX. No general Rename,
+WorkspaceEdit, source mutation, version bump or public release has
+been authorized. D-059/D-061 technical history remains intact.
+
+Installed technical check completed on the D-062 replacement VSIX:
+`powershell -NoProfile -File scripts/verify-mvp-installed-aggregate.ps1`
+**PASS**; `npm test` **62/62**; existing Roslyn usages and in-memory
+Rename proofs PASS. Isolated installed normal profile confirms:
+no Rename Preview contribution, activation or registered command,
+and direct `featureProjection.previewRegisteredRename` invocation
+is rejected. Hidden isolated test hooks can still exercise 4+3
+read-only Roslyn previews, including refusal and links. The same
+installed candidate passes Configure/Refresh, two-scoped registered
+Usage View, Restricted Mode (no workers launched), and prior P2
+cross-navigation (6 Situations and 10 assertion links).
+Machine-local JSON report records `publicRenamePreview: EXCLUDED`
+and `researchRenamePreview: PASS_TEST_MODE_ONLY`. Ordinary-user
+manual acceptance remains PENDING and previously accepted release
+and intermediate candidate hashes are preserved.

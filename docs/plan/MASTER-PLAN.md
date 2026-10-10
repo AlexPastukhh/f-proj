@@ -1,6 +1,6 @@
 # Feature Projection — Master Plan
 
-Status: `0.1.0` Windows-first alpha accepted; P1 DONE, P2/8.1 navigation DONE, P2/8.2 technical/manual PASS (D-054), P2/8.3a usages DONE (D-055), P2/8.3b Usage View technical/manual PASS (D-056/D-057), P2/8.3c Rename feasibility DONE (D-058), P2/8.3d read-only Rename Preview installed technical PASS (D-059). One cumulative MVP VSIX installed aggregate technical PASS (D-061); ordinary-user manual acceptance PENDING. NEXT: ONE final combined manual checklist (D-060). No public release/version bump, source mutations, export, or additional adapter work.
+Status: `0.1.0` Windows-first alpha accepted; P1 DONE, P2/8.1 navigation DONE, P2/8.2 technical/manual PASS (D-054), P2/8.3a usages DONE (D-055), P2/8.3b Usage View technical/manual PASS (D-056/D-057), P2/8.3c Rename feasibility DONE (D-058). D-059/D-061 read-only Rename Preview technical history preserved, but **excluded from the imminent user-facing MVP by explicit user decision D-062**. Replacement no-Rename candidate **passed isolated installed acceptance** (D-062, 62/62 tests, public command absent, prior P2 regression PASS); one consolidated ordinary-user manual acceptance remains PENDING. No public release/version bump or source mutation.
 
 This document is the active work sequence. It does not replace the original v11 semantic/design specification. When prototype evidence conflicts with an old assumption, the explicit record in `DECISIONS-AND-DELTAS.md` supersedes only that assumption.
 
@@ -929,7 +929,7 @@ original fixture source SHA-256 snapshots before/after                IDENTICAL
 
 `P2_8_3C_READONLY_ROSLYN_RENAME_FEASIBILITY_PASS`; `npm test` 58/58 and primary real Vitest+xUnit E2E PASS. This **proves only bounded in-project in-memory previews**. It does NOT establish safety against external project callers, reflection, string-based dynamic names, other FeatureSpaces, Vitest/xUnit labels, generated code, filesystem collisions, or parallel source edits. **Do not advertise or apply Rename to user projects based on this research proof.**
 
-#### 8.3d User-visible C# Rename Preview — installed technical PASS; manual PENDING (D-059)
+#### 8.3d Experimental C# Rename Preview — technical history, EXCLUDED from MVP (D-059, superseded by D-062)
 
 Added **Feature Projection: Preview Registered C# Rename (Read-Only)** to the VS Code Command Palette. In a **trusted single-root workspace**, the user explicitly picks one FeatureSpace-qualified xUnit C# source, one **exact registered method symbol**, then types a proposed method name. No Refresh is required. The source-only Roslyn `probe-registered-rename` command computes an immutable in-memory Solution; `src/core/renamePreview.ts` independently validates the read-only result, project/workspace ancestry, real source text spans, exact old/new symbol spellings, line/column, uniqueness and complete accepted/refused contract. Unsaved open documents in the selected project cause a refusal, before or after the worker call.
 
@@ -1134,7 +1134,8 @@ DONE-18 Ordinary-user P2/8.3b registered C# Usage View and two exact C# editor s
 DONE-19 P2/8.3c registered C# Roslyn Rename in-memory symbol-token proof (7 edits, collision/overload/duplicate refusal, no file writes) D-058
 DONE-20 P2/8.3d read-only registered C# Rename Preview Command Palette, 7 exact token previews, Restricted Mode + prior P2 regression installed technical PASS (D-059)
 DONE-21 One cumulative 0.1.0 MVP candidate, installed Windows aggregate technical PASS (62 tests; Configure/Refresh; two Usage scopes; Rename; Restricted Mode; 6 Situations / 10 assertion links), D-061
-NEXT-1  ONE final ordinary-user acceptance checklist for the cumulative VSIX, including pending P2/8.3d preview; no new release until approval
+DONE-22 D-062 replacement MVP candidate without user-visible Rename Preview: source 62/62, isolated installed normal + Restricted Mode + Usage View + cross-navigation PASS, research hooks retained
+NEXT-1  Resume ONE ordinary-user acceptance checklist **without** Rename Preview; no new release until explicit approval
 LATER-1  7.4 stable normalized JSON/export requires separate scope decision
 ```
 
@@ -1189,3 +1190,31 @@ Only after manual PASS and explicit release authorization should a
 new version/tag or publication be considered. Do not claim safe
 mutating Rename, cross-platform installed acceptance, JSON export,
 Run profiles, caching or additional adapters.
+
+## 19. User-approved MVP scope reduction — Rename Preview DEFERRED (D-062)
+
+The user examined the 3-token read-only Rename Preview for
+`FeatureChecks.AssertDenied(bool)` and successfully followed its
+source link, but found the preview confusing because nothing could
+be applied. The user explicitly approved removing it from the
+near-term MVP until complete semantic Rename with consent exists.
+
+The public contribution, activation and command registration for
+`featureProjection.previewRegisteredRename` are now removed.
+The read-only research implementation, Roslyn feasibility worker
+and internal test hooks remain in the source repository. The
+normal installed profile **must not expose or accept** the command;
+the isolated research smoke must still pass using test-only hooks.
+
+Replacement internal 0.1.0 candidate:
+`artifacts/feature-projection-prototype-p0-0.1.0-mvp-no-rename-preview-candidate.vsix`
+(20,490,605 bytes; SHA-256
+`09E71D305560DD7E3ECCF7E161DA35FA6585D05992B4E9CE36AFD7B25FCB68A0`).
+The earlier D-061 candidate remains a historical byte-preserved artifact.
+
+**Next user-facing gate**: one consolidated acceptance of Configure,
+Refresh, Projection, Test Explorer scoped navigation, registered
+C# Usage View and source links. Rename UI, preview/refusal links
+and Rename application are not manual acceptance requirements.
+Manual MVP PASS and public release still require explicit evidence
+and independent user approval.

@@ -965,3 +965,51 @@ report. The aggregate script now invokes the standalone compatible
 **Installed technical PASS; ordinary-user manual PENDING** until the
 single consolidated D-060 checklist. No public release/version bump,
 tag or Rename apply. Next: user chooses when to run one manual session.
+
+## 2026-10-10 — D-062 Rename Preview excluded following ordinary-user UX feedback
+
+During one aggregate MVP manual acceptance, the user proposed an
+arbitrary name `AserDend` for `FeatureChecks.AssertDenied(bool)`.
+Read-only Rename Preview displayed three correct source coordinates
+(declaration line 20, registration line 48, feature use line 8).
+The user confirmed that the feature-test source link opened.
+However, the user found the interaction confusing: entering a name
+appeared to start Rename, but the interface only showed unapplied
+references with no next action. The user agreed to exclude the
+feature until a complete, collision-safe/consented Rename exists.
+
+Changed public VS Code command manifest and extension registration:
+`featureProjection.previewRegisteredRename` is not contributed,
+does not activate, and is not registered in ordinary VS Code.
+Normal installed smoke must assert direct command invocation fails.
+Test-only symbol preview hooks, Roslyn preview proof, and unit tests
+remain available in isolated automation; the user-facing MVP excludes
+Rename Preview. No WorkspaceEdit or source rename was introduced.
+
+Replacement separate immutable 0.1.0 VSIX candidate:
+`feature-projection-prototype-p0-0.1.0-mvp-no-rename-preview-candidate.vsix`
+(20,490,605 bytes; SHA-256
+`09E71D305560DD7E3ECCF7E161DA35FA6585D05992B4E9CE36AFD7B25FCB68A0`).
+Prior candidate and all previously accepted binaries remain separate.
+
+**Manual acceptance remains PENDING.** The session is paused
+until the user installs the replacement after installed technical
+acceptance. Final checklist excludes all Rename Preview clicks;
+remaining source and cross-navigation workflows must be confirmed.
+### Replacement candidate installed proof (same day)
+
+The SHA-pinned replacement was installed into a fresh isolated VS Code
+extensions directory. Source 62/62 PASS; exact C# usages/Roslyn
+feasibility PASS; normal profile verified missing Rename contribution,
+activation and public command and rejected its direct invocation;
+test-only hidden preview kept 4+3 correct token references,
+CodeLens and refuse-with-zero-edits. Configure/Refresh, scoped
+registered usages, Restricted Mode/no worker spawn and prior
+P2 two-FeatureSpace, 6-Situation/10-assertion-link cross-navigation
+all PASS. Report is stored locally with fields
+`publicRenamePreview: EXCLUDED` and
+`researchRenamePreview: PASS_TEST_MODE_ONLY`.
+
+**Technical installed PASS is not ordinary-user acceptance.**
+Only remaining user-visible MVP steps will be included in resumed
+manual acceptance using the new candidate.

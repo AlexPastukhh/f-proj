@@ -33,7 +33,9 @@ $usage=Read-Stage 'registered-usages' 'p2-registered-usages' $true
 $configure=Read-Stage 'configure' 'trusted' $true
 $restricted=Read-Stage 'restricted' 'untrusted' $false
 $cross=Read-Stage 'cross-navigation' 'p2-cross-navigation' $true
-if(!$normal.hiddenCommandsAbsent){throw 'Hidden automation hooks leaked'}
+if(!$normal.hiddenCommandsAbsent -or !$normal.renamePreviewExcluded){
+ throw 'MVP public command surface leaks hidden hooks or the deferred Rename Preview'
+}
 if(!$rename.readOnly -or !$rename.nonApplied -or !$rename.refusal -or !$rename.scoped -or
  $rename.links -ne 7 -or @($rename.scenarios).Count -ne 2 -or $rename.uiState -ne 'fresh'){
  throw 'Rename Preview installed smoke contract failed'
@@ -75,7 +77,8 @@ $report=[ordered]@{
  normalProfile='PASS'
  configureRefresh='PASS'
  registeredUsages='PASS'
- readOnlyRenamePreview='PASS'
+ publicRenamePreview='EXCLUDED'
+ researchRenamePreview='PASS_TEST_MODE_ONLY'
  restrictedMode='PASS'
  p2CrossNavigation='PASS'
  historicalArtifacts='CHECKED_IN_AGGREGATE_RUN'

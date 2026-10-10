@@ -917,7 +917,8 @@ export function activate(context: any) {
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.configure', configure));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.showOutput', showOutput));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.showRegisteredUsages', () => showRegisteredUsages()));
-  context.subscriptions.push(vscode.commands.registerCommand('featureProjection.previewRegisteredRename', () => showRegisteredRenamePreview()));
+  // D-062: Rename Preview is research-only, excluded from public MVP commands.
+  // Its read-only implementation remains available only via isolated test hooks.
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.openSource', openSource));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.revealSituationInTestExplorer', revealSituationInTestExplorer));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.openSituationInProjection', openSituationInProjection));

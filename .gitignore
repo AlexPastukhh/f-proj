@@ -25,6 +25,7 @@ artifacts/local-acceptance-results/
 *.snupkg
 
 # Local logs, private settings and accidental credentials.
+.vscode/mcp.json
 *.log
 *.tmp
 *.cache

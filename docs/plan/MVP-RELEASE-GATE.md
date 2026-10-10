@@ -10,10 +10,12 @@ Status: **active plan, not a release approval** (D-060, 2026-10-10).
   xUnit/Vitest real fixtures and fail-closed ambiguity diagnostics.
 - P2 bounded parameterized-case navigation, scoped Projection ↔ Test
   Explorer links and read-only registered C# Usage View.
-- P2/8.3d **experimental read-only** registered C# Rename Preview.
-  It is neither an editor Rename nor an applicable patch.
+- P2/8.3b **read-only registered C# usages** remains user-facing.
+- **Rename Preview is excluded from this MVP (D-062).** Research code,
+  read-only Roslyn feasibility and isolated test hooks remain for later
+  development; no ordinary-user Command Palette action is contributed.
 
-**Not in this MVP:** mutating/cross-project Rename (8.3e), stable
+**Not in this MVP:** user-visible Rename Preview or mutating/cross-project Rename (8.3e), stable
 JSON/export (7.4), P3 caches, P4 Run profiles, P5 extra adapters,
 and P6 broader runtime/discovery. Do not infer a license or a publish
 approval from this plan; version bump/publication require final consent.
@@ -44,11 +46,11 @@ Successful steps need no screenshots; request evidence for failures only.
   Projection, plus one exact assertion/source link.
 - Show `responsibility/backend` and `assertions/backend` C# usages;
   check symbols, scoped references and one source jump.
-- Preview `User.Authenticate(string)` → `AuthenticateCredentials`
-  (4 read-only positions), and `FeatureChecks.AssertDenied(bool)` →
-  `AssertAccessDenied` (3 read-only positions). Check one refusal.
-- Confirm no C# files changed, no Apply control exists and no
-  generic VS Code RenameProvider was added.
+- Confirm **Rename Preview is absent** from the Command Palette. No
+  Rename/Apply control is contributed by Feature Projection. Research
+  proofs of Roslyn rename remain automatic, not manual acceptance steps.
+- Confirm the visited C# source files retain their original method names.
+  Source SHA snapshots remain an independent automated check.
 - Return a single PASS/FAIL report. Retest only failed items after fixes.
 
 Restricted Mode, hidden automation-hook isolation, source SHA and
@@ -62,14 +64,21 @@ regressions); preserved historical candidate checksums; one stable
 candidate hash; one combined manual acceptance PASS; documented gaps;
 and explicit approval for tag/version/publication. No implicit release.
 
-**Current (D-061):** **installed technical PASS** for the single cumulative
-MVP candidate, ordinary-user manual **PENDING**, not waived. The one
-acceptance VSIX is
-`artifacts/feature-projection-prototype-p0-0.1.0-mvp-batched-acceptance-candidate.vsix`
-(20,490,576 bytes; SHA-256
-`54D4B3D1F5C17B3657C91AA299A129B66D146A72178633221FBC2FB0A3D83A29`).
-The tested candidate has **not** been installed in the ordinary user's
-VS Code. Use one manual session only when the user elects to proceed.
+**Current (D-062):** user feedback on the read-only Rename Preview exposed
+an ambiguous UX: the user expected a completed rename but received
+read-only links. The user explicitly approved **excluding Rename Preview**
+from the next MVP. The earlier D-061 candidate remains historical evidence,
+**not** the final approved release candidate. Ordinary-user manual
+acceptance is still **PENDING**, not silently accepted. The replacement
+no-Rename candidate is
+`artifacts/feature-projection-prototype-p0-0.1.0-mvp-no-rename-preview-candidate.vsix`
+(20,490,605 bytes; SHA-256
+`09E71D305560DD7E3ECCF7E161DA35FA6585D05992B4E9CE36AFD7B25FCB68A0`).
+The new candidate has passed its own **isolated installed technical
+acceptance**: normal public command absence (including direct invocation),
+internal read-only research smoke, Configure/Refresh, Registered C# Usages,
+Restricted Mode and previous P2 cross-navigation PASS. **Only the remaining
+user-facing manual acceptance and release go/no-go are outstanding.**
 
 The aggregate installed regression is reproducible with
 `powershell -NoProfile -File scripts/verify-mvp-installed-aggregate.ps1`.

@@ -6,10 +6,10 @@ param(
 $ErrorActionPreference='Stop'
 $root=(Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location -LiteralPath $root
-$candidate=if($CandidatePath){$CandidatePath}else{Join-Path $root 'artifacts\feature-projection-prototype-p0-0.1.0-mvp-batched-acceptance-candidate.vsix'}
+$candidate=if($CandidatePath){$CandidatePath}else{Join-Path $root 'artifacts\feature-projection-prototype-p0-0.1.0-mvp-no-rename-preview-candidate.vsix'}
 if(!(Test-Path -LiteralPath $candidate -PathType Leaf)){throw 'The pinned candidate VSIX is missing'}
 $candidate=(Resolve-Path -LiteralPath $candidate).Path
-$expectedSha=if($ExpectedSha256){$ExpectedSha256.ToUpperInvariant()}else{'54D4B3D1F5C17B3657C91AA299A129B66D146A72178633221FBC2FB0A3D83A29'}
+$expectedSha=if($ExpectedSha256){$ExpectedSha256.ToUpperInvariant()}else{'09E71D305560DD7E3ECCF7E161DA35FA6585D05992B4E9CE36AFD7B25FCB68A0'}
 $actualSha=(Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash
 if($actualSha -ne $expectedSha){throw ('Refusing wrong VSIX candidate: '+$actualSha)}
 $historical=@(
@@ -44,7 +44,7 @@ if($LASTEXITCODE -ne 0){throw '8.3a symbol-usage proof failed'}
 & node '.\scripts\verify-rename-feasibility.mjs'
 if($LASTEXITCODE -ne 0){throw '8.3c read-only Roslyn rename proof failed'}
 & npm.cmd test
-if($LASTEXITCODE -ne 0){throw '58 unit regression tests failed'}
+if($LASTEXITCODE -ne 0){throw 'Unit regression tests failed'}
 & npm.cmd run build:dotnet-worker
 if($LASTEXITCODE -ne 0){throw 'Worker publish failed'}
 # Verify one prebuilt, SHA-pinned VSIX; never overwrite historical candidates.

@@ -67,7 +67,18 @@ async function runNormalHooks(folder: vscode.WorkspaceFolder, extension: any): P
   assert.ok(!commands.includes('featureProjection.__showRegisteredUsages'), 'normal installed session must not register hidden usage view action');
   assert.ok(!commands.includes('featureProjection.__registeredRenamePreviewResult'), 'normal installed session must not register hidden rename preview query');
   assert.ok(!commands.includes('featureProjection.__showRegisteredRenamePreview'), 'normal installed session must not register hidden rename preview editor action');
-  assert.ok(commands.includes('featureProjection.previewRegisteredRename'), 'public read-only Rename Preview must be registered');
+  assert.ok(!commands.includes('featureProjection.previewRegisteredRename'), 'deferred experimental Rename Preview must not register in the MVP');
+  assert.ok(!extension.packageJSON.contributes?.commands?.some(
+    (c:any)=>c.command==='featureProjection.previewRegisteredRename'
+  ), 'deferred Rename Preview must not appear in the public Command Palette');
+  assert.ok(!(extension.packageJSON.activationEvents ?? []).includes(
+    'onCommand:featureProjection.previewRegisteredRename'
+  ), 'deferred Rename Preview must not activate the public extension');
+  await assert.rejects(
+    vscode.commands.executeCommand('featureProjection.previewRegisteredRename'),
+    /not found|not registered|unknown command/i,
+    'direct invocation of removed public Rename Preview must fail'
+  );
   writeResult({
     ok:true,
     mode:'normal-hooks',
@@ -75,6 +86,7 @@ async function runNormalHooks(folder: vscode.WorkspaceFolder, extension: any): P
     version:extension.packageJSON.version,
     extensionPath:extension.extensionPath,
     hiddenCommandsAbsent:true,
+    renamePreviewExcluded:true,
   });
 }
 
@@ -117,8 +129,8 @@ async function runUntrusted(folder: vscode.WorkspaceFolder, extension: any): Pro
   assert.ok(!ruleIds.includes('worker/dotnet-worker-missing'), 'Restricted Mode must not require the packaged .NET worker');
   assert.match(settled.markdown, /Situation: refresh_token_expired/);
   assert.match(settled.markdown, /Backend: \[unmatched\]/);
-  assert.equal(await vscode.commands.executeCommand('featureProjection.previewRegisteredRename'),false,
-    'read-only Rename preview must refuse Restricted Mode');
+  assert.ok(!(await vscode.commands.getCommands(true)).includes('featureProjection.previewRegisteredRename'),
+    'deferred Rename Preview must not exist even in Restricted Mode');
   await assert.rejects(
     vscode.commands.executeCommand('featureProjection.__registeredRenamePreviewResult',
       'app','backend','User.Authenticate(string)','SomeNewName'),
@@ -454,7 +466,9 @@ async function runP1InstalledProofs(folder: vscode.WorkspaceFolder, extension: a
   if (process.env.FEATURE_PROJECTION_SMOKE_MODE === 'p2-rename-preview') {
     const contributed = extension.packageJSON.contributes?.commands?.find(
       (x:any)=>x.command==='featureProjection.previewRegisteredRename');
-    assert.equal(contributed?.title, 'Feature Projection: Preview Registered C# Rename (Read-Only)');
+    assert.equal(contributed,undefined,'research-only Rename Preview must not be published in the MVP');
+    assert.ok(!(await vscode.commands.getCommands(true)).includes('featureProjection.previewRegisteredRename'),
+      'test-only Rename Preview must not accidentally register a public command');
     const scenarios=[
       {space:'responsibility',symbol:'User.Authenticate(string)',name:'AuthenticateCredentials',count:4,lines:[20,33,12,13]},
       {space:'assertions',symbol:'FeatureChecks.AssertDenied(bool)',name:'AssertAccessDenied',count:3,lines:[20,48,8]},
