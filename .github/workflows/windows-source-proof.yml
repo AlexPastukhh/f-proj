@@ -1,0 +1,58 @@
+name: Windows source proofs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-source-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-proof:
+    name: Node + .NET read-only proofs
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Install TypeScript dependencies
+        run: npm ci
+      - name: Restore .NET worker and Roslyn fixture projects
+        shell: pwsh
+        run: |
+          dotnet restore workers/dotnet/FeatureProjection.DotNetWorker.csproj --nologo
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet restore fixtures/responsibility-proof/Responsibility.FeatureTests.csproj --nologo
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet restore fixtures/assertion-helper-proof/AssertionHelper.FeatureTests.csproj --nologo
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Unit tests and TypeScript build
+        run: npm test
+      - name: Semantic registered C# usage proof
+        run: node scripts/verify-usage-symbol-feasibility.mjs
+      - name: In-memory C# Rename feasibility proof (no source edits)
+        run: node scripts/verify-rename-feasibility.mjs
+      - name: Package .NET worker and verify payload
+        shell: pwsh
+        run: |
+          npm run build:dotnet-worker
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run verify:packaged-worker
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+# This source-proof job is not installed-extension acceptance.
+# The isolated VSIX smoke (trusted/restricted, scoped links, P2
+# regressions) is a separate required pre-release technical gate.

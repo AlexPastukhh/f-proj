@@ -1,6 +1,6 @@
 # Feature Projection — Master Plan
 
-Status: `0.1.0` Windows-first alpha release accepted; P1 DONE, P2/8.1 navigation DONE, P2/8.2 technical/manual PASS (D-054), P2/8.3a usages DONE (D-055), P2/8.3b Usage View technical/manual PASS (D-056/D-057), P2/8.3c in-memory Rename feasibility DONE (D-058). P2/8.3d read-only Rename Preview installed technical PASS (D-059), ordinary-user manual PENDING. NEXT: bounded P2/8.3d manual acceptance; general mutating Rename LATER. P1/7.4 export LATER.
+Status: `0.1.0` Windows-first alpha accepted; P1 DONE, P2/8.1 navigation DONE, P2/8.2 technical/manual PASS (D-054), P2/8.3a usages DONE (D-055), P2/8.3b Usage View technical/manual PASS (D-056/D-057), P2/8.3c in-memory Rename feasibility DONE (D-058). P2/8.3d read-only Rename Preview installed technical PASS (D-059), ordinary-user manual PENDING. NEXT: automated MVP stabilization and one consolidated final user acceptance (D-060); no intermediate manual VSIX installs. Mutating Rename, export and other new feature families LATER.
 
 This document is the active work sequence. It does not replace the original v11 semantic/design specification. When prototype evidence conflicts with an old assumption, the explicit record in `DECISIONS-AND-DELTAS.md` supersedes only that assumption.
 
@@ -1133,8 +1133,29 @@ DONE-17 P2/8.3b read-only registered C# Usage View, scoped virtual documents, is
 DONE-18 Ordinary-user P2/8.3b registered C# Usage View and two exact C# editor source navigations, manual PASS (D-057)
 DONE-19 P2/8.3c registered C# Roslyn Rename in-memory symbol-token proof (7 edits, collision/overload/duplicate refusal, no file writes) D-058
 DONE-20 P2/8.3d read-only registered C# Rename Preview Command Palette, 7 exact token previews, Restricted Mode + prior P2 regression installed technical PASS (D-059)
-NEXT-1  P2/8.3d ordinary-user read-only Rename Preview acceptance (no source mutation)
+NEXT-1  MVP stabilization: Windows source CI, packaging metadata and cumulative installed VSIX regressions (D-060)
+NEXT-2  ONE final ordinary-user acceptance checklist for the cumulative candidate, including pending P2/8.3d preview
 LATER-1  7.4 stable normalized JSON/export requires separate scope decision
 ```
 
-Do not start new language adapters, custom Run profiles, or cache architecture without evidence-driven reprioritization. The 7.1–7.3 proofs, isolated installed technical acceptance, and ordinary-user manual P1 candidate acceptance passed on Windows. P1 candidate is not a new public release; no public C# configuration SDK is claimed. P2/8.1 bounded scope is complete: static labeled-case exact navigation installed-technically accepted; dynamic-provider source fallback independently verified. P2/8.2 original inline CodeLens reveal failed or was ambiguous (D-053); subsequent corrected Command Palette forward navigation, Test Explorer context-menu reverse navigation, and direct assertion-source link passed ordinary-user manual acceptance (D-054). Direct inline CodeLens reveal is not independently verified. P2/8.3a C# symbol-usage feasibility DONE (D-055); P2/8.3b trusted read-only Usage View installed technical PASS (D-056) and ordinary-user manual PASS (D-057), scoped editor source jumps included. P2/8.3c **in-memory read-only Rename preview feasibility DONE** (D-058); general rename/cross-project safety remains unproven and no Rename UX exists. P2/8.3d explicit read-only Rename Preview installed technical PASS (D-059), ordinary-user manual next; cross-project/apply/consent Rename policy LATER (8.3e). 7.4 export LATER.
+Do not start new language adapters, custom Run profiles, or cache architecture without evidence-driven reprioritization. The 7.1–7.3 proofs, isolated installed technical acceptance, and ordinary-user manual P1 candidate acceptance passed on Windows. P1 candidate is not a new public release; no public C# configuration SDK is claimed. P2/8.1 bounded scope is complete: static labeled-case exact navigation installed-technically accepted; dynamic-provider source fallback independently verified. P2/8.2 original inline CodeLens reveal failed or was ambiguous (D-053); subsequent corrected Command Palette forward navigation, Test Explorer context-menu reverse navigation, and direct assertion-source link passed ordinary-user manual acceptance (D-054). Direct inline CodeLens reveal is not independently verified. P2/8.3a C# symbol-usage feasibility DONE (D-055); P2/8.3b trusted read-only Usage View installed technical PASS (D-056) and ordinary-user manual PASS (D-057), scoped editor source jumps included. P2/8.3c **in-memory read-only Rename preview feasibility DONE** (D-058); general rename/cross-project safety remains unproven and no Rename UX exists. P2/8.3d explicit read-only Rename Preview installed technical PASS (D-059); ordinary-user manual is deferred (not waived) to the single final MVP release gate (D-060). Cross-project/apply/consent Rename policy LATER (8.3e), 7.4 export LATER.
+
+## 17. Batched MVP acceptance and release policy — D-060
+
+**Current focus:** stabilize and automate the existing Feature Projection
+MVP, then produce a single cumulative VSIX with one ordinary-user manual
+acceptance session. Intermediate candidates receive **technical only**
+acceptance, never a false ordinary-user PASS.
+
+Source-of-truth checklist: `docs/plan/MVP-RELEASE-GATE.md`.
+On push/PR, `.github/workflows/windows-source-proof.yml` is intended
+to run Node unit tests plus .NET/Roslyn read-only proofs on Windows.
+GitHub CI does not replace installed VS Code smoke: isolated trusted,
+Restricted Mode and previous P2 navigation regressions still gate the
+cumulative VSIX. Document any failing/unavailable CI run honestly.
+
+The P2/8.3d ordinary-user manual result remains PENDING until the one
+bundled final checklist. Do not ask for repeated VSIX installations or
+success screenshots during development. No user-source mutations,
+license choice, release tag, version bump or Marketplace publish without
+separate explicit authorization.

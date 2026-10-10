@@ -132,3 +132,25 @@ A new explicitly invoked **Command Palette** action `Feature Projection: Preview
 ## Packaging warnings not treated as local-alpha blockers
 
 `vsce` still warns about a missing repository field and LICENSE file. These remain marketplace/publication metadata work; local VSIX packaging and installed acceptance succeed.
+
+## MVP next-release stabilization and one batched manual acceptance — D-060
+
+**Active process decision (2026-10-10):** stop asking the user to
+install and manually click through every feature candidate. Stabilize
+the existing alpha + accepted P1/P2 navigation/Usage View + experimental
+**read-only** P2/8.3d Rename Preview as one bounded MVP. Keep 8.3d
+ordinary-user acceptance **PENDING**, despite installed technical PASS
+(D-059). Source developer tests, Roslyn proofs and isolated installed
+VSIX acceptance remain required for every cumulative release candidate.
+
+New single-source Windows CI specification:
+`.github/workflows/windows-source-proof.yml` (Node + .NET source proofs;
+not installed VS Code acceptance). Its GitHub-run status must be
+verified separately; adding YAML alone does not confer CI PASS.
+
+The final user session will be one 10–15 minute checklist covering
+install, Configure/Refresh, Projection/Test Explorer, source links,
+scoped Usage View, two read-only Rename previews and a fail-closed
+name, with confirmation that no C# files changed. See
+`docs/plan/MVP-RELEASE-GATE.md`. No release/version bump or actual Rename
+application has been authorized. P1/7.4, P2/8.3e and P3–P6 remain LATER.

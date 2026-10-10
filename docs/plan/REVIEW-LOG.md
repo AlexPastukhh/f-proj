@@ -899,3 +899,24 @@ Additional installed checks on the **same corrected VSIX**: Restricted Mode bloc
 ### Acceptance classification / next gate
 
 **P2/8.3d installed technical PASS; ordinary-user manual acceptance PENDING.** Install only the corrected candidate, then in the prepared trusted `feature-projection-p1-manual-acceptance` workspace preview `User.Authenticate(string) → AuthenticateCredentials` and `FeatureChecks.AssertDenied(bool) → AssertAccessDenied`. Verify 4/3 exact proposals, source-navigation and no edits. Do not claim cross-project Rename safety or actual application. P2/8.3e mutation-consent/cross-project feasibility LATER; P1/7.4 normalized export LATER.
+
+## 2026-10-10 — D-060 batched MVP release acceptance and Windows source CI scaffolding
+
+The user opted out of repeated ordinary-user feature-by-feature
+VSIX install/click/screenshot checks. D-060 moves manual validation to
+one **final cumulative candidate** while preserving technical tests
+and existing D-054/D-057 manual history. D-059 manual pending is not
+automatically upgraded to PASS.
+
+New `docs/plan/MVP-RELEASE-GATE.md` defines scoped MVP, deferrals,
+isolated installed technical gate, short final manual checklist and
+explicit release go/no-go. New Windows GitHub Actions source workflow
+builds TypeScript/.NET and runs unit tests, Roslyn usage/Rename proofs
+and packaged-worker inspection. It does **not** claim installed
+technical PASS, and GitHub CI status is unverified until actual runs.
+
+Added repository metadata to `package.json` without choosing an
+unapproved license, version bump, release tag or publishing a VSIX.
+Historical binaries remain local and ignored by Git. Next task:
+verify CI on GitHub and stabilize aggregate installed release smoke;
+only then ask for the one ordinary-user acceptance session.

@@ -2,6 +2,10 @@
     "name":  "feature-projection-prototype-p0",
     "version":  "0.1.0",
     "private":  true,
+    "repository":  {
+                       "type":  "git",
+                       "url":  "https://github.com/AlexPastukhh/f-proj.git"
+                   },
     "description":  "Test-driven feature projection for VS Code",
     "main":  "dist/extension.js",
     "engines":  {

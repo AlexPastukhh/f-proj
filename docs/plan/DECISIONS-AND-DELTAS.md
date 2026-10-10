@@ -1105,3 +1105,39 @@ The corrected independently packaged VSIX is `artifacts/feature-projection-proto
 - Older 0.1.0 release and P1/P2 candidates were checksum-verified unchanged. No new public release or user-installed test was performed.
 
 **Boundaries:** technical PASS is NOT user manual PASS. Correctness across other projects, dynamic/reflection use, files changing after display, new-name conflicts outside the selected declaring type, Vitest/xUnit dynamic labels, and any actual source mutation remain unproven. A *read-only one-project preview* is not an authorized rename plan. Next P2/8.3d manual UX acceptance in `feature-projection-p1-manual-acceptance` using the corrected VSIX; 8.3e cross-project diff/consent/rollback policy and actual Rename remain LATER. P1/7.4 export also LATER.
+
+## D-060 — Batch manual acceptance once at the next stable MVP release gate
+
+Status: PROCESS DECISION / ACTIVE / 2026-10-10
+
+The user approved replacing feature-by-feature ordinary-user VSIX installs and
+screenshots with **one final consolidated user acceptance session**. This
+changes verification scheduling, not the meaning of PASS or the semantics
+of any capability. The previously accepted 0.1.0 Windows-first alpha and
+D-054/D-057 ordinary-user evidence remain unchanged. The read-only Rename
+Preview in D-059 remains **installed technical PASS / manual PENDING**;
+we deliberately defer, rather than silently waive, the manual gate.
+
+Next MVP candidate scope: accepted Configure/Refresh/Projection/Testing API;
+P1 C# symbol-aware responsibility/assertion fixtures; P2 bounded case
+and Test Explorer cross-navigation; read-only Usage View; and the
+strictly read-only experimental Rename Preview. No general/mutating Rename,
+JSON export, incremental cache, Run profiles, new adapters or broad runtime
+expansion in this release gate without a new decision.
+
+Developer cadence: scoped GitHub commits; source unit/Roslyn proofs per
+change; Windows GitHub Actions source job; cumulative isolated installed
+VSIX technical acceptance before manual testing; preserve every historical
+VSIX/ZIP and its checksum; only then build **one** cumulative candidate.
+Ordinary-user acceptance will be a short single checklist (~10–15 min)
+covering installation, explicit Refresh, navigation, read-only Usage and
+Rename Preview/refusal, and verification that source files do not change.
+No screenshots for successful steps unless evidence is otherwise uncertain.
+
+Artifact boundaries: source CI checks do not constitute installed VSIX
+acceptance; installed technical smoke does not count as ordinary-user
+acceptance; previewing C# edits does not authorize Apply/RenameProvider.
+Actual release version bump, tag, licensing/publication and any source
+mutation still require explicit separate user approval.
+
+Authoritative gate checklist: `docs/plan/MVP-RELEASE-GATE.md`.
