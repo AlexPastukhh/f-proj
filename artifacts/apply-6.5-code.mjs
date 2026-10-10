@@ -1,0 +1,55 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const root = path.resolve('C:/Users/alexa/Downloads/feature-projection-prototype-p0-0.1.0-release-gate');
+function edit(rel, oldText, newText) {
+  const file = path.join(root, rel);
+  const text = fs.readFileSync(file, 'utf8').replace(/\\r\\n/g, '\\n');
+  if (!text.includes(oldText)) throw new Error(`${rel}: old text not found`);
+  fs.writeFileSync(file, text.replace(oldText, newText), 'utf8');
+}
+
+edit('src/core/fullEngine.ts',
+"import { validatePrototypeConfig } from './configValidation';\nimport { expandDefinitions, joinParts, renderProjection } from './projection';",
+"import { validatePrototypeConfig } from './configValidation';\nimport { classifyDotnetPrerequisiteFailure } from './runtimePrerequisites';\nimport { expandDefinitions, joinParts, renderProjection } from './projection';");
+
+edit('src/core/fullEngine.ts',
+"function workerFailureMessage(error: string | undefined, stderr: string | undefined, fallback: string): string {",
+"export function resolveXunitBuildTimeout(config: PrototypeConfig): number {\n  return config.buildTimeoutMs ?? 120000;\n}\n\nfunction workerFailureMessage(error: string | undefined, stderr: string | undefined, fallback: string): string {");
+
+edit('src/core/fullEngine.ts',
+"  const timeout = options.config.workerTimeoutMs ?? 30000;\n  const buildTimeout = Math.max(120000, timeout * 4);",
+"  const timeout = options.config.workerTimeoutMs ?? 30000;\n  const buildTimeout = resolveXunitBuildTimeout(options.config);");
+
+edit('src/core/fullEngine.ts',
+"      if (!analyzed.ok || !analyzed.value) {\n        runtimeDiagnostics.push({ ruleId:'worker/dotnet-analysis-failed', category:'runtime', severity:'error', projectionImpact:'blocks-part', message:workerFailureMessage(analyzed.error, analyzed.stderr, 'C# source analysis failed') });\n        continue;\n      }",
+"      if (!analyzed.ok || !analyzed.value) {\n        const prerequisite = classifyDotnetPrerequisiteFailure(analyzed.error, analyzed.stderr, analyzed.stdout);\n        runtimeDiagnostics.push(prerequisite ?? { ruleId:'worker/dotnet-analysis-failed', category:'runtime', severity:'error', projectionImpact:'blocks-part', message:workerFailureMessage(analyzed.error, analyzed.stderr, 'C# source analysis failed') });\n        continue;\n      }");
+
+edit('src/core/fullEngine.ts',
+"        if (!built.ok) {\n          runtimeDiagnostics.push({\n            ruleId:'worker/xunit-project-build-failed', category:'runtime', severity:'error', projectionImpact:'blocks-part',\n            message:workerFailureMessage(built.error, built.stderr, `xUnit test project build failed for ${source.id}`),\n          });\n          continue;\n        }",
+"        if (!built.ok) {\n          const prerequisite = classifyDotnetPrerequisiteFailure(built.error, built.stderr, built.stdout);\n          runtimeDiagnostics.push(prerequisite ?? {\n            ruleId:'worker/xunit-project-build-failed', category:'runtime', severity:'error', projectionImpact:'blocks-part',\n            message:workerFailureMessage(built.error, built.stderr, `xUnit test project build failed for ${source.id}`),\n          });\n          continue;\n        }");
+
+edit('src/core/fullEngine.ts',
+"        if (!materialized.ok || !materialized.value) runtimeDiagnostics.push({ ruleId:'worker/xunit-materialization-failed', category:'runtime', severity:'error', projectionImpact:'blocks-part', message:workerFailureMessage(materialized.error, materialized.stderr, 'xUnit materialization failed') });",
+"        if (!materialized.ok || !materialized.value) {\n          const prerequisite = classifyDotnetPrerequisiteFailure(materialized.error, materialized.stderr, materialized.stdout);\n          runtimeDiagnostics.push(prerequisite ?? { ruleId:'worker/xunit-materialization-failed', category:'runtime', severity:'error', projectionImpact:'blocks-part', message:workerFailureMessage(materialized.error, materialized.stderr, 'xUnit materialization failed') });\n        }");
+
+edit('src/adapters/vitestMaterializer.ts',
+"import { runJsonWorker } from '../core/process';",
+"import { runJsonWorker } from '../core/process';\nimport { classifyNodePrerequisiteFailure } from '../core/runtimePrerequisites';");
+
+edit('src/adapters/vitestMaterializer.ts',
+"  if (!result.ok || !result.value) {\n    return { cases:[], diagnostics:[{\n      ruleId: result.timedOut ? 'worker/materialization-timeout' : 'worker/vitest-materialization-failed',\n      category:'runtime', severity:'error', projectionImpact:'blocks-part',\n      message: failureMessage(result.error, result.stderr, result.stdout, 'Vitest materialization failed'),\n    }] };\n  }",
+"  if (!result.ok || !result.value) {\n    const prerequisite = classifyNodePrerequisiteFailure(result.error, result.stderr, result.stdout);\n    return { cases:[], diagnostics:[prerequisite ?? {\n      ruleId: result.timedOut ? 'worker/materialization-timeout' : 'worker/vitest-materialization-failed',\n      category:'runtime', severity:'error', projectionImpact:'blocks-part',\n      message: failureMessage(result.error, result.stderr, result.stdout, 'Vitest materialization failed'),\n    }] };\n  }");
+
+edit('src/extension.ts',
+"import { applySourceConfigurationChange, SourceConfigurationChange } from './core/configureModel';",
+"import { applySourceConfigurationChange, SourceConfigurationChange } from './core/configureModel';\nimport { isFeatureProjectionTestMode } from './core/testMode';");
+
+edit('src/extension.ts',
+"  context.subscriptions.push(vscode.commands.registerCommand('featureProjection.openSource', openSource));\n  context.subscriptions.push(vscode.commands.registerCommand('featureProjection.__configureTest', async (change: SourceConfigurationChange) => {\n    const folder = configureWorkspaceFolder(false);\n    if (!folder) return { ok:false, diagnostics:[], persisted:false, error:'Configure requires exactly one workspace folder.' };\n    return await persistSourceConfiguration(folder, change);\n  }));\n  // Hidden command used only by the automated Extension Host smoke test.\n  context.subscriptions.push(vscode.commands.registerCommand('featureProjection.__debugState', () => ({\n    uiState,\n    hasProjection,\n    refreshing,\n    markdown:lastMarkdown,\n    sourceActions:lastSourceActions,\n    diagnostics:lastDiagnostics,\n    testingTree:lastTestingTree,\n  })));",
+"  context.subscriptions.push(vscode.commands.registerCommand('featureProjection.openSource', openSource));\n  if (isFeatureProjectionTestMode()) {\n    context.subscriptions.push(vscode.commands.registerCommand('featureProjection.__configureTest', async (change: SourceConfigurationChange) => {\n      const folder = configureWorkspaceFolder(false);\n      if (!folder) return { ok:false, diagnostics:[], persisted:false, error:'Configure requires exactly one workspace folder.' };\n      return await persistSourceConfiguration(folder, change);\n    }));\n    context.subscriptions.push(vscode.commands.registerCommand('featureProjection.__debugState', () => ({\n      uiState,\n      hasProjection,\n      refreshing,\n      markdown:lastMarkdown,\n      sourceActions:lastSourceActions,\n      diagnostics:lastDiagnostics,\n      testingTree:lastTestingTree,\n    })));\n    log('automation test mode enabled: hidden test commands registered');\n  }");
+
+edit('src/test/runExtensionSmoke.ts',
+"  try {\n    await runTests(options);\n  } finally {\n    fs.rmSync(workspacePath, { recursive:true, force:true });\n  }",
+"  process.env.FEATURE_PROJECTION_TEST_MODE = '1';\n  try {\n    await runTests(options);\n  } finally {\n    delete process.env.FEATURE_PROJECTION_TEST_MODE;\n    fs.rmSync(workspacePath, { recursive:true, force:true });\n  }");
+
+console.log('APPLY_6_5_CODE_DONE');

@@ -1,0 +1,11 @@
+{
+  "name": "feature-projection-installed-smoke-driver",
+  "displayName": "Feature Projection Installed Smoke Driver",
+  "version": "0.0.1",
+  "publisher": "local-test",
+  "engines": { "vscode": "^1.90.0" },
+  "main": "./extension.js",
+  "activationEvents": ["*"],
+  "capabilities": { "untrustedWorkspaces": { "supported": true } },
+  "private": true
+}

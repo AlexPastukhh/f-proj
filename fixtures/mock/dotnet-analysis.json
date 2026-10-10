@@ -1,0 +1,45 @@
+{
+  "definitions": [
+    {
+      "id": "backend:login:param",
+      "featureSpaceId": "app",
+      "logicalFolderKey": "login",
+      "partRole": "backend",
+      "adapterId": "xunit-v3",
+      "frameworkProject": "fixtures/workspace/backend",
+      "isParameterized": true,
+      "featureName": "login",
+      "outcome": "invalid_user_input",
+      "expectedBehavior": "authentication_fails_and_user_stays_unauthenticated",
+      "assertions": [{
+        "sourceCode": "Assert.False(testCase.Authenticated);",
+        "source": { "file": "LoginFeatureTests.cs", "start": 0, "end": 40, "line": 17, "column": 9 },
+        "kind": "assertion"
+      }],
+      "source": { "file": "LoginFeatureTests.cs", "start": 0, "end": 1, "line": 14, "column": 5 },
+      "definitionRef": { "adapterId": "xunit-v3", "frameworkDefinitionKey": "LoginFeatureTests.login__invalid_user_input__authentication_fails_and_user_stays_unauthenticated(LoginCase)", "sourceFile": "LoginFeatureTests.cs", "sourceLine": 14 },
+      "diagnostics": []
+    },
+    {
+      "id": "backend:login:fact",
+      "featureSpaceId": "app",
+      "logicalFolderKey": "login",
+      "partRole": "backend",
+      "adapterId": "xunit-v3",
+      "frameworkProject": "fixtures/workspace/backend",
+      "isParameterized": false,
+      "featureName": "login",
+      "outcome": "session_expired",
+      "directSituation": "refresh_token_expired",
+      "expectedBehavior": "request_is_rejected_and_session_is_invalidated",
+      "assertions": [{
+        "sourceCode": "Assert.False(false);",
+        "source": { "file": "LoginFeatureTests.cs", "start": 0, "end": 20, "line": 25, "column": 9 },
+        "kind": "assertion"
+      }],
+      "source": { "file": "LoginFeatureTests.cs", "start": 0, "end": 1, "line": 22, "column": 5 },
+      "definitionRef": { "adapterId": "xunit-v3", "frameworkDefinitionKey": "LoginFeatureTests.login__session_expired__refresh_token_expired__request_is_rejected_and_session_is_invalidated()", "sourceFile": "LoginFeatureTests.cs", "sourceLine": 22 },
+      "diagnostics": []
+    }
+  ]
+}

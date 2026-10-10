@@ -1,0 +1,124 @@
+{
+    "name":  "feature-projection-prototype-p0",
+    "version":  "0.1.0",
+    "private":  true,
+    "description":  "Test-driven feature projection for VS Code",
+    "main":  "dist/extension.js",
+    "engines":  {
+                    "vscode":  "^1.90.0",
+                    "node":  "\u003e=20"
+                },
+    "activationEvents":  [
+                             "onStartupFinished",
+                             "onCommand:featureProjection.show",
+                             "onCommand:featureProjection.refresh",
+                             "onCommand:featureProjection.showOutput",
+                             "onCommand:featureProjection.configure",
+                             "onCommand:featureProjection.showRegisteredUsages"
+                         ],
+    "contributes":  {
+                        "commands":  [
+                                         {
+                                             "command":  "featureProjection.show",
+                                             "title":  "Feature Projection: Show"
+                                         },
+                                         {
+                                             "command":  "featureProjection.configure",
+                                             "title":  "Feature Projection: Configure"
+                                         },
+                                         {
+                                             "command":  "featureProjection.refresh",
+                                             "title":  "Feature Projection: Refresh"
+                                         },
+                                         {
+                                             "command":  "featureProjection.showOutput",
+                                             "title":  "Feature Projection: Show Output"
+                                         },
+                                         {
+                                             "command":  "featureProjection.openSituationInProjection",
+                                             "title":  "Feature Projection: Open Situation in Projection"
+                                         },
+                                         {
+                                             "command":  "featureProjection.revealSituationInTestExplorer",
+                                             "title":  "Feature Projection: Reveal Situation in Test Explorer"
+                                         },
+                                         {
+                                             "command":  "featureProjection.showRegisteredUsages",
+                                             "title":  "Feature Projection: Show Registered C# Usages"
+                                         }
+                                     ],
+                        "menus":  {
+                                        "testing/item/context":  [
+                                                                     {
+                                                                         "command":  "featureProjection.openSituationInProjection",
+                                                                         "when":  "controllerId == featureProjection && testId =~ /situation/",
+                                                                         "group":  "navigation"
+                                                                     }
+                                                                 ],
+                                        "commandPalette":  [
+                                                                 {
+                                                                     "command":  "featureProjection.openSituationInProjection",
+                                                                     "when":  "false"
+                                                                 }
+                                                             ]
+                                    },
+                        "configuration":  {
+                                              "title":  "Feature Projection",
+                                              "properties":  {
+                                                                 "featureProjection.featureSpaces":  {
+                                                                                                         "type":  "array",
+                                                                                                         "default":  [
+
+                                                                                                                     ],
+                                                                                                         "description":  "Feature spaces and framework source/runtime targets."
+                                                                                                     },
+                                                                 "featureProjection.workerTimeoutMs":  {
+                                                                                                           "type":  "number",
+                                                                                                           "default":  30000,
+                                                                                                           "minimum":  1000
+                                                                                                       },
+                                                                 "featureProjection.buildTimeoutMs":  {
+                                                                                                          "type":  "number",
+                                                                                                          "default":  120000,
+                                                                                                          "minimum":  10000,
+                                                                                                          "description":  "Timeout in milliseconds for development-source .NET worker fallback and trusted xUnit project builds."
+                                                                                                      },
+                                                                 "featureProjection.nodePath":  {
+                                                                                                    "type":  "string",
+                                                                                                    "default":  "",
+                                                                                                    "description":  "Optional absolute path to an external Node.js executable used for Vitest materialization. If empty, Feature Projection resolves Node from PATH/common locations."
+                                                                                                }
+                                                             }
+                                          }
+                    },
+    "scripts":  {
+                    "build":  "tsc -p tsconfig.json",
+                    "test":  "npm run build \u0026\u0026 node --test test/*.test.mjs",
+                    "demo":  "npm run build \u0026\u0026 node dist/cli.js --config fixtures/feature-projection.config.json --mock-dotnet fixtures/mock/dotnet-analysis.json --mock-materialization fixtures/mock/materialized-cases.json",
+                    "demo:real":  "npm run build \u0026\u0026 node dist/real-cli.js --config fixtures/feature-projection.config.json",
+                    "test:extension":  "npm run build \u0026\u0026 node dist/test/runExtensionSmoke.js",
+                    "package:vsix":  "vsce package --out artifacts/feature-projection-prototype-p0-0.1.0.vsix",
+                    "restore:dotnet-worker":  "dotnet restore workers/dotnet/FeatureProjection.DotNetWorker.csproj --nologo",
+                    "build:dotnet-worker":  "dotnet publish workers/dotnet/FeatureProjection.DotNetWorker.csproj -c Release --no-self-contained --no-restore --nologo -o workers/dotnet/runtime",
+                    "prepare:dotnet-worker":  "npm run restore:dotnet-worker \u0026\u0026 npm run build:dotnet-worker",
+                    "verify:packaged-worker":  "node scripts/verify-packaged-worker.mjs",
+                    "vscode:prepublish":  "npm run build \u0026\u0026 npm run verify:packaged-worker"
+                },
+    "devDependencies":  {
+                            "@types/node":  "22.15.0",
+                            "@types/vscode":  "1.90.0",
+                            "@vscode/test-electron":  "3.1.0",
+                            "@vscode/vsce":  "4.0.0"
+                        },
+    "publisher":  "local-prototype",
+    "capabilities":  {
+                         "untrustedWorkspaces":  {
+                                                     "supported":  true,
+                                                     "description":  "Restricted Mode keeps project/runtime workers disabled. TypeScript source-only analysis may remain available; C# project-backed analysis and framework materialization require Workspace Trust."
+                                                 }
+                     },
+    "displayName":  "Feature Projection",
+    "dependencies":  {
+                         "typescript":  "5.8.3"
+                     }
+}

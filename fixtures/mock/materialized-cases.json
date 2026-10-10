@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "definitionRef": { "adapterId": "vitest-5", "frameworkDefinitionKey": "src/features/login/login.feature.test.ts:11:1", "sourceFile": "__REPLACED_BY_TEST__", "sourceLine": 12 },
+      "frameworkCaseId": "vitest-case-1",
+      "situationId": "passwords_dont_match",
+      "diagnostics": []
+    },
+    {
+      "definitionRef": { "adapterId": "vitest-5", "frameworkDefinitionKey": "src/features/login/login.feature.test.ts:11:1", "sourceFile": "__REPLACED_BY_TEST__", "sourceLine": 12 },
+      "frameworkCaseId": "vitest-case-2",
+      "situationId": "email_has_invalid_format",
+      "diagnostics": []
+    },
+    {
+      "definitionRef": { "adapterId": "xunit-v3", "frameworkDefinitionKey": "LoginFeatureTests.login__invalid_user_input__authentication_fails_and_user_stays_unauthenticated(LoginCase)", "sourceFile": "LoginFeatureTests.cs", "sourceLine": 14 },
+      "frameworkCaseId": "xunit-case-1",
+      "situationId": "passwords_dont_match",
+      "diagnostics": []
+    },
+    {
+      "definitionRef": { "adapterId": "xunit-v3", "frameworkDefinitionKey": "LoginFeatureTests.login__invalid_user_input__authentication_fails_and_user_stays_unauthenticated(LoginCase)", "sourceFile": "LoginFeatureTests.cs", "sourceLine": 14 },
+      "frameworkCaseId": "xunit-case-2",
+      "situationId": "email_has_invalid_format",
+      "diagnostics": []
+    }
+  ]
+}

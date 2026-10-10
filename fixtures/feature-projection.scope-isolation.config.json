@@ -1,0 +1,45 @@
+{
+  "workerTimeoutMs": 30000,
+  "featureSpaces": [
+    {
+      "id": "accounts",
+      "sources": [
+        {
+          "id": "frontend",
+          "role": "frontend",
+          "root": "workspace-scope-isolation/apps/account-web/spec/feature-tests",
+          "adapter": "vitest-5",
+          "frameworkProject": "workspace-scope-isolation/apps/account-web"
+        },
+        {
+          "id": "backend",
+          "role": "backend",
+          "root": "workspace-scope-isolation/services/account-api/Features",
+          "adapter": "xunit-v3",
+          "frameworkProject": "workspace-scope-isolation/services/account-api",
+          "projectFile": "Account.Api.FeatureTests.csproj"
+        }
+      ]
+    },
+    {
+      "id": "billing",
+      "sources": [
+        {
+          "id": "frontend",
+          "role": "frontend",
+          "root": "workspace-scope-isolation/apps/billing-web/spec/feature-tests",
+          "adapter": "vitest-5",
+          "frameworkProject": "workspace-scope-isolation/apps/billing-web"
+        },
+        {
+          "id": "backend",
+          "role": "backend",
+          "root": "workspace-scope-isolation/services/billing-api/Features",
+          "adapter": "xunit-v3",
+          "frameworkProject": "workspace-scope-isolation/services/billing-api",
+          "projectFile": "Billing.Api.FeatureTests.csproj"
+        }
+      ]
+    }
+  ]
+}

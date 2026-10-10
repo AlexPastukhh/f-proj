@@ -1,0 +1,36 @@
+# Build dependencies and generated outputs (recreated via npm/dotnet)
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.vscode-test/
+**/bin/
+**/obj/
+workers/dotnet/runtime/
+workers/dotnet/publish-spike/
+TestResults/
+coverage/
+*.tsbuildinfo
+
+# Binary artifacts are retained on disk, not checked into Git.
+*.vsix
+*.zip
+*.dll
+*.exe
+*.pdb
+*.nupkg
+*.snupkg
+
+# Local logs, private settings and accidental credentials.
+*.log
+*.tmp
+*.cache
+*.user
+*.suo
+.env
+.env.*
+*.pfx
+*.p12
+*.pem
+*.key
+.vs/

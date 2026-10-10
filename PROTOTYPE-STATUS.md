@@ -1,0 +1,116 @@
+# Prototype status — 0.1.0 Windows-first alpha
+
+Master Plan units 6.1 through 6.5 are complete. `0.1.0` has passed both automated installed-VSIX release acceptance and the final ordinary-user manual install/Configure/Refresh/navigation click-through.
+
+## Current packaged shape
+
+- Version: `0.1.0`
+- Artifact: `artifacts/feature-projection-prototype-p0-0.1.0.vsix`
+- VSIX size: ~19.51 MB compressed
+- `.NET worker`: framework-dependent artifact under `workers/dotnet/runtime/`
+- Runtime Node dependency: `typescript@5.8.3`, explicitly packaged
+- Installed acceptance runs outside source-checkout ancestry.
+- Normal installed sessions do not register hidden automation/debug commands.
+
+## Release acceptance
+
+```text
+npm test                                      40/40 PASS
+primary real Vitest                           3/3 PASS
+primary real backend xUnit                    3/3 PASS
+primary xUnit concrete cases                  2 PASS
+primary real E2E projection                   3 Situations PASS
+second installed workspace                    2 FeatureSpaces / 6 Situations / Fresh PASS
+normal installed hidden automation commands   absent PASS
+trusted missing-Node diagnostic               PASS
+trusted incompatible-.NET diagnostic          PASS
+trusted installed Configure/navigation        PASS
+installed Restricted Mode                     PASS
+packaged TypeScript runtime                    PASS
+no undeclared packaged Node dependencies       PASS
+ordinary-user manual click-through             PASS
+```
+
+## Release scope
+
+`0.1.0` is accepted as a Windows x64 alpha. Vitest materialization requires a supported external Node.js installation. xUnit analysis/materialization requires a compatible .NET SDK/runtime for the configured project.
+
+## Post-release P1 working checkout / next
+
+7.1 projection-safety fixture matrix is DONE in the source checkout: all 11 planned scenarios are covered, a duplicate-situation correctness bug is fixed, `npm test` is 48/48 PASS and the real primary Vitest+xUnit E2E projection exits 0 with three joined Situations. These are **post-release** changes; the already accepted 0.1.0 VSIX and clean release ZIP were not rebuilt.
+
+7.2 Registered Responsibility Proof is also DONE in the post-release working checkout: an isolated real xUnit v3/Moq project uses source-level `RegisterResponsibility<User>(x => x.Authenticate(...))` configuration. Roslyn matches the actual method symbol against `user.Verify(...)`, ignores unregistered `logger.Verify(...)` and the wrong `Authenticate(int)` overload, and preserves the exact verification text through TypeScript normalization into the projection. `node scripts/verify-responsibility-proof.mjs` exits 0; isolated xUnit fixture 1/1 PASS. The contracts are local to the proof fixture, not yet a distributed public configuration SDK; subsequent installed-VSIX evidence is recorded below.
+
+7.3 Custom Assertion Helper Registration is DONE in the post-release working checkout. A separate xUnit v3 fixture statically registers `FeatureChecks.AssertDenied(bool)` through `IFeatureProjectionBuilder.RegisterAssertion`, and Roslyn includes exactly the registered literal assertion while ignoring a same-named overload, another type's helper, telemetry calls and a fake builder API. The repeatable `node scripts/verify-assertion-helper-proof.mjs` exits 0, fixture runs 1/1, 7.2 remains green, `npm test` is 48/48 PASS, and real primary E2E still returns three joined Situations. These are proof-level C# contracts, not yet a public configuration SDK; separate installed P1 acceptance has now passed.
+
+## Post-release P1 installed candidate — Windows technical acceptance PASS
+
+A separate VSIX candidate was packaged at `artifacts/feature-projection-prototype-p0-0.1.0-p1-acceptance-candidate.vsix` (20,460,132 bytes; SHA-256 `44284D06F1A5C67A24CDF52B03F372A7D12249C3258A2A1F6C2823061D751989`). Its manifest still says 0.1.0, but it is **not** the accepted original release artifact and was installed only in isolated VS Code user-data/extensions directories outside the checkout.
+
+Installed technical checks PASS: normal hook gating; installed Configure/Refresh/navigation; missing Node and incompatible .NET diagnostics; Restricted Mode; fresh P1 workspace with 2 Situations, 2 backend source actions, literal registered responsibility and custom assertion evidence, zero diagnostics and no unregistered verifications; and second workspace with accounts+billing / 6 Situations / 10 source actions / 2 unmatched parts / Fresh. The packaged .NET worker DLL is byte-for-byte identical to the installed worker. Original 0.1.0 release VSIX and ZIP SHA-256 remain unchanged.
+
+Evidence scripts: `scripts/verify-installed-p1.ps1` and `scripts/verify-installed-p1-scope.ps1`, with JSON results preserved in the uniquely named isolated temp smoke root. This records **technical installed-candidate acceptance**. A separate ordinary-user manual P1 click-through was subsequently completed (see below). Neither constitutes a new published release.
+
+**Ordinary-user manual P1 acceptance: PASS.** In normal VS Code, the user installed the P1 candidate, opened the prepared trusted `feature-projection-p1-manual-acceptance` workspace and explicitly refreshed. Status: **Fresh**; scopes `assertions/access` and `responsibility/auth`; Situations `invalid_token` and `invalid_password`, each with unmatched Frontend. Literal `FeatureChecks.AssertDenied(false);`, `user.Verify(x => x.Authenticate("invalid"), Times.Once);`, and `Assert.True(true);` appeared; unregistered/wrong-overload verifications were absent. Markdown Preview Backend links opened `responsibility/Features/auth/AccessFeatureTests.cs:7` and `assertions/Features/access/AccessFeatureTests.cs:6` after clicking **Yes** on VS Code's external-link confirmation, with correct file and cursor line shown in screenshots. The confirmation is expected security UX, not a failed navigation.
+
+## P2/8.1 static parameterized-case navigation — installed technical PASS (limited scope)
+
+The working checkout now supports **exact case-row navigation only when a unique explicit static label/source anchor is proven**: literal Vitest `test.each([...])` rows with a directly bound `[situation:$caseId]` title, and Roslyn-bound xUnit `[InlineData(..., Label = "...")]` rows. Situation still comes solely from framework-native concrete case identity/label. The separate case navigation range never overwrites the definition or assertion source ranges. Both Markdown source links and Test Explorer use the exact case row when proven.
+
+Fixture `fixtures/parameterized-navigation-proof/`; source proof `node scripts/verify-parameterized-navigation.mjs` PASS; real Vitest fixture 2/2 and xUnit fixture 2/2 PASS; `npm test` **50/50** PASS; original primary E2E **3 Situations** PASS; previous P1 responsibility/assertion proofs PASS. A **separate** isolated P2 installed VSIX candidate passed Fresh with **2 Situations / 4 exact source actions on lines 4,5,5,6 / 0 blocking diagnostics**, including Markdown link, Test Explorer and editor command navigation.
+
+Candidate: `artifacts/feature-projection-prototype-p0-0.1.0-p2-navigation-candidate.vsix` (20,462,673 bytes; SHA-256 `6F54B99A8D250BBFAD0BC114D37C22E7C2558EF6A36EAC9530B07BAB782AA0C8`). This is an **isolated installed technical acceptance**, not a new published release or ordinary-user manual P2 click-through. Historical 0.1.0 and P1 candidate hashes remain unchanged.
+
+**P2/8.1 bounded contract completed.** Dynamic-provider feasibility was checked against real framework outputs. Vitest `test.each(buildCases())` gives distinct native case IDs/labels but the same shared task location at line 11:24, not a row coordinate. xUnit v3 `MemberData` returns native Labels/UniqueIDs but no independently trustworthy per-row source; the current xUnit v3 test reflection API exposes no proven row position. The reproducible `scripts/verify-dynamic-provider-fallback.mjs` reports PASS (4 real concrete cases, 3 joined Situations, 4 safe definition-level navigation actions, 0 invented exact-row claims), with Frontend line 11 and Backend line 26 for the two dynamic Situations. Repeated `npm test` 50/50 PASS and the static exact-row navigation proof PASS.
+
+**Supported:** exact row navigation for unambiguous static Vitest/xUnit labels, already installed-technically accepted. **Unsupported but safe:** arbitrary computed Vitest cases and xUnit MemberData navigate to their definitions. Further dynamic source mapping needs separate trustworthy framework-backed evidence; never infer coordinates or Situation from business payload, errors, ordinal order, or fuzzy label matches. No new P2 VSIX was created by this feasibility check, and ordinary-user P2 acceptance remains pending.
+
+## P2/8.2 Projection ↔ Test Explorer + assertion navigation — installed technical PASS
+
+Projection Situation rows now provide a `Reveal Situation in Test Explorer` CodeLens. From Test Explorer's Situation/part context menu, `Open Situation in Projection` targets the precise Situation line in the virtual Markdown editor. Both use a published TestItem ID based on the **full semantic FeatureScope + FeatureName + Outcome + Situation**, never a name-only lookup. Unknown/stale TestItems are refused without navigating to another Situation. Matched Frontend/Backend source links and Test Explorer part-node navigation retain their earlier behavior.
+
+Literal assertion/registered-responsibility code snippets additionally expose dedicated native Markdown Preview source links and editor CodeLenses to their actual assertion ranges. Code content is not paraphrased. Their link actions are separate from existing part source actions; 8.1 static-row navigation and dynamic definition fallback remain unchanged.
+
+Regression: `npm test` **54/54 PASS**, primary real Vitest+xUnit E2E three Situations PASS, P2 static/dynamic proofs PASS, P1 registered responsibility and custom helper proofs PASS. Isolated installed VSIX technical acceptance: two FeatureSpaces (`accounts`/`billing`), six Situations, six bidirectional scoped navigation actions, ten Frontend/Backend actions, ten assertion source links/CodeLenses, two explicit unmatched parts, correct refusal of unknown IDs, and status Fresh — **PASS**.
+
+Final internal candidate: `artifacts/feature-projection-prototype-p0-0.1.0-p2-cross-navigation-assertions-candidate.vsix` — 20,463,808 bytes, SHA-256 `88E8030EC53220D05682F077D7F7E9FEC25A91C05F59902F45A9673528412F62`. The earlier cross-navigation-only candidate and all historical release/P1/P2 candidates remain separate and unchanged.
+
+**Acceptance boundary:** this is an installed technical proof of command dispatch and menu contribution, not a manual ordinary-user click in Test Explorer or Markdown Preview for this P2 build. This candidate retains manifest version 0.1.0 and is not a newly published release.
+
+Next: P2/8.3 usage/refactoring *feasibility review*. Do not begin new adapters or Run/Debug/cache architecture without new evidence. P1/7.4 stable normalized JSON/export remains LATER.
+
+## P2/8.2 ordinary-user forward Reveal — initial FAIL (later resolved via Command Palette in D-054)
+
+Manual Windows VS Code acceptance confirmed six correct Situations and Test Explorer groups under accounts/billing, but the `Reveal Situation in Test Explorer` CodeLens did not visibly expand/select `expired`/`locked`. Screenshots showed Frontend shared `test.each(buildCases())` source instead; exact UI click target remains unproven. Mark **manual P2/8.2 forward Reveal FAIL**, not accepted; the installed technical smoke only validates command dispatch.
+
+D-053 fixes discoverability by adding an explicit Command Palette `Feature Projection: Reveal Situation in Test Explorer` QuickPick with full scoped names. Initial probe attempted a nonexistent VS Code view command and failed isolated smoke; this was removed. New separate technical PASS candidate: `artifacts/feature-projection-prototype-p0-0.1.0-p2-reveal-palette-fixed-candidate.vsix` (20,464,402 bytes, SHA-256 `D243269ADD21035CD5B75B599A093AFA61BFCF2998688F3917C1A61320265107`). Source 54/54 PASS; isolated installed smoke PASS (6 Situations, 2 FeatureSpaces, 10 assertion actions, 10 source actions, Fresh). This still **does not prove visual reveal**. Require new ordinary-user Command Palette retest before manual acceptance or P2/8.3 work.
+**Later resolution — P2/8.2 manual PASS (D-054).** The earlier CodeLens-facing failure recorded above remains historical and should not be erased. The user installed `artifacts/feature-projection-prototype-p0-0.1.0-p2-reveal-palette-fixed-candidate.vsix` in ordinary VS Code, confirmed the explicit `Feature Projection: Reveal Situation in Test Explorer` **Command Palette** workflow works, and then confirmed two more user-visible actions: Test Explorer `billing/shared → denied → locked` context-menu `Open Situation in Projection` opens the matching projected Situation; Backend `Open assertion source` opens `services/billing-api/Features/shared/AccessFeatureTests.cs` at **line 22** (`Assert.False(testCase.Allowed);`). Manual **PASS applies to these three supported paths**, not to separately unverified inline CodeLens behavior. The final confirmations were conversational. Installed technical smoke and 54/54 source tests passed before this manual check. The candidate SHA-256 is `D243269ADD21035CD5B75B599A093AFA61BFCF2998688F3917C1A61320265107`; it remains internal version 0.1.0 and is not a newly released artifact.
+
+## P2/8.3a C# registered method usage feasibility — read-only proof PASS
+
+A new **internal** research command `probe-registered-usages` in the working .NET worker finds references using Roslyn `SymbolFinder.FindReferencesAsync` after resolving existing code-first `RegisterResponsibility` and `RegisterAssertion` registrations semantically. It reads the configured C# project only, does not execute `Configure()`, excludes same-named overloads and fake builder registrations, and emits literal source spans for registrations and usage sites. Ambiguous duplicate registration yields diagnostics and **zero** usage results (fail closed). No code edits or rename operations exist in this command.
+
+`scripts/verify-usage-symbol-feasibility.mjs` **PASS**:
+- `User.Authenticate(string)`: one registration (line 33), direct call (12), Moq verification (13); `Authenticate(int)` excluded.
+- `FeatureChecks.AssertDenied(bool)`: registration (48), helper assertion (8); the string overload and unrelated `UnrelatedChecks` excluded.
+- Duplicate registration: zero results + explicit diagnostic.
+
+Regression: `npm test` **54/54 PASS**, primary real Vitest+xUnit E2E PASS, P2 static and dynamic case navigation proofs PASS, both P1 responsibility/custom helper scripts PASS. Only the **working source checkout** and worker DLL were changed. No new VSIX, public Usage View, installed acceptance, or user-visible Rename command is claimed; historical release artifacts remain separate.
+
+**8.3a** was a source-only proof; its original result remains valid. **8.3b Windows installed technical acceptance is now PASS (D-056)**, with **ordinary-user acceptance still PENDING**. Rename/refactoring safety requires a later separate semantic-edit/collision proof; do not implement search-and-replace. P1/7.4 normalized JSON/export remains LATER.
+
+## P2/8.3b registered C# Usage View — installed technical PASS + ordinary-user manual PASS (D-057)
+
+Public Command Palette: `Feature Projection: Show Registered C# Usages`. Requires a trusted single-folder workspace and an explicitly chosen scoped xUnit source (`FeatureSpace/source`). Roslyn worker looks up registered responsibilities and assertion helpers; the extension shows a dedicated read-only `feature-projection:/usages/<space>/<source>.md` view with registration, feature-test and project-source links. Markdown Preview native `vscode://file` links and editor CodeLens `Open ... source` navigate to literal Roslyn symbol spans. A separate view/document/action map per scope avoids stale data from another FeatureSpace. Paths are checked against real workspace/project ancestry; invalid/ambiguous symbols and stale coordinates are rejected rather than guessed. This command never performs Rename or a `WorkspaceEdit` and never starts automatically.
+
+First research package `...p2-registered-usages-candidate.vsix` was **rejected** after an installed smoke revealed one shared virtual `usages.md` document could retain the previous source's content. Replaced with **separate scope-qualified URIs**, new candidate `artifacts/feature-projection-prototype-p0-0.1.0-p2-registered-usages-scoped-candidate.vsix` — 20,474,162 bytes; SHA-256 `7C259D336C89C961E61827E0AD6E92508BB0125CE5C0776946C17D0067275CE1`.
+
+Proof: source `npm test` **58/58 PASS**; 8.3a Roslyn reference/duplicate guard PASS; installed Windows trusted profile `p2-registered-usages` PASS (P1 fixture proof: `User.Authenticate(string)` 3 links, `FeatureChecks.AssertDenied(bool)` 2 links, native source navigation and scoped CodeLens); installed normal profile hidden test commands absent PASS; installed Restricted Mode refuses usage and spawns no worker PASS; installed P2 cross-navigation regression 6 Situations / 10 assertion links PASS; all historical artifacts checksum-unchanged.
+
+**Later ordinary-user manual acceptance — PASS (D-057).** User installed the corrected scoped candidate and used the existing trusted `feature-projection-p1-manual-acceptance` workspace without Refresh. Screenshot `responsibility/backend`: `User.Authenticate(string)` registration `FeatureProjectionConfig.cs:33`, use `Features/auth/AccessFeatureTests.cs:12`, Moq Verify use `:13`. Screenshot `assertions/backend`: `FeatureChecks.AssertDenied(bool)` registration `FeatureProjectionConfig.cs:48`, use `Features/access/AccessFeatureTests.cs:8`. Both screens show the intended CodeLens actions and isolated symbols/scopes; unrelated overloads are not listed. Later screenshots confirm `Open feature test source` lands on `responsibility/Features/auth/AccessFeatureTests.cs:12` with `user.Object.Authenticate("invalid");` and `assertions/Features/access/AccessFeatureTests.cs:8` with `FeatureChecks.AssertDenied(false);`. Manual **PASS is bounded to these two virtual views and editor CodeLens jumps**. Native Markdown Preview links were technically, but not separately manually, tested. Rename has not been delivered or tested; it requires independent semantic safety feasibility.
+
+**NEXT:** P2/8.3c Rename/refactor **feasibility investigation**, beginning without any mutations or user source file edits; no new public release. P1/7.4 normalized JSON/export remains LATER.
+
+## Packaging warnings not treated as local-alpha blockers
+
+`vsce` still warns about a missing repository field and LICENSE file. These remain marketplace/publication metadata work; local VSIX packaging and installed acceptance succeed.

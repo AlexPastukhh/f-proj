@@ -1,0 +1,25 @@
+{
+  "workerTimeoutMs": 15000,
+  "featureSpaces": [
+    {
+      "id": "app",
+      "sources": [
+        {
+          "id": "frontend",
+          "role": "frontend",
+          "root": "workspace/frontend/src/features",
+          "adapter": "vitest-5",
+          "frameworkProject": "workspace/frontend"
+        },
+        {
+          "id": "backend",
+          "role": "backend",
+          "root": "workspace/backend/Features",
+          "adapter": "xunit-v3",
+          "frameworkProject": "workspace/backend",
+          "projectFile": "Backend.FeatureTests.csproj"
+        }
+      ]
+    }
+  ]
+}
