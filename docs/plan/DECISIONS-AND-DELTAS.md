@@ -1141,3 +1141,49 @@ Actual release version bump, tag, licensing/publication and any source
 mutation still require explicit separate user approval.
 
 Authoritative gate checklist: `docs/plan/MVP-RELEASE-GATE.md`.
+
+## D-061 — Single cumulative VSIX installed technical acceptance PASS; manual pending
+
+Status: WINDOWS INSTALLED TECHNICAL PASS / ORDINARY-USER MANUAL PENDING / 2026-10-10
+
+The D-060 batched-verification policy was executed against one SHA-pinned
+prebuilt candidate installed once into a **fresh isolated VS Code extensions
+directory**, with independent user profiles/workspaces for each scenario.
+Implemented `scripts/verify-mvp-installed-aggregate.ps1` and a separate
+reconciling report validator `scripts/verify-mvp-aggregate-report.ps1`.
+Tests do not overwrite earlier accepted or rejected builds, do not use
+the ordinary user's VS Code profile, and require exact candidate SHA-256.
+
+Candidate for ONE later combined ordinary-user acceptance:
+`artifacts/feature-projection-prototype-p0-0.1.0-mvp-batched-acceptance-candidate.vsix`,
+20,490,576 bytes, SHA-256
+`54D4B3D1F5C17B3657C91AA299A129B66D146A72178633221FBC2FB0A3D83A29`.
+Internal extension version remains 0.1.0; this is **not** a new public release.
+
+Evidence from fresh aggregate runs on both the previous D-059 candidate
+and the final cumulative candidate: source `npm test` **62/62 PASS**,
+8.3a registered symbol usage and 8.3c in-memory Rename proof PASS;
+isolated installed normal profile with hidden test hooks absent PASS;
+trusted Configure -> explicit Refresh / Stale marker PASS;
+two-FeatureSpace registered Usage View PASS;
+two-FeatureSpace read-only Rename Preview (4+3 semantic token links,
+exact CodeLens jumps, rejected name produces zero edits) PASS;
+Restricted Mode refuses analysis and spawns no C# usage/rename worker PASS;
+prior P2/8.2 cross-navigation on the *same installed candidate* PASS
+(accounts/billing, 6 Situations, 10 assertion source actions);
+historical VSIX/ZIP SHA-256 unchanged.
+
+The final run initially exited nonzero **only while writing the summary
+JSON report**: Windows PowerShell 5.1 lacks `System.IO.Path.GetRelativePath`.
+All six installed result markers and actual assertions were already PASS.
+The reporting step was moved to a compatible dedicated script using
+validated repo-relative substring paths. Independently re-reading all
+six persisted installed result markers against the isolated extension
+and pinned candidate yielded `MVP_AGGREGATE_RESULTS_RECONCILED=PASS_MANUAL_PENDING`.
+Local evidence persists under `artifacts/local-acceptance-results/` (Git-ignored);
+historical test profiles remain in the Windows temporary smoke root.
+
+**Boundary:** installed technical PASS is not a human UX PASS, and the
+candidate is not tagged, version-bumped, publicly released or published.
+One combined ordinary-user acceptance session remains REQUIRED by D-060.
+Mutating/cross-project Rename, P1/7.4 JSON/export, P3–P6 remain LATER.

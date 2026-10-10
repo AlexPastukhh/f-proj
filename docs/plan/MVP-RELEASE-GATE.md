@@ -62,5 +62,18 @@ regressions); preserved historical candidate checksums; one stable
 candidate hash; one combined manual acceptance PASS; documented gaps;
 and explicit approval for tag/version/publication. No implicit release.
 
-**Current:** packaging/CI stabilization. P2/8.3d manual acceptance is
-**deferred to this gate**, not waived.
+**Current (D-061):** **installed technical PASS** for the single cumulative
+MVP candidate, ordinary-user manual **PENDING**, not waived. The one
+acceptance VSIX is
+`artifacts/feature-projection-prototype-p0-0.1.0-mvp-batched-acceptance-candidate.vsix`
+(20,490,576 bytes; SHA-256
+`54D4B3D1F5C17B3657C91AA299A129B66D146A72178633221FBC2FB0A3D83A29`).
+The tested candidate has **not** been installed in the ordinary user's
+VS Code. Use one manual session only when the user elects to proceed.
+
+The aggregate installed regression is reproducible with
+`powershell -NoProfile -File scripts/verify-mvp-installed-aggregate.ps1`.
+Its isolated result markers are reconciled by
+`scripts/verify-mvp-aggregate-report.ps1`; local JSON evidence is in the
+Git-ignored `artifacts/local-acceptance-results/` folder.
+See D-061 for the PowerShell 5.1 report-writing issue and recovery.

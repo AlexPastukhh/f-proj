@@ -1,6 +1,6 @@
 # Feature Projection — Master Plan
 
-Status: `0.1.0` Windows-first alpha accepted; P1 DONE, P2/8.1 navigation DONE, P2/8.2 technical/manual PASS (D-054), P2/8.3a usages DONE (D-055), P2/8.3b Usage View technical/manual PASS (D-056/D-057), P2/8.3c in-memory Rename feasibility DONE (D-058). P2/8.3d read-only Rename Preview installed technical PASS (D-059), ordinary-user manual PENDING. NEXT: automated MVP stabilization and one consolidated final user acceptance (D-060); no intermediate manual VSIX installs. Mutating Rename, export and other new feature families LATER.
+Status: `0.1.0` Windows-first alpha accepted; P1 DONE, P2/8.1 navigation DONE, P2/8.2 technical/manual PASS (D-054), P2/8.3a usages DONE (D-055), P2/8.3b Usage View technical/manual PASS (D-056/D-057), P2/8.3c Rename feasibility DONE (D-058), P2/8.3d read-only Rename Preview installed technical PASS (D-059). One cumulative MVP VSIX installed aggregate technical PASS (D-061); ordinary-user manual acceptance PENDING. NEXT: ONE final combined manual checklist (D-060). No public release/version bump, source mutations, export, or additional adapter work.
 
 This document is the active work sequence. It does not replace the original v11 semantic/design specification. When prototype evidence conflicts with an old assumption, the explicit record in `DECISIONS-AND-DELTAS.md` supersedes only that assumption.
 
@@ -1133,12 +1133,12 @@ DONE-17 P2/8.3b read-only registered C# Usage View, scoped virtual documents, is
 DONE-18 Ordinary-user P2/8.3b registered C# Usage View and two exact C# editor source navigations, manual PASS (D-057)
 DONE-19 P2/8.3c registered C# Roslyn Rename in-memory symbol-token proof (7 edits, collision/overload/duplicate refusal, no file writes) D-058
 DONE-20 P2/8.3d read-only registered C# Rename Preview Command Palette, 7 exact token previews, Restricted Mode + prior P2 regression installed technical PASS (D-059)
-NEXT-1  MVP stabilization: Windows source CI, packaging metadata and cumulative installed VSIX regressions (D-060)
-NEXT-2  ONE final ordinary-user acceptance checklist for the cumulative candidate, including pending P2/8.3d preview
+DONE-21 One cumulative 0.1.0 MVP candidate, installed Windows aggregate technical PASS (62 tests; Configure/Refresh; two Usage scopes; Rename; Restricted Mode; 6 Situations / 10 assertion links), D-061
+NEXT-1  ONE final ordinary-user acceptance checklist for the cumulative VSIX, including pending P2/8.3d preview; no new release until approval
 LATER-1  7.4 stable normalized JSON/export requires separate scope decision
 ```
 
-Do not start new language adapters, custom Run profiles, or cache architecture without evidence-driven reprioritization. The 7.1–7.3 proofs, isolated installed technical acceptance, and ordinary-user manual P1 candidate acceptance passed on Windows. P1 candidate is not a new public release; no public C# configuration SDK is claimed. P2/8.1 bounded scope is complete: static labeled-case exact navigation installed-technically accepted; dynamic-provider source fallback independently verified. P2/8.2 original inline CodeLens reveal failed or was ambiguous (D-053); subsequent corrected Command Palette forward navigation, Test Explorer context-menu reverse navigation, and direct assertion-source link passed ordinary-user manual acceptance (D-054). Direct inline CodeLens reveal is not independently verified. P2/8.3a C# symbol-usage feasibility DONE (D-055); P2/8.3b trusted read-only Usage View installed technical PASS (D-056) and ordinary-user manual PASS (D-057), scoped editor source jumps included. P2/8.3c **in-memory read-only Rename preview feasibility DONE** (D-058); general rename/cross-project safety remains unproven and no Rename UX exists. P2/8.3d explicit read-only Rename Preview installed technical PASS (D-059); ordinary-user manual is deferred (not waived) to the single final MVP release gate (D-060). Cross-project/apply/consent Rename policy LATER (8.3e), 7.4 export LATER.
+Do not start new language adapters, custom Run profiles, or cache architecture without evidence-driven reprioritization. The 7.1–7.3 proofs, isolated installed technical acceptance, and ordinary-user manual P1 candidate acceptance passed on Windows. P1 candidate is not a new public release; no public C# configuration SDK is claimed. P2/8.1 bounded scope is complete: static labeled-case exact navigation installed-technically accepted; dynamic-provider source fallback independently verified. P2/8.2 original inline CodeLens reveal failed or was ambiguous (D-053); subsequent corrected Command Palette forward navigation, Test Explorer context-menu reverse navigation, and direct assertion-source link passed ordinary-user manual acceptance (D-054). Direct inline CodeLens reveal is not independently verified. P2/8.3a C# symbol-usage feasibility DONE (D-055); P2/8.3b trusted read-only Usage View installed technical PASS (D-056) and ordinary-user manual PASS (D-057), scoped editor source jumps included. P2/8.3c **in-memory read-only Rename preview feasibility DONE** (D-058); general rename/cross-project safety remains unproven and no Rename UX exists. P2/8.3d explicit read-only Rename Preview installed technical PASS (D-059); cumulative MVP candidate installed technical PASS (D-061) with one SHA-pinned VSIX, consolidated report and prior regression. Ordinary-user manual remains PENDING, deferred (not waived) to the single final MVP gate (D-060). Cross-project/apply/consent Rename policy LATER (8.3e), 7.4 export LATER.
 
 ## 17. Batched MVP acceptance and release policy — D-060
 
@@ -1159,3 +1159,33 @@ bundled final checklist. Do not ask for repeated VSIX installations or
 success screenshots during development. No user-source mutations,
 license choice, release tag, version bump or Marketplace publish without
 separate explicit authorization.
+
+## 18. Cumulative MVP installed technical acceptance — PASS (D-061)
+
+The Windows one-install aggregate technical gate is implemented at
+`scripts/verify-mvp-installed-aggregate.ps1`; its separate cross-version
+safe reporter is `scripts/verify-mvp-aggregate-report.ps1`.
+The gate pins VSIX SHA-256, runs 62 Node/TypeScript unit tests,
+two Roslyn symbol/rename proofs, installs a *single* candidate into a
+fresh VS Code extensions directory, and runs independent isolated
+profiles for normal hook security, read-only Rename Preview, scoped
+Usage View, Configure/explicit Refresh, Restricted Mode and earlier
+P2/8.2 bidirectional navigation. Historic VSIX/ZIPs are not overwritten.
+
+Final cumulative 0.1.0 MVP **acceptance candidate**,
+`artifacts/feature-projection-prototype-p0-0.1.0-mvp-batched-acceptance-candidate.vsix`,
+20,490,576 bytes, SHA-256
+`54D4B3D1F5C17B3657C91AA299A129B66D146A72178633221FBC2FB0A3D83A29`:
+**isolated Windows installed technical PASS** for all stages.
+The first run failed at JSON report output only due to a PowerShell
+5.1-incompatible relative-path call; the corrected standalone reporter
+independently revalidated all six saved test result markers, and the
+machine-local report is now persisted under Git-ignored
+`artifacts/local-acceptance-results/`. See D-061 for evidence boundaries.
+
+**NEXT**: one consolidated ordinary-user manual session per
+`docs/plan/MVP-RELEASE-GATE.md` (PENDING, not waived).
+Only after manual PASS and explicit release authorization should a
+new version/tag or publication be considered. Do not claim safe
+mutating Rename, cross-platform installed acceptance, JSON export,
+Run profiles, caching or additional adapters.

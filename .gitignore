@@ -12,6 +12,9 @@ TestResults/
 coverage/
 *.tsbuildinfo
 
+# Machine-local installed acceptance reports; source results remain in docs.
+artifacts/local-acceptance-results/
+
 # Binary artifacts are retained on disk, not checked into Git.
 *.vsix
 *.zip

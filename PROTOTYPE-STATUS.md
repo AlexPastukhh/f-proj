@@ -154,3 +154,30 @@ scoped Usage View, two read-only Rename previews and a fail-closed
 name, with confirmation that no C# files changed. See
 `docs/plan/MVP-RELEASE-GATE.md`. No release/version bump or actual Rename
 application has been authorized. P1/7.4, P2/8.3e and P3–P6 remain LATER.
+
+## Cumulative MVP single-VSIX installed acceptance — PASS (D-061)
+
+Candidate: `artifacts/feature-projection-prototype-p0-0.1.0-mvp-batched-acceptance-candidate.vsix`
+(20,490,576 bytes, SHA-256
+`54D4B3D1F5C17B3657C91AA299A129B66D146A72178633221FBC2FB0A3D83A29`).
+This is an **internal alpha candidate**, not an authorized public release.
+
+**Installed technical acceptance PASS** with one installed candidate:
+62/62 source unit tests; C# usages and read-only Rename Roslyn proof;
+normal profile hidden-hook security; Configure/explicit Refresh;
+responsibility/assertions scoped Usage View; 4+3 Rename Preview links
+and refusal without edits; Restricted Mode with no worker spawn;
+accounts/billing P2 cross-navigation (6 Situations, 10 assertion links).
+Previous VSIX/ZIP checksums unchanged. The first final candidate run
+exited only during report writing because Windows PowerShell 5.1 lacks
+`Path.GetRelativePath`; repaired with a separate reporter that independently
+verified all six saved installed results. Local JSON evidence is under
+`artifacts/local-acceptance-results/` and ignored by Git.
+
+Commands: `powershell -NoProfile -File scripts/verify-mvp-installed-aggregate.ps1`
+for a fresh complete technical run; the script pins the final VSIX SHA.
+
+**NEXT:** One combined ordinary-user manual checklist in
+`docs/plan/MVP-RELEASE-GATE.md`; manual acceptance PENDING (D-060).
+No actual Rename, public release, version bump, tag or Marketplace
+publication has been made or authorized.

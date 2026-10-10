@@ -920,3 +920,48 @@ unapproved license, version bump, release tag or publishing a VSIX.
 Historical binaries remain local and ignored by Git. Next task:
 verify CI on GitHub and stabilize aggregate installed release smoke;
 only then ask for the one ordinary-user acceptance session.
+
+## 2026-10-10 — D-061 MVP cumulative isolated installed acceptance PASS
+
+### Reusable aggregate gate
+
+`scripts/verify-mvp-installed-aggregate.ps1` pins the input VSIX by SHA-256,
+verifies earlier accepted artifact hashes, runs source tests/Roslyn proofs,
+installs exactly one VSIX in a disposable extension profile and exercises
+normal hooks, read-only Rename Preview, scoped registered C# usages,
+Configure/explicit Refresh, Restricted Mode and existing P2 cross-navigation
+in separate disposable profiles. It reuses the existing installed test
+driver and assertion contracts; no manual click or ordinary user install.
+
+### Recorded results
+
+Source: `npm test` 62/62; Roslyn usages PASS; Roslyn preview of 7 exact
+source identifiers and fail-closed adversarial cases PASS. Installed:
+normal hidden-hook isolation PASS; responsibility/assertions view separation
+PASS; Rename Preview 4+3 CodeLens source links and refusal with 0 changes
+PASS; Configure/Refresh 3 Situations PASS; Restricted Mode PASS with zero
+usage/rename subprocess launches; cross-navigation 6 Situations and
+10 assertion links PASS. Historic accepted release and earlier VSIX hash
+inventory unchanged.
+
+Final internal candidate: `feature-projection-prototype-p0-0.1.0-mvp-batched-acceptance-candidate.vsix`
+(20,490,576 bytes, SHA-256
+`54D4B3D1F5C17B3657C91AA299A129B66D146A72178633221FBC2FB0A3D83A29`).
+No other VSIX was overwritten.
+
+### Evidence integrity and incident
+
+Windows PowerShell 5.1 cannot call `Path.GetRelativePath`: the final
+candidate's first aggregate script run exited only while writing the
+local report, **after all installed smoke checks passed**. This is a
+reporting defect, not an installed feature failure. Fixed the reporter,
+verified all six saved result JSON objects and extension ancestry
+against the exact candidate, and persisted a local Git-ignored JSON
+report. The aggregate script now invokes the standalone compatible
+`scripts/verify-mvp-aggregate-report.ps1` for future runs.
+
+### Release gate
+
+**Installed technical PASS; ordinary-user manual PENDING** until the
+single consolidated D-060 checklist. No public release/version bump,
+tag or Rename apply. Next: user chooses when to run one manual session.
