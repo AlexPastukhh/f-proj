@@ -73,7 +73,7 @@ jobs:
         run: node scripts/verify-p4-vitest-run.mjs
       - name: P4 Backend Fact and folded Theory fail-closed proof
         run: node scripts/verify-p4-backend-run.mjs
-      - name: P4 exact individually pre-enumerated xUnit Theory rows
+      - name: D-078 exact xUnit Theory and preflighted Run Both
         run: node scripts/verify-p4-xunit-theory-run.mjs
       - name: P4 Run Both one complete Situation (Frontend then Backend)
         run: node scripts/verify-p4-run-both.mjs

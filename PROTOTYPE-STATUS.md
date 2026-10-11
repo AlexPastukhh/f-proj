@@ -569,3 +569,33 @@ Windows Actions `38131768165` for source `7b7b4f6`:
 SUCCESS; 129 unit tests and actual running Vitest/xUnit
 cancellation accepted by CI. Source-only, ordinary installed
 VSIX/manual browser PENDING; no release.
+
+## D-078 - Exact Theory Run Both with native preflight
+
+Source-only `Run Both Situation` now supports Backend xUnit
+Theory cases when native pre-enumeration identifies one selected
+compiled row **before Frontend executes**. Preflight records the
+native ID and SHA-256 of C# source, project and test assembly;
+the Backend runner rebuilds/rediscovers and refuses any ID or
+byte drift before test execution. Unsupported/folded Theory
+(including the prepared `LoginCase` fixture) refuses both
+stages, with no speculative Frontend run.
+
+Windows real disposable Vitest+xUnit proof: three separate
+Run Both executions (two Passed, one expected Backend Failed),
+one test per role; altered preflight native ID refuses Backend.
+Unit tests verify missing/incomplete proof, order and cancellation.
+Existing direct Fact, D-077 cancellation and Portable HTML
+regressions unchanged. Ordinary installed D-065 remains untouched;
+D-066+P4 UI/browser manual acceptance PENDING; own-app integration
+deferred; no VSIX/release.
+
+### D-078 Windows local source acceptance
+
+132/132 unit tests PASS; three disposable real Theory Run Both
+executions, 2 Passed and 1 expected Backend Failed, with exactly
+one test per role; forged native ID correctly refused before
+Backend. Both maintained folded `LoginCase` Theory situations
+blocked before Frontend. Existing Fact Run Both, real cancellation,
+Portable HTML and isolated Extension Host smoke PASS. GitHub
+Windows CI result is tracked separately after source push.

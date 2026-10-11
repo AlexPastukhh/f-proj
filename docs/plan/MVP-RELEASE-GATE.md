@@ -214,3 +214,19 @@ Uncontrolled test side effects cannot be undone by cancelling,
 and non-descendant processes are not guaranteed terminated.
 No new candidate VSIX has been installed or authorized here;
 release and own-app localhost integration remain deferred.
+
+## D-078 Theory Run Both remains source-only
+
+The combined P4 `Run Both Situation` profile now accepts exactly
+pre-enumerable xUnit Theory rows and direct Facts; unsupported or
+folded Theory is rejected before any Frontend test. Ordinary
+installed D-065 remains unchanged. Do not add separate manual
+clicks for the Theory proof: native preflight, exact selected ID
+and negative drift/refusal are covered by real Windows CI.
+
+The existing future ONE-session D-066+P4 manual acceptance gate
+is retained after a separately validated and authorized VSIX:
+Reload Window, trusted prepared fixture Refresh/Fresh, portable
+HTML anchor/source link and one complete direct-Fact Situation
+run in Testing API. User's own localhost app remains deferred,
+no version/tag/release approved.

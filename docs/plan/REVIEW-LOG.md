@@ -1890,3 +1890,50 @@ new real mid-execution Vitest and xUnit cancellation proof.
 Source-only D-077 technically accepted. The ordinary D-065
 installed VSIX has not been replaced and manual D-066+P4
 UI/browser acceptance is still PENDING.
+
+## 2026-10-11 - D-078 exact Theory Run Both preflight
+
+Starting point: clean Windows source at
+`08e5a21fdb950ff0e118a87cf37de2100d16eb07` and GitHub main
+confirmed equal via API. Prior D-077 documentation CI `38132026004`
+was in progress when this task began. No ordinary VSIX change.
+
+Refactored `inspectExactXunitCase` out of the existing native xUnit
+runner: build + discovery return selected native ID and SHA-256 for
+authored C# source, project file and compiled assembly. Run Both
+uses this read/compile-only preflight to reject unsupported Theory
+BEFORE Frontend user tests start. Backend runner then repeats full
+discovery and compares all four fields before any test execution.
+Existing Fact-only runner semantics, selected ID counters and
+D-077 AbortSignal remain intact.
+
+Run Both now dispatches static Backend Fact or uniquely correlated
+Theory using `planXunitBackendRun`; the async executor requires
+`preflightTheory` for Theory plans and rejects missing, ambiguous
+or incomplete proof without calling Frontend. After preflight, the
+execution sequence is Frontend -> (revalidate proof) Backend.
+Interrupted/invalidated preflight stops both stages. A preflight
+rejection marks both unstarted Testing API part items Skipped.
+
+Final local Windows acceptance before commit:
+`npm test` **132/132 PASS**, zero skipped; the first run uncovered
+an obsolete unit expectation for the number of `valid()` checks
+after introducing preflight, and the test was corrected without
+weakening the runtime guard. The maintained fixture Run Both
+direct Fact PASSED (one exact test per role); both folded Theory
+Situations returned Error with **zero Frontend/Backend calls**.
+A disposable serialized xUnit Theory+Vitest project then executed
+three **Run Both** pairs (2 Passed, 1 expected Backend Failed),
+each with precisely one Frontend and one Backend test; the
+`preflight → Frontend → Backend` order was asserted. A deliberately
+mismatched preflight native ID produced Error/executed=0 for Backend.
+No authored source mutations or residual temporary projects.
+
+D-077 real-running Vitest/xUnit cancellation regressions PASS.
+D-065 Portable Markdown/HTML dual-view PASS (3 Situations,
+6 literal assertions). Isolated VS Code Extension Host smoke
+PASS, exit 0; unrelated Host/Agent sign-in warnings do not
+constitute failures. `git diff --check` and script syntax PASS.
+Previous documentation CI `38132026004` later confirmed SUCCESS.
+The ordinary installed D-065 VSIX remains unchanged; combined
+manual browser + new P4 UI acceptance is still PENDING.

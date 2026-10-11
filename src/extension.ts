@@ -5,7 +5,7 @@ import { runFullPrototype } from './core/fullEngine';
 import { planVitestSituationRun } from './core/situationRunPlan';
 import { planXunitBackendRun } from './core/xunitBackendRun';
 import { planRunBoth, executeRunBoth } from './core/runBothSituation';
-import { runExactXunitFact } from './core/xunitFactRunner';
+import { runExactXunitFact, inspectExactXunitCase } from './core/xunitFactRunner';
 import { runExactVitestSituation } from './core/vitestSituationRunner';
 import { Diagnostic, FeatureSourceConfig, PrototypeConfig, SourceRange, JoinedSituation, TestDefinition, FrameworkConcreteCase } from './core/types';
 import { buildTestingTree, TestingTreeNode } from './core/testingTree';
@@ -1218,14 +1218,18 @@ export function activate(context: any) {
         stage==='frontend'?frontItem:backItem;
       const outcome=await executeRunBoth(plan,{
         valid,
+        preflightTheory:target=>inspectExactXunitCase(target,
+          Math.min(600000,Math.max(30000,snapshot.config.buildTimeoutMs??120000)),
+          Math.min(120000,Math.max(30000,snapshot.config.workerTimeoutMs??30000)),
+          log,abort.signal),
         frontend:target=>runExactVitestSituation(target,
           context.asAbsolutePath('workers/vitest-materialize.mjs'),
           Math.min(120000,Math.max(30000,snapshot.config.workerTimeoutMs??30000)),
           {command:node.command,env},log,abort.signal),
-        backend:target=>runExactXunitFact(target,
+        backend:(target,proof)=>runExactXunitFact(target,
           Math.min(600000,Math.max(30000,snapshot.config.buildTimeoutMs??120000)),
           Math.min(120000,Math.max(30000,snapshot.config.workerTimeoutMs??30000)),
-          log,abort.signal),
+          log,abort.signal,proof),
         started:stage=>run.started(child(stage)),
         finished:(stage,result)=>{
           const item=child(stage);
@@ -1237,6 +1241,7 @@ export function activate(context: any) {
           else run.errored(item,[new vscode.TestMessage(result.message)]);
         },
       });
+      if(!outcome.frontend)run.skipped(frontItem);
       if(!outcome.backend)run.skipped(backItem);
       if(abort.signal.aborted)run.skipped(selected);
       else if(outcome.status==='passed')run.passed(selected);

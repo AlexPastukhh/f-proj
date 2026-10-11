@@ -139,7 +139,7 @@ test('P4 Run Both rejects state drift after Backend even if both tests passed',a
   const plan=planRunBoth(fixture(t).input)
   let count=0
   const result=await executeRunBoth(plan,{
-    valid:()=>++count<4,
+    valid:()=>++count<5,
     frontend:async()=>passed('front'),
     backend:async()=>passed('back'),
   })
@@ -170,4 +170,56 @@ test('D-077 Run Both cancellation during Backend prevents aggregate Passed',asyn
   })
   assert.deepEqual(calls,['front','back'])
   assert.equal(result.status,'error')
+})
+// D-078: a native Theory identity must be proved before ANY Frontend test.
+function theoryPlan(plan){
+  return {...plan,backend:{...plan.backend,displayName:
+    plan.backend.fullName+' [expired]',frameworkCaseId:'1'.repeat(64)}}
+}
+const validProof={ok:true,nativeCaseId:'2'.repeat(64),
+  sourceDigest:'3'.repeat(64),projectDigest:'4'.repeat(64),
+  assemblyDigest:'5'.repeat(64)}
+test('D-078 exact Theory preflight precedes Frontend and proof reaches Backend',async t=>{
+  const plan=theoryPlan(planRunBoth(fixture(t).input)),calls=[]
+  const result=await executeRunBoth(plan,{
+    valid:()=>true,
+    preflightTheory:async target=>{
+      calls.push('preflight:'+target.displayName);return validProof
+    },
+    frontend:async()=>{calls.push('frontend');return passed('frontend')},
+    backend:async(_,proof)=>{
+      calls.push('backend')
+      assert.deepEqual(proof,validProof)
+      return passed('backend')
+    },
+  })
+  assert.equal(result.status,'passed')
+  assert.deepEqual(calls,['preflight:'+plan.backend.displayName,'frontend','backend'])
+})
+test('D-078 missing/refused native Theory preflight starts zero tests',async t=>{
+  const plan=theoryPlan(planRunBoth(fixture(t).input))
+  for(const candidate of [undefined,async()=>({ok:false,message:'folded Theory'}),
+    async()=>({ok:true,nativeCaseId:'2'.repeat(64)}),
+    async()=>{throw Error('native discovery failed')} ]){
+    let invoked=0
+    const result=await executeRunBoth(plan,{
+      valid:()=>true,preflightTheory:candidate,
+      frontend:async()=>{invoked++;return passed('front')},
+      backend:async()=>{invoked++;return passed('back')},
+    })
+    assert.equal(result.status,'error')
+    assert.equal(invoked,0)
+  }
+})
+test('D-078 cancellation during preflight prevents Frontend and Backend',async t=>{
+  const plan=theoryPlan(planRunBoth(fixture(t).input))
+  let fresh=true,invoked=0
+  const result=await executeRunBoth(plan,{
+    valid:()=>fresh,
+    preflightTheory:async()=>{fresh=false;return validProof},
+    frontend:async()=>{invoked++;return passed('front')},
+    backend:async()=>{invoked++;return passed('back')},
+  })
+  assert.equal(result.status,'error')
+  assert.equal(invoked,0)
 })

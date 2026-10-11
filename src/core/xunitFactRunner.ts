@@ -79,12 +79,20 @@ export function validateXunitAutomatedRun(
     return {status:'error',executed:0,message:e?.message??'invalid xUnit run report'};
   }
 }
-export async function runExactXunitCase(
+export interface XunitCaseInspection {
+  ok:boolean;
+  message?:string;
+  nativeCaseId?:string;
+  sourceDigest?:string;
+  projectDigest?:string;
+  assemblyDigest?:string;
+}
+export async function inspectExactXunitCase(
   target:XunitCaseTarget, buildTimeoutMs:number, runTimeoutMs:number,
   log?:(message:string)=>void,
   signal?:AbortSignal,
-):Promise<VitestRunResult> {
-  const error=(message:string)=>failure(target,message);
+):Promise<XunitCaseInspection> {
+  const error=(message:string):XunitCaseInspection=>({ok:false,message});
   if(signal?.aborted)return error('xUnit run cancelled before launch');
   if(!Number.isSafeInteger(buildTimeoutMs)||buildTimeoutMs<1000||buildTimeoutMs>600000 ||
      !Number.isSafeInteger(runTimeoutMs)||runTimeoutMs<1000||runTimeoutMs>600000)
@@ -133,15 +141,48 @@ export async function runExactXunitCase(
       :findExactXunitFact(parsed,target,assembly);
   } catch{return error('xUnit discovery output is not valid JSON');}
   if(!selected) return error('selected xUnit case was not uniquely pre-enumerated');
-  // Native -id is case identity based (not method-name pattern). Preflight
-  // proves that this ID maps to exactly the planned direct Fact.
+  // Native -id is case identity based; Fact or uniquely enumerated Theory.
   if(!unchanged()) return error('xUnit source changed after discovery');
+  let assemblyDigest:string;
+  try{assemblyDigest=digest(assembly);}catch{return error('xUnit assembly changed during preflight');}
+  if(!unchanged())return error('xUnit inputs changed during preflight');
+  return {ok:true,nativeCaseId:selected.ID,sourceDigest:beforeSource,
+    projectDigest:beforeProject,assemblyDigest};
+}
+
+export async function runExactXunitCase(
+  target:XunitCaseTarget,buildTimeoutMs:number,runTimeoutMs:number,
+  log?:(message:string)=>void,signal?:AbortSignal,
+  expected?:XunitCaseInspection,
+):Promise<VitestRunResult> {
+  const error=(message:string)=>failure(target,message);
+  const ready=await inspectExactXunitCase(target,buildTimeoutMs,runTimeoutMs,log,signal);
+  if(!ready.ok||!ready.nativeCaseId||!ready.sourceDigest||!ready.projectDigest||!ready.assemblyDigest)
+    return error(ready.message??'xUnit pre-execution validation failed');
+  if(expected&&(!expected.ok||expected.nativeCaseId!==ready.nativeCaseId||
+      expected.sourceDigest!==ready.sourceDigest||
+      expected.projectDigest!==ready.projectDigest||
+      expected.assemblyDigest!==ready.assemblyDigest))
+    return error('xUnit native case or input bytes changed since Run Both preflight');
+  const project=path.resolve(target.frameworkProject);
+  const assembly=path.join(project,'bin','Release','net8.0',
+    path.basename(target.projectFile,'.csproj')+'.dll');
+  const isTheory='displayName' in target;
+  const theoryOption=isTheory?['-preEnumerateTheories']:[];
+  const unchanged=()=>{
+    try{return digest(target.sourceFile)===ready.sourceDigest&&
+      digest(target.projectFile)===ready.projectDigest;}
+    catch{return false;}
+  };
+  if(signal?.aborted||!unchanged()||digest(assembly)!==ready.assemblyDigest)
+    return error('xUnit selected assembly/inputs changed before execution');
   const executed=await runProcess('dotnet',
-    [assembly,'-id',selected.ID,...theoryOption,'-automated','-noLogo','-noColor'],
+    [assembly,'-id',ready.nativeCaseId,...theoryOption,'-automated','-noLogo','-noColor'],
     project,runTimeoutMs,{label:'p4-xunit-exact',log,signal});
   if(signal?.aborted||executed.cancelled)return error('selected xUnit test cancelled');
-  if(executed.timedOut||!unchanged()) return error('xUnit timed out or inputs changed while running');
-  const checked=validateXunitAutomatedRun(executed.stdout??'',selected.ID,executed.exitCode??null);
+  if(executed.timedOut||!unchanged()||digest(assembly)!==ready.assemblyDigest)
+    return error('xUnit timed out or selected assembly/inputs changed while running');
+  const checked=validateXunitAutomatedRun(executed.stdout??'',ready.nativeCaseId,executed.exitCode??null);
   if(signal?.aborted)return error('xUnit test cancelled after execution');
   return {...checked,
     message:isTheory?checked.message.replace('Fact','Theory row'):checked.message,

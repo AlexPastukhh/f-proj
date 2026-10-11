@@ -1832,3 +1832,47 @@ SUCCESS including 129 unit tests and real long-running Vitest
 and xUnit cancellation. D-077 source-only DONE. Next P4
 candidate: safe Run Both native-pre-enumerated Theory preflight
 before Frontend, followed by combined manual acceptance gate.
+
+## 34. D-078 - Run Both with pre-enumerable xUnit Theory, verified BEFORE Frontend
+
+2026-10-11: Extend the P4 `Run Both Situation` source-only profile beyond
+direct Backend Facts. The ordinary installed D-065 VSIX remains untouched.
+
+The pure Run Both planner now uses the same exact Backend dispatcher as
+`Run Backend Situation`: direct Fact or a uniquely correlated concrete
+Theory label. For Theory, the async Run Both executor MUST perform a native
+xUnit preflight **before running Frontend tests**. The preflight builds the
+configured xUnit project, invokes `-list full/json -preEnumerateTheories`,
+and demands exactly one compiled test with identical full displayName,
+class, method and unique 64-hex native ID. An unenumerable/folded Theory
+returns Error with zero Frontend and zero Backend tests started.
+
+The preflight retains SHA-256 of the selected C# source, .csproj and
+compiled test assembly along with native case ID. After Frontend finishes,
+the Backend runner freshly rebuilds and re-discovers, and must match
+ALL four proof fields before executing its selected native `-id` case.
+This guards against selecting an altered/different compiled case after
+Frontend; the materializer's different `IXunitTest.UniqueID` is never
+used to launch the case. A changed native case/assembly/source rejects
+Backend before executing it.
+
+The existing D-077 AbortSignal propagates into Theory preflight,
+re-discovery and native execution. Cancellation/stale trust/config/dirty
+state during preflight blocks Frontend. A genuine Frontend assertion
+failure does not skip Backend; infra errors do. Parent and part results
+remain separate. A rejected preflight marks unstarted part items Skipped.
+
+Windows source tests: unit mocks prove preflight order, missing/incomplete
+proof refusal, cancellation/state drift before Frontend and proof forwarding.
+The disposable real Vitest+xUnit test script checks three distinct labelled
+Theory situations in Run Both: two pairs Passed, one Frontend Passed +
+Backend Failed, exactly one executed test per role, and proof mismatch
+refuses Backend with executed=0. Maintained `LoginCase` fixture is still
+folded by xUnit: TWO Run Both attempts refuse before any Frontend test.
+Existing Fact-only Run Both and separate P4 cancellation remain unchanged.
+
+Boundary: the native preflight is NOT a transaction across transitive
+dependencies or arbitrary MSBuild tasks, and running external user code
+may have side effects. Repeat native discovery plus byte hashes closes
+the selected case/assembly identity, not full dependency closure. No
+cache/release/version/tag/VSIX install; own-app localhost integration deferred.

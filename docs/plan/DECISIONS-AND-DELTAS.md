@@ -1912,3 +1912,22 @@ SUCCESS including real Vitest/xUnit mid-run cancellation and
 source gate PASS. No ordinary VS Code installed acceptance,
 test-side-effect rollback or unrelated detached-process
 termination is claimed.
+
+## D-078 - Require native xUnit Theory proof before Frontend in Run Both
+
+Decision: permit `Run Both Situation` for xUnit Theory ONLY when native
+`-preEnumerateTheories` resolves a uniquely runnable compiled row
+before executing Frontend. A purely static/materialized Theory label is
+NOT proof of native runnability. The preflight builds and lists the
+exact Backend case, then commits to native ID plus SHA-256 for C# source,
+.csproj and compiled assembly. Before executing Backend after Frontend,
+the runner repeats native build/discovery and refuses any drift in those
+four values. Thus the Frontend test is not run speculatively for folded
+or otherwise unsupported Theory.
+
+Maintained `LoginCase` Theory still rejects without either test running.
+Serializable `TheoryDataRow<string>` labels are supported with individual
+per-row IDs. The source-only Testing API profile name remains
+`Run Both Situation`; single-part profiles and D-077 cancellation still
+apply. No cache, full dependency closure claim, ordinary installed VSIX,
+localhost integration, version change, tag or release.
