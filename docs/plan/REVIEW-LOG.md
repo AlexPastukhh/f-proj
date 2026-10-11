@@ -1013,3 +1013,39 @@ all PASS. Report is stored locally with fields
 **Technical installed PASS is not ordinary-user acceptance.**
 Only remaining user-visible MVP steps will be included in resumed
 manual acceptance using the new candidate.
+
+## 2026-10-11 — D-063 Internal P1/7.4 normalized JSON feasibility
+
+User said the shortened checklist appears to work and delegated
+further implementation. No automatic release or formal manual PASS
+was inferred. Started the next bounded deferred proof without
+changing the public VS Code surface.
+
+### Implementation
+
+`src/core/normalizedSnapshot.ts` provides internal deterministic
+semantic normalized objects/JSON from existing joined real data.
+Includes explicit unmatched Frontend/Backend, trust/degraded state,
+literal assertion snippets, source/navigation line/column, structured
+diagnostics and unresolved parameterized test definitions. Verified
+source realpaths remain under workspace root before representing them
+relative to it. Duplicates and scope mismatches fail closed.
+
+### Evidence
+
+New `test/normalized-snapshot.test.mjs`: 6 tests for stable output,
+cross-FeatureSpace isolation, trust, source exactness, diagnostic
+preservation, missing data and path/identity invalidity. Full
+`npm test` **68/68 PASS**. Real `npm run demo:real` PASS.
+`node scripts/verify-experimental-json-snapshot.mjs` PASS on
+real Vitest5/xUnit3 fixture: 3 joined Situations, 6 matched parts,
+6 literal assertions and byte-identical JSON when input order is
+reversed. No disk writes or public JSON format declaration.
+
+### CI and boundaries
+
+Windows source workflow extended with fixture Vitest `npm ci`,
+xUnit project restore and the real JSON proof. Confirm CI status
+on GitHub after push; local source PASS alone does not certify CI.
+Stable schema, export UI/file handling and diagnostic privacy
+remain LATER; no new VSIX/manual acceptance/release implied.

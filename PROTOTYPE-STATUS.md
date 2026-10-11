@@ -213,3 +213,31 @@ end-to-end MVP acceptance. The final checklist in
 `docs/plan/MVP-RELEASE-GATE.md` has removed Rename Preview.
 Do not release/tag/version-bump without the remaining manual
 acceptance and explicit release authorization.
+
+## D-063 — Internal normalized JSON feasibility (NOT a public export)
+
+New `src/core/normalizedSnapshot.ts` is a pure internal transform
+of `JoinedSituation`, unresolved parameterized `TestDefinition`
+and `Diagnostic` evidence. Preserves FeatureScope + FeatureName +
+Outcome + Situation, exact frontend/backend roles, expected behavior,
+literal assertion source, navigation coordinates, source/diagnostics
+and trusted/degraded state. Missing parts remain explicit `null`;
+unresolved framework data is not fabricated as concrete Situations.
+Sources are physically validated under one trusted workspace root,
+represented as relative POSIX paths; duplicates/mismatched identities
+and malformed coordinates fail closed. Output is deterministic,
+does not mutate inputs and carries `experimental:true`, no public
+schema version. Diagnostic messages are retained as text and may
+still contain environment-specific paths: NOT safe to publish yet.
+
+**Verification:** Node unit tests **68/68 PASS**; real Vitest+xUnit
+snapshot proof **PASS** (3 Situations, 6 matching parts, 6 literal
+assertions; reversed order produces identical JSON). Proof added to
+Windows CI with explicit frontend/npm and backend/.NET prerequisites.
+CI result requires independent GitHub confirmation after push.
+
+**No user-visible change** to D-062 MVP: no new public command,
+file write, stable JSON/export or Rename operation. The user's
+tentative checklist feedback is not a release publication consent;
+ordinary-user acceptance formalization and release go/no-go remain
+separate. Future P1/7.4 public schema and privacy need a new decision.

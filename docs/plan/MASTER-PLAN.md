@@ -727,9 +727,12 @@ From **Markdown Preview**, the user clicked the Backend links. VS Code showed it
 
 **Ordinary-user P1 manual acceptance: PASS** (after separate installed technical PASS). This does not prove exact parameterized concrete-case navigation, public C# contracts, cross-platform readiness, or a separately published release. Historical original VSIX/ZIP remain unchanged.
 
-### 7.4 Stable normalized JSON/export — LATER IN P1
+### 7.4 Normalized JSON feasibility — INTERNAL PROOF DONE (D-063); stable/public export LATER
 
-Define a public/versioned export only after the normalized model survives real workspace acceptance.
+A **source-only, read-only internal normalization feasibility proof** is complete (D-063).
+It does not expose a command, create files, version a public schema or change
+user-facing MVP scope. A public/versioned export remains deferred until a
+separate contract/privacy/freshness and UX decision.
 
 Must preserve at least:
 
@@ -1136,7 +1139,8 @@ DONE-20 P2/8.3d read-only registered C# Rename Preview Command Palette, 7 exact 
 DONE-21 One cumulative 0.1.0 MVP candidate, installed Windows aggregate technical PASS (62 tests; Configure/Refresh; two Usage scopes; Rename; Restricted Mode; 6 Situations / 10 assertion links), D-061
 DONE-22 D-062 replacement MVP candidate without user-visible Rename Preview: source 62/62, isolated installed normal + Restricted Mode + Usage View + cross-navigation PASS, research hooks retained
 NEXT-1  Resume ONE ordinary-user acceptance checklist **without** Rename Preview; no new release until explicit approval
-LATER-1  7.4 stable normalized JSON/export requires separate scope decision
+DONE-23 P1/7.4 internal normalized JSON feasibility (68 unit tests, real Vitest+xUnit 3 Situations / 6 parts, deterministic workspace-relative source links), D-063; PUBLIC export still deferred
+LATER-1  P1/7.4 stable normalized JSON/export requires separate scope/privacy/version decision
 ```
 
 Do not start new language adapters, custom Run profiles, or cache architecture without evidence-driven reprioritization. The 7.1–7.3 proofs, isolated installed technical acceptance, and ordinary-user manual P1 candidate acceptance passed on Windows. P1 candidate is not a new public release; no public C# configuration SDK is claimed. P2/8.1 bounded scope is complete: static labeled-case exact navigation installed-technically accepted; dynamic-provider source fallback independently verified. P2/8.2 original inline CodeLens reveal failed or was ambiguous (D-053); subsequent corrected Command Palette forward navigation, Test Explorer context-menu reverse navigation, and direct assertion-source link passed ordinary-user manual acceptance (D-054). Direct inline CodeLens reveal is not independently verified. P2/8.3a C# symbol-usage feasibility DONE (D-055); P2/8.3b trusted read-only Usage View installed technical PASS (D-056) and ordinary-user manual PASS (D-057), scoped editor source jumps included. P2/8.3c **in-memory read-only Rename preview feasibility DONE** (D-058); general rename/cross-project safety remains unproven and no Rename UX exists. P2/8.3d explicit read-only Rename Preview installed technical PASS (D-059); cumulative MVP candidate installed technical PASS (D-061) with one SHA-pinned VSIX, consolidated report and prior regression. Ordinary-user manual remains PENDING, deferred (not waived) to the single final MVP gate (D-060). Cross-project/apply/consent Rename policy LATER (8.3e), 7.4 export LATER.
@@ -1218,3 +1222,30 @@ C# Usage View and source links. Rename UI, preview/refusal links
 and Rename application are not manual acceptance requirements.
 Manual MVP PASS and public release still require explicit evidence
 and independent user approval.
+
+## 20. Internal normalized JSON feasibility — DONE (D-063)
+
+After the user's invitation to resume implementation, the bounded
+P1/7.4 next step is **internal normalization**, not a public export.
+New `src/core/normalizedSnapshot.ts` consumes actual joined
+Feature/Outcome/Situation data, unresolved parameterized definitions
+and diagnostics. Its output preserves FeatureScope, roles, literal
+assertions, navigation/source, trust and unmatched/blocked evidence.
+Files are normalized to workspace-relative POSIX paths. The transform
+refuses identities/paths outside a trusted workspace, ambiguous
+Situations and duplicate unresolved definitions, and sorts
+output without relying on locale-specific comparison or timestamps.
+
+**Source unit suite 68/68 PASS** (+6 new normalization tests).
+`node scripts/verify-experimental-json-snapshot.mjs` real Vitest+xUnit
+proof PASS: 3 concrete Situations, 6 parts and 6 literal assertions;
+same output when discovery order is reversed, no user source writes.
+Windows CI adds the real proof with explicit fixture dependencies.
+
+**Boundary:** no VS Code command, JSON file creation, public schema
+version, Release/VSIX or user source mutation. This is not a
+stable export contract. A future public P1/7.4 decision must
+address diagnostic-message path redaction, privacy, schemas,
+compatibility, edit freshness and explicit export UX/consent.
+Existing D-062 no-Rename MVP manual acceptance remains provisional;
+no release authorization has been inferred.

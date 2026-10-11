@@ -1244,3 +1244,59 @@ Machine-local JSON report records `publicRenamePreview: EXCLUDED`
 and `researchRenamePreview: PASS_TEST_MODE_ONLY`. Ordinary-user
 manual acceptance remains PENDING and previously accepted release
 and intermediate candidate hashes are preserved.
+
+## D-063 — P1/7.4 internal normalized JSON feasibility (NOT a public export)
+
+Status: SOURCE + REAL VITEST/XUNIT PROOF PASS / WINDOWS CI PENDING / 2026-10-11
+
+After the user reported the shortened MVP checklist appears to work and
+asked to resume implementation, the next bounded development unit is
+**internal normalization feasibility** for deferred P1/7.4. This
+decision intentionally does not approve a public, stable/versioned
+export schema, new Command Palette action, workspace JSON writes or
+further user manual acceptance.
+
+Added `src/core/normalizedSnapshot.ts`: a **pure, experimental,
+read-only** transformation of existing framework-backed
+`JoinedSituation`/`TestDefinition`/`Diagnostic` values. It retains
+exact `FeatureSpaceId + logicalFolderKey`, Feature/Outcome/Situation,
+frontend/backend role, expected behavior, assertion order/literal
+source snippets, trust state, exact source/navigation coordinates
+and structured diagnostics. Missing parts are explicit `null`;
+unresolved parameterized definitions are in a separate collection
+instead of being silently omitted or invented as concrete cases.
+
+Normalized source paths are workspace-relative and POSIX-delimited.
+Every source is physically resolved and must remain under the trusted
+single workspace root; invalid positions, unexpected part identity,
+duplicate Situation identity, and duplicate unresolved definition
+identity fail closed. Arrays are sorted lexically by semantic identity
+and diagnostic content; result excludes timestamps and does not mutate
+the engine input. `serializeExperimentalSnapshot()` emits deterministic
+JSON text with `experimental:true` and has **no stable schema version**.
+
+Evidence: new tests in `test/normalized-snapshot.test.mjs` cover
+precise identity, unmatched parts, source snippets, source anchors,
+degraded trust, unresolved evidence, ordering/repeatability, path
+escape/refusal, invalid coordinates and duplicate identity. Node
+source regression expanded **62/62 → 68/68 PASS**. The real end-to-end
+proof `node scripts/verify-experimental-json-snapshot.mjs` runs the
+existing trusted Vitest 5 + xUnit v3 fixtures through
+`runFullPrototype`, verifies 3 concrete Situations, 6 matched
+frontend/backend parts, 6 literal assertions, normalized relative
+paths and identical JSON for reversed discovery order. It writes
+**no user source files** and exposes no public export functionality.
+
+Added the real proof to `.github/workflows/windows-source-proof.yml`,
+with fixture Vitest `npm ci` and xUnit project restore prerequisites.
+GitHub-run PASS must be independently checked after push; merely
+adding CI YAML is not a successful CI run.
+
+Limitations requiring a separate public scope decision: schema/version
+migration policy; API/CLI/UI export mechanism; conflict/unresolved
+error policy; diagnostic message privacy (messages may contain
+environment-specific paths); absolute-path policy; sanitization;
+snapshot freshness/dirty VS Code documents; file atomicity, user
+confirmation and security review. P1/7.4 **stable JSON/export remains
+LATER**. The D-062 user-facing no-Rename MVP and its manual/release
+status are unchanged.

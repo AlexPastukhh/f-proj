@@ -39,12 +39,21 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet restore fixtures/assertion-helper-proof/AssertionHelper.FeatureTests.csproj --nologo
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Restore full Vitest/xUnit fixture for normalized JSON feasibility
+        shell: pwsh
+        run: |
+          npm ci --prefix fixtures/workspace/frontend
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet restore fixtures/workspace/backend/Backend.FeatureTests.csproj --nologo
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Unit tests and TypeScript build
         run: npm test
       - name: Semantic registered C# usage proof
         run: node scripts/verify-usage-symbol-feasibility.mjs
       - name: In-memory C# Rename feasibility proof (no source edits)
         run: node scripts/verify-rename-feasibility.mjs
+      - name: Internal normalized JSON proof on real Vitest and xUnit (no public export)
+        run: node scripts/verify-experimental-json-snapshot.mjs
       - name: Package .NET worker and verify payload
         shell: pwsh
         run: |
