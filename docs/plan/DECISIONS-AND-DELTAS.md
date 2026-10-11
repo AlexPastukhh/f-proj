@@ -1789,3 +1789,35 @@ No changes to user's localhost app and no release.
 GitHub Windows CI `38125108207` for `5c9a102`: SUCCESS.
 Native xUnit Fact exact-ID proof passed. Parameterized Theory,
 Run Both, production VSIX installation and release are NOT authorized.
+## D-075 - Run Backend Theory only with proven native per-row ID
+
+P4 now allows **pre-enumerated, uniquely identified xUnit Theory
+rows**, not all Theory methods. Confirmed on the project's xUnit.v3
+4.0.1 runner: a temporary project with serializable
+`TheoryDataRow<string>` labels exposes one native ID per row using
+`-list full/json -preEnumerateTheories`. Native `-id ID`
+**with the same pre-enumeration flag** executes just that row.
+The materializer's `IXunitTest.UniqueID` does NOT equal the native
+case ID; never pass that ID directly into the native runner.
+
+A planner must correlate the selected trusted/Fresh Backend Situation
+to a unique framework case/label first. Then a newly built
+assembly's native discovery must match exactly one display name,
+class, method and unique 64-hex ID. All execution and report
+checks remain fail-closed. Source snapshot caching/build skipping
+are not permitted.
+
+**NO-GO remains for folded Theory cases**, including the
+maintained `LoginCase` fixture. Even explicit
+`-preEnumerateTheories` on that DLL lists only its parent,
+so a selected row returns Error/executed=0 rather than running
+a parent containing multiple tests. No fabricated success.
+The VS Code Testing API profile is renamed `Run Backend Situation`
+to reflect the two actually supported types (Fact and exact
+pre-enumerable Theory); no Run Both yet.
+
+This source-only step does not change the installed D-065 VSIX,
+does not constitute ordinary-user UI acceptance, and does not
+authorize a version bump, release, or the deferred localhost
+application integration. Windows real+negative proof and CI
+result belong in D-075 REVIEW-LOG.

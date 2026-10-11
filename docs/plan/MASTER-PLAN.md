@@ -1670,3 +1670,51 @@ D-074 is source-technically accepted **only for direct
 xUnit Facts**. Theory-row targeting, Run Both and cancellation
 remain open. Installed D-065, manual D-066/P4 and release
 status unchanged.
+
+## 31. D-075 - P4 individually selectable xUnit Theory when native enumeration permits
+
+2026-10-11: Safe partial extension of D-074. The Testing API source
+profile is now `Run Backend Situation`: exact Fact or one precisely
+identified **pre-enumerated** Theory row. Existing D-065 installed VSIX
+remains unchanged; there is no Run Both/cancellation/release change.
+
+Experimental native findings on Windows/xUnit.v3 4.0.1:
+- The maintained `LoginCase` MemberData fixture enumerates only a
+  folded parent Theory under native `-list full/json`, even with
+  `-preEnumerateTheories` enabled. Running the materializer's
+  concrete `IXunitTest.UniqueID` via native `-id` selects zero tests.
+  It MUST stay fail-closed (executed=0).
+- A disposable xUnit Theory with serializable string data and
+  named `TheoryDataRow<string>` emits individually distinct native
+  IDs when discovery includes `-preEnumerateTheories`.
+
+- Each of these native IDs runs **only its own row**, provided the
+  execution call also includes `-preEnumerateTheories`. The
+  materializer's `IXunitTest.UniqueID` is intentionally NOT reused:
+  it differs from native `-list full/json` case ID.
+
+The new source planner correlates selected FeatureSpace/folder/Feature/
+outcome/Backend Situation to one materialized row and its unique
+display label; the runner rebuilds the project, re-discovers native
+cases and requires one matching full displayName/class/method and
+unique 64-hex ID BEFORE launching. Native `-id` plus
+`-preEnumerateTheories` executes the selected row. The machine
+report must prove exactly one test with the same ID, correctly
+classifying Passed/Failed, otherwise Error. Nonserializable/folded
+Theory cases never execute by guessed method names or parent IDs.
+
+New `scripts/verify-p4-xunit-theory-run.mjs` builds a temporary
+xUnit v3 project, verifies its own materializer/native ID mismatch,
+and executes two labelled passing rows and one intentionally failing
+row separately (executed=1 each); deletes the temporary project.
+The maintained Backend fixture regression also verifies folded
+Theory is still refused with executed=0 after build/discovery,
+while direct Fact remains executable. Automated unit tests cover
+trust, Fresh/dirty, scope collisions, duplicate labels/case IDs and
+native discovery conflicts. Windows CI includes both real proofs.
+
+**Remaining P4:** exact execution for Theory data that cannot be
+pre-enumerated (research/custom runner), Run Both, cancellation
+while a worker is in flight, and stronger dependency-input races.
+D-066 browser + Testing API combined ordinary-user manual check is
+PENDING; the user's own localhost app is DEFERRED, no public release.

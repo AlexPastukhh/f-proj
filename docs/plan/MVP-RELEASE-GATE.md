@@ -158,3 +158,22 @@ and Run Backend Fact for the direct
 `refresh_token_expired` Backend part; confirm each Passed.
 No manual attempt to execute Theory rows or the user's
 localhost application. This is not release approval.
+
+## D-075 source P4 Backend name and Theory limitation
+
+D-074 `Run Backend Fact` is superseded in the **source tree**
+by `Run Backend Situation`. A selected xUnit Theory row is now
+eligible only if native `-preEnumerateTheories` exposes one
+unique runnable row ID, freshly matched by exact name,
+class and method. The prepared LoginCase fixture continues
+to return Error/executed=0 for its folded Theory rows.
+
+Do NOT install/repackage the ordinary D-065 VSIX yet or
+create separate manual scenarios. The future short combined
+manual gate remains: Reload Window; trusted fixture
+Refresh/Fresh; HTML Situation anchor and vscode source
+link; one Frontend Situation Passed and the existing
+direct Backend Fact Passed using `Run Backend Situation`.
+The serialized-Theory behavior is already covered by
+automated Windows evidence, not another manual click.
+Own-app localhost integration DEFERRED; release unapproved.

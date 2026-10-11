@@ -487,3 +487,21 @@ GitHub Actions `38125108207`, source commit `5c9a102`:
 SUCCESS. 113 unit tests and real positive/negative direct xUnit
 Fact proof PASS on Windows. Ordinary installed D-065 unchanged;
 Backend Theory/Run Both unsupported, manual UI acceptance PENDING.
+## D-075 - P4 exact xUnit Theory rows when supported
+
+The source Testing API Backend run profile is now
+`Run Backend Situation`. Direct Fact remains supported,
+and a Theory row is runnable only when native xUnit v3
+`-preEnumerateTheories` exposes a unique displayName and
+native case ID that can be selected with `-id`.
+The materializer's per-row ID must NOT be used directly.
+
+Windows source 116/116 unit tests PASS; real disposable
+xUnit project confirms separate two Passed and one expected
+Failed Theory row (exactly one executed each); the existing
+nonserializable `LoginCase` remains fail-closed (executed=0).
+Frontend Vitest and D-065 Portable Projection regressions PASS.
+Ordinary installed D-065 VSIX not replaced. P4 Run Both,
+in-flight cancellation and unsupported Theory rows remain open.
+D-066 combined manual browser/UI acceptance remains PENDING;
+own-app localhost integration deferred; no release.

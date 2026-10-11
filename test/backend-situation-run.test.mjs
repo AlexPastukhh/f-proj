@@ -6,6 +6,7 @@ import path from 'node:path'
 import {createRequire} from 'node:module'
 const require=createRequire(import.meta.url)
 const {planXunitFactRun}=require('../dist/core/backendSituationRun.js')
+const {planXunitBackendRun}=require('../dist/core/xunitBackendRun.js')
 const {findExactXunitFact,validateXunitAutomatedRun}=require('../dist/core/xunitFactRunner.js')
 const {situationTestId}=require('../dist/core/testingTree.js')
 function data(t){
@@ -39,6 +40,7 @@ function data(t){
 }
 test('P4 xUnit Fact planner resolves one exact trusted scope',t=>{
   const f=data(t)
+  assert.deepEqual(planXunitBackendRun(f.state),planXunitFactRun(f.state))
   assert.deepEqual(planXunitFactRun(f.state),{
     adapter:'xunit-v3',workspaceRoot:f.workspace,
     featureSpaceId:'app',sourceId:'backend',

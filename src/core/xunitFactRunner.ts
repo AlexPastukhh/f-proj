@@ -3,6 +3,7 @@ import path = require('node:path');
 import { createHash } from 'node:crypto';
 import { runProcess } from './process';
 import { XunitFactTarget } from './backendSituationRun';
+import { XunitTheoryTarget } from './xunitTheoryRun';
 import { VitestRunResult } from './vitestSituationRunner';
 
 const inside=(root:string,target:string)=>{
@@ -11,9 +12,10 @@ const inside=(root:string,target:string)=>{
 };
 const physical=(file:string)=>fs.realpathSync.native(file).replace(/\\/g,'/').toLowerCase();
 const digest=(file:string)=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const failure=(target:XunitFactTarget,message:string):VitestRunResult=>({
-  status:'error',message,testName:target.fullName,executed:0,
+const failure=(target:XunitCaseTarget,message:string):VitestRunResult=>({
+  status:'error',message,testName:'displayName' in target?target.displayName:target.fullName,executed:0,
 });
+export type XunitCaseTarget = XunitFactTarget | XunitTheoryTarget;
 export interface XunitListEntry {
   Assembly:string; DisplayName:string; ID:string; Class:string; Method:string;
 }
@@ -33,6 +35,27 @@ export function findExactXunitFact(
     return row;
   } catch {return undefined;}
 }
+// Unlike materializer's IXunitTest.UniqueID, a native pre-enumerated
+// case ID is obtained ONLY from fresh -list full/json discovery.
+export function findExactXunitTheory(
+  list:readonly XunitListEntry[],target:XunitTheoryTarget,assembly:string,
+):XunitListEntry|undefined {
+  try {
+    const scoped=list.filter(item=>physical(item.Assembly)===physical(assembly));
+    const matching=scoped.filter(item=>
+      item.DisplayName===target.displayName&&
+      item.Class===target.className&&item.Method===target.methodName);
+    if(matching.length!==1 ||
+       scoped.filter(item=>item.DisplayName===target.displayName).length!==1)
+      return undefined;
+    const row=matching[0];
+    if(!/^[0-9a-f]{64}$/i.test(row.ID) ||
+       scoped.filter(item=>item.ID===row.ID).length!==1)
+      return undefined;
+    return row;
+  }catch{return undefined;}
+}
+
 export function validateXunitAutomatedRun(
   stdout:string,selectedId:string,exitCode:number|null,
 ):{status:'passed'|'failed'|'error';executed:number;message:string} {
@@ -56,8 +79,8 @@ export function validateXunitAutomatedRun(
     return {status:'error',executed:0,message:e?.message??'invalid xUnit run report'};
   }
 }
-export async function runExactXunitFact(
-  target:XunitFactTarget, buildTimeoutMs:number, runTimeoutMs:number,
+export async function runExactXunitCase(
+  target:XunitCaseTarget, buildTimeoutMs:number, runTimeoutMs:number,
   log?:(message:string)=>void,
 ):Promise<VitestRunResult> {
   const error=(message:string)=>failure(target,message);
@@ -93,23 +116,31 @@ export async function runExactXunitFact(
        !physical(assembly).startsWith(physical(project)+'/'))
       return error('xUnit assembly not inside project output');
   }catch{return error('xUnit assembly missing after build');}
-  const listed=await runProcess('dotnet',[assembly,'-list','full/json','-noLogo'],
+  const isTheory='displayName' in target;
+  const theoryOption=isTheory?['-preEnumerateTheories']:[];
+  const listed=await runProcess('dotnet',[assembly,'-list','full/json','-noLogo',...theoryOption],
     project,runTimeoutMs,{label:'p4-xunit-discover',log});
   if(!listed.ok||!unchanged()) return error('xUnit discovery failed or inputs changed');
   let selected:XunitListEntry|undefined;
   try {
     const parsed=JSON.parse(listed.value??'');
     if(!Array.isArray(parsed)) return error('xUnit discovery did not return a list');
-    selected=findExactXunitFact(parsed,target,assembly);
+    selected=isTheory?findExactXunitTheory(parsed,target,assembly)
+      :findExactXunitFact(parsed,target,assembly);
   } catch{return error('xUnit discovery output is not valid JSON');}
-  if(!selected) return error('exact xUnit Fact was not uniquely discovered');
+  if(!selected) return error('selected xUnit case was not uniquely pre-enumerated');
   // Native -id is case identity based (not method-name pattern). Preflight
   // proves that this ID maps to exactly the planned direct Fact.
   if(!unchanged()) return error('xUnit source changed after discovery');
   const executed=await runProcess('dotnet',
-    [assembly,'-id',selected.ID,'-automated','-noLogo','-noColor'],
+    [assembly,'-id',selected.ID,...theoryOption,'-automated','-noLogo','-noColor'],
     project,runTimeoutMs,{label:'p4-xunit-exact',log});
   if(executed.timedOut||!unchanged()) return error('xUnit timed out or inputs changed while running');
   const checked=validateXunitAutomatedRun(executed.stdout??'',selected.ID,executed.exitCode??null);
-  return {...checked,testName:target.fullName};
+  return {...checked,
+    message:isTheory?checked.message.replace('Fact','Theory row'):checked.message,
+    testName:isTheory?target.displayName:target.fullName};
 }
+
+// Source compatibility for the already verified direct Fact adapter.
+export const runExactXunitFact=runExactXunitCase;

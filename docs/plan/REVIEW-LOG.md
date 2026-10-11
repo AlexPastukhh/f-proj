@@ -1675,3 +1675,68 @@ Backend direct xUnit Fact PASS, negative Failed and unsafe
 Theory-row refusal proof. Isolated VS Code Extension Host
 smoke also PASS. Ordinary installed VSIX/UI manual acceptance
 remains PENDING; Theory/Run Both still unimplemented.
+
+## 2026-10-11 - D-075 exact individual xUnit Theory P4 source slice
+
+Start gate: Windows and GitHub main synced, clean on `ea6b316`;
+prior Windows source CI `38125597615` SUCCESS. No changes
+from the paused handoff were present in the repository.
+xUnit v3 runner 4.0.1 native CLI investigated with
+`-list full/json`, `-preEnumerateTheories`, `-id`,
+and `-automated` JSON events.
+
+Discovery results:
+- Maintained Backend fixture with nonserializable `LoginCase`:
+  exactly one Fact and one folded Theory **even with**
+  `-preEnumerateTheories`; no native per-row ID exists.
+- Disposable project using `TheoryDataRow<string>` and unique
+  row labels: pre-enumeration returns one native ID per
+  serialized row. Without that flag, the same theory folds.
+
+Materializer yields `IXunitTest.UniqueID` per row, which
+**differs** from the native runnable ID; its full displayName
+and label still match the pre-enumerated native row.
+The selected row is planned only after exact Situation +
+TestDefinition + FrameworkConcreteCase correlation.
+The native runner builds the project, discovers one matching
+full displayName/class/method/unique 64hex ID and invokes
+`-id <native-id> -preEnumerateTheories -automated`.
+The JSON outcome must prove exactly one case was executed
+and its ID equals the selected native ID. Folded Theory
+discovery returns Error/executed=0 before test execution,
+never a guessed parent-method selection.
+
+Source changes: `xunitTheoryRun.ts` adds fail-closed
+parameterized planning, `xunitBackendRun.ts` dispatches
+Fact versus Theory by exactly one scoped static definition.
+The existing xUnit runner supports fresh pre-enumeration
+without changing Fact semantics; `Run Backend Situation`
+replaces the source-only `Run Backend Fact` Testing API
+profile name. No new runtime workers, caching, automatic
+execution or project-local test reports are introduced.
+Unit tests explicitly reject stale/trust/dirty/duplicate
+scope/label/ID cases and missing native pre-enumeration.
+
+Windows `npm test`: **116/116 PASS**, 0 skipped.
+`node scripts/verify-p4-xunit-theory-run.mjs`: PASS,
+a disposable native test assembly executes two exact
+passing rows and one exact intentionally failing row,
+each executed=1; authored source digest unchanged.
+`node scripts/verify-p4-backend-run.mjs`: PASS,
+direct Fact pass+expected Failed; current `LoginCase`
+Theory correctly refuses native execution (executed=0).
+`node scripts/verify-p4-vitest-run.mjs`: PASS,
+3 selected Frontend passes and an expected failed case.
+`verify-experimental-json-snapshot.mjs`: PASS,
+the earlier 3 Situation / 6 assertion Markdown+HTML proof.
+
+This is source/Windows technical evidence; do not claim
+ordinary installed VS Code UI or manual browser acceptance.
+Windows CI runs exact positive, negative, and folded proof.
+
+Isolated `npm run test:extension` using the installed VS Code
+executable also PASS (exit 0). The Extension Host emitted
+unrelated GitHub sign-in/AgentHost warnings, but exited 0.
+This proves source activation smoke, not ordinary installed UI
+manual acceptance for the renamed Backend profile.
+`git diff --check` and new script syntax check PASS.

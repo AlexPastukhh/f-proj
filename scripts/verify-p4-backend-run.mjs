@@ -13,6 +13,7 @@ const config=require('../dist/core/config.js').readPrototypeConfig(
 const {runFullPrototype}=require('../dist/core/fullEngine.js')
 const {situationTestId}=require('../dist/core/testingTree.js')
 const {planXunitFactRun}=require('../dist/core/backendSituationRun.js')
+const {planXunitBackendRun}=require('../dist/core/xunitBackendRun.js')
 const {runExactXunitFact}=require('../dist/core/xunitFactRunner.js')
 const source=path.join(workspace,'workspace/backend/Features/login/LoginFeatureTests.cs')
 const sha=()=>createHash('sha256').update(fs.readFileSync(source)).digest('hex')
@@ -27,7 +28,7 @@ assert.equal(result.diagnostics.filter(d=>d.projectionImpact==='blocks-part').le
 const common={workspaceRoot:workspace,config,joined:result.joined,
   definitions:result.definitions,cases:result.cases,
   role:'backend',trusted:true,fresh:true,dirtyFilesKnownClean:true}
-let fact=0,theory=0
+let fact=0,theory=0,folded=0
 for(const row of result.joined.filter(row=>row.backend)){
   const args={...common,situationId:situationTestId(row)}
   if(row.situation==='refresh_token_expired'){
@@ -38,6 +39,14 @@ for(const row of result.joined.filter(row=>row.backend)){
     fact++
   }else{
     assert.throws(()=>planXunitFactRun(args),/parameterized xUnit Theory row/)
+    const target=planXunitBackendRun(args)
+    assert.ok(target.displayName?.includes('['+row.situation+']'))
+    if(folded++===0){
+      const refused=await runExactXunitFact(target,120000,30000)
+      assert.equal(refused.status,'error',JSON.stringify(refused))
+      assert.equal(refused.executed,0)
+      assert.match(refused.message,/not uniquely pre-enumerated/)
+    }
     theory++
   }
 }
@@ -72,5 +81,6 @@ try{
   assert.equal(failed.executed,1)
 }finally{fs.rmSync(scratch,{recursive:true,force:true})}
 
-console.log('P4_BACKEND_FACT_PASS exact=1 executed=1 failed_fact=1 theory_rows_refused=2'+
+console.log('P4_BACKEND_FACT_PASS exact=1 executed=1 failed_fact=1 folded_theory_not_executed=1'+
+  ' theory_rows_fact_refused=2'+
   ' guards=trusted_fresh_dirty_scope no_source_edits=true')

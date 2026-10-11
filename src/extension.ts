@@ -3,7 +3,7 @@ import path = require('node:path');
 import vscode = require('vscode');
 import { runFullPrototype } from './core/fullEngine';
 import { planVitestSituationRun } from './core/situationRunPlan';
-import { planXunitFactRun } from './core/backendSituationRun';
+import { planXunitBackendRun } from './core/xunitBackendRun';
 import { runExactXunitFact } from './core/xunitFactRunner';
 import { runExactVitestSituation } from './core/vitestSituationRunner';
 import { Diagnostic, FeatureSourceConfig, PrototypeConfig, SourceRange, JoinedSituation, TestDefinition, FrameworkConcreteCase } from './core/types';
@@ -1096,8 +1096,8 @@ export function activate(context: any) {
   };
   context.subscriptions.push(testController.createRunProfile(
     'Run Frontend Situation',vscode.TestRunProfileKind.Run,runFrontendSituation,false,frontendTag));
-  // P4.2: one explicit Backend Fact only. Parameterized Theory rows are
-  // refused before running: native xUnit 4.0.1 discovery folds their IDs.
+  // P4.3: exact Backend Fact or uniquely pre-enumerated Theory row.
+  // Folded Theory rows fail closed before executing any tests.
   const runBackendFact = async (request:any,token:any) => {
     const run=testController.createTestRun(request);
     const selected=request.include?.[0];
@@ -1126,7 +1126,7 @@ export function activate(context: any) {
         throw Error('configuration changed since Refresh');
       const dirty=()=>vscode.workspace.textDocuments.some((doc:any)=>
         doc.isDirty&&doc.uri.scheme==='file');
-      const plan=planXunitFactRun({
+      const plan=planXunitBackendRun({
         workspaceRoot:snapshot.workspaceRoot,config:snapshot.config,
         joined:snapshot.joined,definitions:snapshot.definitions,cases:snapshot.cases,
         situationId,role:'backend',trusted:vscode.workspace.isTrusted,
@@ -1150,7 +1150,7 @@ export function activate(context: any) {
     finally{run.end();}
   };
   context.subscriptions.push(testController.createRunProfile(
-    'Run Backend Fact',vscode.TestRunProfileKind.Run,runBackendFact,false,backendTag));
+    'Run Backend Situation',vscode.TestRunProfileKind.Run,runBackendFact,false,backendTag));
   rebuildWatchers();
 }
 
