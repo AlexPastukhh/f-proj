@@ -1903,3 +1903,12 @@ not atomically snapshotted. Continue P4 feature development
 only after source/Windows CI passes; no cache reactivation,
 ordinary installed VSIX change, release/version/tag or
 deferred localhost-app integration.
+
+### D-077 Windows CI gate
+
+GitHub Windows `38131768165` for `7b7b4f6`:
+SUCCESS including real Vitest/xUnit mid-run cancellation and
+129 unit tests. AbortSignal and process-tree termination
+source gate PASS. No ordinary VS Code installed acceptance,
+test-side-effect rollback or unrelated detached-process
+termination is claimed.

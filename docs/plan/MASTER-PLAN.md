@@ -1824,3 +1824,11 @@ supports only direct Backend Facts; D-075 standalone Theory
 is unchanged. Ordinary installed D-065 VSIX not replaced;
 D-066 manual browser/UI acceptance remains PENDING.
 No release or own-app localhost integration.
+
+### D-077 source acceptance on Windows CI
+
+Commit `7b7b4f6`, Windows workflow `38131768165`:
+SUCCESS including 129 unit tests and real long-running Vitest
+and xUnit cancellation. D-077 source-only DONE. Next P4
+candidate: safe Run Both native-pre-enumerated Theory preflight
+before Frontend, followed by combined manual acceptance gate.

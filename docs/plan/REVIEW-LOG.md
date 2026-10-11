@@ -1878,3 +1878,15 @@ constitute ordinary installed VS Code manual cancellation
 acceptance. `git diff --check` and the new CI step presence
 also PASS. Prior D-076 documentation CI `38129952246`
 was later confirmed **SUCCESS** via GitHub API.
+
+### D-077 independent Windows GitHub CI — SUCCESS
+
+Source commit `7b7b4f62084144a693850d01f39f06007a60e84a`
+passed GitHub Windows source-proof workflow `38131768165`:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38131768165
+Status **SUCCESS**, including 129 unit tests, unchanged
+P4 exact runner/Run Both/Portable HTML regressions and the
+new real mid-execution Vitest and xUnit cancellation proof.
+Source-only D-077 technically accepted. The ordinary D-065
+installed VSIX has not been replaced and manual D-066+P4
+UI/browser acceptance is still PENDING.

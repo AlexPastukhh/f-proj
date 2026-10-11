@@ -562,3 +562,10 @@ undo prior test side effects or arbitrary detached subprocesses.
 The first Run Both slice still uses direct Backend Facts only.
 The user's installed D-065 VSIX remains unchanged, ordinary
 manual gate PENDING, localhost integration DEFERRED; no release.
+
+### D-077 CI verified
+
+Windows Actions `38131768165` for source `7b7b4f6`:
+SUCCESS; 129 unit tests and actual running Vitest/xUnit
+cancellation accepted by CI. Source-only, ordinary installed
+VSIX/manual browser PENDING; no release.
