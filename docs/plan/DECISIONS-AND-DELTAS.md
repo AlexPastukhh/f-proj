@@ -1939,3 +1939,26 @@ SUCCESS. Pre-enumerated exact Theory Run Both is supported;
 folded/unverifiable Theory stays fail-closed before Frontend.
 No proof of full transitive dependency closure, ordinary
 installed extension UI acceptance or release authorization.
+
+## D-079 — Global P4 run lease, exact published TestItem, P5 contract
+
+Decision: **serialize all explicit P4 Run profiles in one extension host**
+and revoke their shared execution lease immediately on Refresh,
+Stale/Error, relevant saved/disk/unsaved editor change, configuration,
+workspace folder or trust event. Lease invalidation propagates
+D-077 AbortSignal to the active test process; the slot remains
+occupied until it exits. This prevents simultaneous Frontend/Backend
+runs racing over the same fixture, and stops accepting prior evidence
+after a new Projection is published.
+
+Decision: an exact Situation ID string is NOT sufficient for a
+Testing API run. Compare the selected object with the currently
+published Situation TestItem, or its exact Frontend/Backend child.
+Stale/recycled IDs and forged TestItem instances refuse execution.
+
+`ADAPTER-CONTRACT-P5.md` records the retained first-language-pair
+transport and expected fail-closed capability contract for future
+adapters. No new adapter ID or runtime worker was introduced;
+the first exploratory P5 candidate is Python/pytest, not a
+promised shipped feature. Do not restore caching, create a new VSIX
+or install/update ordinary extension without the user's approval.

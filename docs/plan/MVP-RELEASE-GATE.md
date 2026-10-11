@@ -230,3 +230,20 @@ Reload Window, trusted prepared fixture Refresh/Fresh, portable
 HTML anchor/source link and one complete direct-Fact Situation
 run in Testing API. User's own localhost app remains deferred,
 no version/tag/release approved.
+
+## D-079 source reliability and P5 boundary
+
+Before any separately authorized candidate VSIX, CI must
+demonstrate that only one explicit P4 Run profile can execute
+at a time, a stale/recycled TestItem cannot select new
+Projection evidence, and a source/Refresh invalidation stops
+a running test via D-077 process cancellation. Source tests
+and a real running Vitest invalidation proof are required;
+ordinary D-065 installed UI is not updated by this step.
+
+The next language-adapter architecture is described in
+`ADAPTER-CONTRACT-P5.md` but no new language is supported
+in the current candidate. Preserve one combined later
+ordinary VS Code D-066 HTML + P4 execution manual gate.
+No VSIX, tag, version, publishing or localhost integration
+is authorized by D-079.

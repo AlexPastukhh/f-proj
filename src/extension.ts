@@ -5,6 +5,8 @@ import { runFullPrototype } from './core/fullEngine';
 import { planVitestSituationRun } from './core/situationRunPlan';
 import { planXunitBackendRun } from './core/xunitBackendRun';
 import { planRunBoth, executeRunBoth } from './core/runBothSituation';
+import { RunSessionGate } from './core/runSessionGate';
+import { isPublishedRunSelection } from './core/runSelectionGate';
 import { runExactXunitFact, inspectExactXunitCase } from './core/xunitFactRunner';
 import { runExactVitestSituation } from './core/vitestSituationRunner';
 import { Diagnostic, FeatureSourceConfig, PrototypeConfig, SourceRange, JoinedSituation, TestDefinition, FrameworkConcreteCase } from './core/types';
@@ -74,6 +76,8 @@ export function activate(context: any) {
     joined:JoinedSituation[]; definitions:TestDefinition[]; cases:FrameworkConcreteCase[];
   } | undefined;
   let fileWatchers: any[] = [];
+  const runSessions=new RunSessionGate();
+  context.subscriptions.push({dispose:()=>runSessions.invalidate()});
 
   const timestamp = () => new Date().toISOString();
   const log = (message: string) => {
@@ -83,7 +87,10 @@ export function activate(context: any) {
 
   const setState = (state: UiState, detail?: string) => {
     uiState = state;
-    if (state !== 'fresh') runSnapshot = undefined;
+    if (state !== 'fresh') {
+      runSessions.invalidate();
+      runSnapshot = undefined;
+    }
     if (state === 'fresh') {
       status.text = '$(check) Feature Projection: Fresh';
       status.tooltip = detail ?? 'Projection is up to date. Click to show it.';
@@ -545,6 +552,7 @@ export function activate(context: any) {
 
   const markStale = async (reason: string) => {
     log(`stale: ${reason}`);
+    runSessions.invalidate();
     if (refreshing) {
       staleRequestedDuringRefresh = true;
       return;
@@ -1022,6 +1030,17 @@ export function activate(context: any) {
   context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((doc: any) => {
     if (isRelevantUri(doc.uri)) void markStale(`Saved ${vscode.workspace.asRelativePath(doc.uri)}`);
   }));
+  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((event:any) => {
+    if(event.document?.isDirty&&isRelevantUri(event.document.uri)){
+      runSessions.invalidate();
+      log('p4 run invalidated: relevant unsaved editor changed');
+    }
+  }));
+  context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
+    runSessions.invalidate();
+    rebuildWatchers();
+    void markStale('Workspace folders changed');
+  }));
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event: any) => {
     if (event.affectsConfiguration('featureProjection')) {
       rebuildWatchers();
@@ -1037,7 +1056,8 @@ export function activate(context: any) {
   // P4 first slice: explicit single Frontend Situation, never Run All/Backend.
   const runFrontendSituation = async (request:any, token:any) => {
     const run = testController.createTestRun(request);
-    const abort=new AbortController();
+    const lease=runSessions.acquire();
+    const abort=lease?.controller??new AbortController();
     const cancellation=token.onCancellationRequested(()=>abort.abort());
     if(token.isCancellationRequested)abort.abort();
     const selected = request.include?.[0];
@@ -1047,12 +1067,13 @@ export function activate(context: any) {
       else void vscode.window.showWarningMessage(`Feature Projection: ${reason}`);
     };
     try {
-      if (request.include?.length !== 1 || (request.exclude?.length ?? 0) !== 0 || !selected) {
+      if(!lease){refused('another P4 test run is already active');return;}
+      if (request.include?.length !== 1 || (request.exclude?.length ?? 0) !== 0 ||
+          !isPublishedRunSelection(selected,'frontend',situationTestItems)) {
         refused('select exactly one Frontend part; Run All/group selection is not supported');
         return;
       }
-      const situationId = selected.id.endsWith('/frontend')
-        ? selected.id.slice(0,-'/frontend'.length) : selected.id;
+      const situationId = selected.id.slice(0,-'/frontend'.length);
       if (!situationTestItems.has(situationId) || !runSnapshot ||
           uiState !== 'fresh' || refreshing || !vscode.workspace.isTrusted ||
           vscode.workspace.workspaceFolders?.length !== 1 ||
@@ -1094,7 +1115,7 @@ export function activate(context: any) {
       log(`p4 frontend result: ${result.status} executed=${result.executed}`);
     } catch (err:any) {
       refused(err?.message ?? String(err));
-    } finally { cancellation.dispose();run.end(); }
+    } finally { cancellation.dispose();lease?.release();run.end(); }
   };
   context.subscriptions.push(testController.createRunProfile(
     'Run Frontend Situation',vscode.TestRunProfileKind.Run,runFrontendSituation,false,frontendTag));
@@ -1102,7 +1123,8 @@ export function activate(context: any) {
   // Folded Theory rows fail closed before executing any tests.
   const runBackendFact = async (request:any,token:any) => {
     const run=testController.createTestRun(request);
-    const abort=new AbortController();
+    const lease=runSessions.acquire();
+    const abort=lease?.controller??new AbortController();
     const cancellation=token.onCancellationRequested(()=>abort.abort());
     if(token.isCancellationRequested)abort.abort();
     const selected=request.include?.[0];
@@ -1112,8 +1134,9 @@ export function activate(context: any) {
       else void vscode.window.showWarningMessage('Feature Projection: '+reason);
     };
     try {
+      if(!lease){refused('another P4 test run is already active');return;}
       if(request.include?.length!==1||(request.exclude?.length??0)!==0||
-        !selected||!selected.id.endsWith('/backend')) {
+        !isPublishedRunSelection(selected,'backend',situationTestItems)) {
         refused('select exactly one Backend part; Run All/group selection is not supported');
         return;
       }
@@ -1153,16 +1176,16 @@ export function activate(context: any) {
       }else{refused(result.message);}
       log(`p4 backend result: ${result.status} executed=${result.executed}`);
     }catch(err:any){refused(err?.message??String(err));}
-    finally{cancellation.dispose();run.end();}
+    finally{cancellation.dispose();lease?.release();run.end();}
   };
   context.subscriptions.push(testController.createRunProfile(
     'Run Backend Situation',vscode.TestRunProfileKind.Run,runBackendFact,false,backendTag));
   // P4.4: one complete Situation, never a Feature/Outcome/Run All group.
   // Preflight both targets before executing ANY user test.
-  let runBothActive=false;
   const runBothSituation=async(request:any,token:any)=>{
     const run=testController.createTestRun(request);
-    const abort=new AbortController();
+    const lease=runSessions.acquire();
+    const abort=lease?.controller??new AbortController();
     const cancellation=token.onCancellationRequested(()=>abort.abort());
     if(token.isCancellationRequested)abort.abort();
     const selected=request.include?.[0];
@@ -1171,13 +1194,12 @@ export function activate(context: any) {
       if(selected) run.errored(selected,[new vscode.TestMessage(message)]);
       else void vscode.window.showWarningMessage('Feature Projection: '+message);
     };
-    let ownsLock=false;
     try {
-      if(runBothActive){
+      if(!lease){
         refuse('another Run Both is already active');return;
       }
       if(request.include?.length!==1||(request.exclude?.length??0)!==0||
-         !selected||situationTestItems.get(selected.id)!==selected){
+         !isPublishedRunSelection(selected,'both',situationTestItems)){
         refuse('select exactly one Situation node, not a parent group or part');return;
       }
       if(!runSnapshot||uiState!=='fresh'||refreshing||!vscode.workspace.isTrusted||
@@ -1188,7 +1210,7 @@ export function activate(context: any) {
       const snapshot=runSnapshot;
       const dirty=()=>vscode.workspace.textDocuments.some((doc:any)=>
         doc.isDirty&&doc.uri.scheme==='file');
-      const valid=()=>ownsLock&&!abort.signal.aborted&&
+      const valid=()=>!!lease?.isCurrent()&&!abort.signal.aborted&&
         uiState==='fresh'&&!refreshing&&runSnapshot===snapshot&&
         vscode.workspace.isTrusted&&!dirty()&&
         vscode.workspace.workspaceFolders?.length===1&&
@@ -1210,7 +1232,6 @@ export function activate(context: any) {
       if(!frontItem||!backItem){
         refuse('complete Frontend/Backend test items not found');return;
       }
-      runBothActive=true;ownsLock=true;
       run.started(selected);
       const node=resolveExternalNodeRuntime(snapshot.config.nodePath,process.env);
       const env=sanitizeExternalNodeEnvironment(process.env).env;
@@ -1251,7 +1272,7 @@ export function activate(context: any) {
       log('p4 both result: '+outcome.status+
         ' frontend='+outcome.frontend?.status+' backend='+outcome.backend?.status);
     }catch(err:any){refuse(err?.message??String(err));}
-    finally{cancellation.dispose();if(ownsLock)runBothActive=false;run.end();}
+    finally{cancellation.dispose();lease?.release();run.end();}
   };
   context.subscriptions.push(testController.createRunProfile(
     'Run Both Situation',vscode.TestRunProfileKind.Run,runBothSituation,false));

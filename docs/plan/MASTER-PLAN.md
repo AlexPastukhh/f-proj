@@ -1885,3 +1885,53 @@ identity-drift/folded refusal, existing Fact, cancellation
 and Portable HTML source regressions passed. Source D-078 DONE.
 Next P4 attention: installed-source candidate/UI acceptance and
 remaining freshness/selection race hardening, no auto release.
+
+## 35. D-079 — P4 session/selection race hardening + P5 adapter contract
+
+2026-10-11. First MVP-stabilization slice after D-078:
+**one active explicit P4 test run per extension host** across Run Frontend
+Situation, Run Backend Situation and Run Both Situation. A new pure
+`RunSessionGate` supplies identity-bearing leases with AbortController
+and fail-closed lifecycle. An occupied lease refuses another P4 run,
+even across different profiles. Stale/Refreshing/Error, relevant disk
+change, relevant unsaved editor change, configuration/trust invalidation
+and workspace folder changes revoke the lease and abort the in-flight
+Vitest or xUnit process tree using the existing D-077 cancellation
+implementation. A revoked lease holds the slot until the old runner
+finishes, preventing premature overlap; stale `finally` handlers may
+not release a newer lease.
+
+`isPublishedRunSelection` requires **the same TestItem object** currently
+published by the Testing API. Frontend/Backend must be the exact child
+of a published Situation with their respective role suffix; Run Both
+must select the published Situation itself. Recycled IDs after a Refresh,
+forged child objects, a parent selected for a part run, Run All/group
+and wrong role fail closed BEFORE executing user test code. This repairs
+the earlier ID-only eligibility check on standalone profiles.
+
+Evidence: `npm test` **135/135 PASS**, 0 skipped, including three
+new gate/selection tests. The real OS-temp
+`scripts/verify-p4-run-session-race.mjs` starts a long-running
+Vitest test, refuses a simultaneous lease, invalidates the active
+lease, observes error/executed=0 and no false Passed, keeps the slot
+occupied until the runner settles and allows a new lease afterward.
+The authored source SHA-256 remains unchanged. Existing D-077
+cancel process-tree semantics and native test identity checks remain
+intact; no new cache, changed HTML schema or automatic test runs.
+
+### P5 — non-executable multi-language adapter boundary
+
+`docs/plan/ADAPTER-CONTRACT-P5.md` records the actual
+`TestDefinition` / `FrameworkConcreteCase` / `Diagnostic`
+transport, role-independent `JoinedSituation` semantic identity,
+trust, provenance, optional exact-run capability, native case
+identity and fail-closed requirements. This is **design only**:
+there is NO Python/pytest, Java/JUnit or other new language adapter
+enabled in config, engine, or installed VSIX. Python/pytest is
+the first *candidate* to investigate after current MVP candidate
+and manual gate, subject to user priority.
+
+Pending: independent Windows source CI for this D-079 SHA,
+the combined D-066 portable-browser/P4 ordinary VS Code
+manual session, and separately authorized VSIX candidate
+packaging and installation. Localhost app integration DEFERRED.

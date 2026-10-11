@@ -79,6 +79,8 @@ jobs:
         run: node scripts/verify-p4-run-both.mjs
       - name: D-077 cancel running Vitest and xUnit test processes
         run: node scripts/verify-p4-cancellation.mjs
+      - name: D-079 reject concurrent P4 runs and revoke live session on Stale
+        run: node scripts/verify-p4-run-session-race.mjs
       - name: P4 cancellation of running Vitest and xUnit user tests
         run: node scripts/verify-p4-cancellation.mjs
 

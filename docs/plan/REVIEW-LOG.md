@@ -1950,3 +1950,46 @@ rejection, maintained folded Theory refusal before Frontend,
 the original Fact Run Both and D-077 live cancellation.
 D-078 source technical gate ACCEPTED. Ordinary installed
 VSIX/UI and D-066 standalone HTML human acceptance still PENDING.
+
+## 2026-10-11 — D-079 P4 run concurrency/selection gate
+
+Start: Windows source and GitHub main clean and equal at
+`79d4cda4c36998729f50e724b5c364714396ac25`.
+Previous D-078 documentation CI `38134167200`: SUCCESS.
+
+Reviewed the Testing API handlers and found two reachable gaps:
+the standalone profiles validated Situation existence by ID but
+did not require that the selected TestItem was the same published
+child object; only Run Both had an exclusive in-flight flag.
+Also a stale transition did not immediately abort a running
+test until its own executor returned.
+
+Implemented reusable pure `RunSessionGate` and
+`isPublishedRunSelection`. All three profiles now acquire one
+per-host lease and only release their own lease in `finally`.
+Stale/Refreshing/Error and relevant editor/workspace changes
+abort active processes using existing D-077 signal forwarding.
+Wrong/recycled selections and overlapping runs are rejected.
+
+Windows `npm test`: **135/135 PASS**, zero skips.
+`node scripts/verify-p4-run-session-race.mjs`: PASS;
+a disposable long-running Vitest case began execution and
+was cancelled by invalidating a live lease, reported
+Error/executed=0, refused overlap, and freed the gate
+only after termination. Source SHA-256 unchanged.
+Also wrote `docs/plan/ADAPTER-CONTRACT-P5.md`: design
+contract for future pytest/other framework adapters,
+not an implemented language adapter.
+
+D-079 final local Windows gate after Windows bridge reconnection:
+`npm test` **135/135 PASS**; real `verify-p4-run-session-race.mjs`
+PASS (active Vitest cancelled, second P4 lease refused, no stale
+Passed); maintained direct-Fact Run Both PASS, three native Theory
+Run Both PASS (including expected failed Backend), D-077 real
+Vitest and xUnit cancellation PASS, D-065 Portable Markdown/HTML
+dual view PASS (3 Situations, 6 literal assertions).
+`npm run test:extension` isolated VS Code Extension Host PASS,
+exit 0. Host emitted unrelated AgentHost/auth warnings.
+`git diff --check` PASS. No VSIX packaging, installation,
+tag or release was performed. Ordinary installed UI/manual
+acceptance remains PENDING.

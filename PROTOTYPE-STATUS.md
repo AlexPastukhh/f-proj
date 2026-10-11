@@ -607,3 +607,23 @@ including 132 unit tests, real preflighted exact Theory
 Run Both and deliberate native ID mismatch refusal.
 Installed D-065 candidate unchanged, combined ordinary
 VS Code + portable HTML manual gate PENDING; no release.
+
+## D-079 — P4 reliability gate + future language adapter contract
+
+All three P4 Testing API profiles now share one active-run lease.
+Refresh/Stale/Error, relevant unsaved editor changes and workspace
+folder changes revoke the lease and cancel in-flight test
+processes; an old run cannot release a newer lease. TestItem
+selection requires current published object identity, not just
+a reusable Situation string ID. This covers concurrent runs,
+recycled selections and stale result acceptance without changing
+Projection contents.
+
+Windows local 135/135 unit tests PASS. Real disposable Vitest
+run-session invalidation proof PASS (long test cancelled,
+executed=0; overlapping run blocked, source unchanged).
+`docs/plan/ADAPTER-CONTRACT-P5.md` captures a future
+multi-language contract; Python/pytest and Java/JUnit remain
+NOT IMPLEMENTED. Ordinary installed D-065 VSIX unchanged;
+new P4/D-066 manual gate PENDING, localhost app DEFERRED,
+no release.
