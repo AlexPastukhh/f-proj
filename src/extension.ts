@@ -3,6 +3,8 @@ import path = require('node:path');
 import vscode = require('vscode');
 import { runFullPrototype } from './core/fullEngine';
 import { planVitestSituationRun } from './core/situationRunPlan';
+import { planXunitFactRun } from './core/backendSituationRun';
+import { runExactXunitFact } from './core/xunitFactRunner';
 import { runExactVitestSituation } from './core/vitestSituationRunner';
 import { Diagnostic, FeatureSourceConfig, PrototypeConfig, SourceRange, JoinedSituation, TestDefinition, FrameworkConcreteCase } from './core/types';
 import { buildTestingTree, TestingTreeNode } from './core/testingTree';
@@ -1094,6 +1096,61 @@ export function activate(context: any) {
   };
   context.subscriptions.push(testController.createRunProfile(
     'Run Frontend Situation',vscode.TestRunProfileKind.Run,runFrontendSituation,false,frontendTag));
+  // P4.2: one explicit Backend Fact only. Parameterized Theory rows are
+  // refused before running: native xUnit 4.0.1 discovery folds their IDs.
+  const runBackendFact = async (request:any,token:any) => {
+    const run=testController.createTestRun(request);
+    const selected=request.include?.[0];
+    const refused=(reason:string)=>{
+      log('p4 backend refused: '+reason);
+      if(selected) run.errored(selected,[new vscode.TestMessage(reason)]);
+      else void vscode.window.showWarningMessage('Feature Projection: '+reason);
+    };
+    try {
+      if(request.include?.length!==1||(request.exclude?.length??0)!==0||
+        !selected||!selected.id.endsWith('/backend')) {
+        refused('select exactly one Backend part; Run All/group selection is not supported');
+        return;
+      }
+      const situationId=selected.id.slice(0,-'/backend'.length);
+      if(!situationTestItems.has(situationId)||!runSnapshot||
+         uiState!=='fresh'||refreshing||!vscode.workspace.isTrusted||
+         vscode.workspace.workspaceFolders?.length!==1||
+         vscode.workspace.workspaceFolders[0].uri.fsPath!==runSnapshot.workspaceRoot){
+        refused('requires one published Fresh Backend Situation in a trusted single-folder workspace');
+        return;
+      }
+      if(token.isCancellationRequested){refused('test run cancelled before execution');return;}
+      const snapshot=runSnapshot;
+      if(JSON.stringify(getConfig())!==JSON.stringify(snapshot.config))
+        throw Error('configuration changed since Refresh');
+      const dirty=()=>vscode.workspace.textDocuments.some((doc:any)=>
+        doc.isDirty&&doc.uri.scheme==='file');
+      const plan=planXunitFactRun({
+        workspaceRoot:snapshot.workspaceRoot,config:snapshot.config,
+        joined:snapshot.joined,definitions:snapshot.definitions,cases:snapshot.cases,
+        situationId,role:'backend',trusted:vscode.workspace.isTrusted,
+        fresh:uiState==='fresh',dirtyFilesKnownClean:!dirty(),
+      });
+      run.started(selected);
+      const result=await runExactXunitFact(plan,
+        Math.min(600000,Math.max(30000,snapshot.config.buildTimeoutMs??120000)),
+        Math.min(120000,Math.max(30000,snapshot.config.workerTimeoutMs??30000)),
+        log);
+      if(uiState!=='fresh'||refreshing||runSnapshot!==snapshot||
+         token.isCancellationRequested||!vscode.workspace.isTrusted||dirty()||
+         JSON.stringify(getConfig())!==JSON.stringify(snapshot.config)){
+        refused('source/trust/editor/config changed during Backend test run');
+      }else if(result.status==='passed'){run.passed(selected);}
+      else if(result.status==='failed'){
+        run.failed(selected,[new vscode.TestMessage(result.message)]);
+      }else{refused(result.message);}
+      log(`p4 backend result: ${result.status} executed=${result.executed}`);
+    }catch(err:any){refused(err?.message??String(err));}
+    finally{run.end();}
+  };
+  context.subscriptions.push(testController.createRunProfile(
+    'Run Backend Fact',vscode.TestRunProfileKind.Run,runBackendFact,false,backendTag));
   rebuildWatchers();
 }
 

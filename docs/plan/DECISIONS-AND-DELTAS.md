@@ -1759,3 +1759,27 @@ run with a negative Failed case. D-073 first P4 Frontend
 source slice DONE. Installed ordinary UI profile verification
 PENDING; Backend/Run Both and cancellation remain LATER.
 No return to unproven caching, no own-app integration/release.
+
+## D-074 - Exact xUnit Fact execution; explicit Theory NO-GO
+
+The second P4 runner integration slice is a source-only native
+xUnit v3 **direct Fact** profile, not general Backend execution.
+The user's instruction to stop speculative cache work remains
+in effect; builds are not skipped. Backend run is explicit
+and scoped to one trusted, Fresh TestItem. A fresh built
+assembly's native `-list full/json` response must identify
+exactly one fullName/class/method/ID. Native `-id` runs it;
+`-automated` events prove exact selected ID and one executed
+test. Positive and intentionally failed Facts were exercised
+on Windows, including an OS-temp throwaway negative project.
+
+A critical unsafe alternative was disproved experimentally:
+the materialization worker can produce concrete xUnit Theory
+`test.UniqueID` values, but native discovery folds those
+two rows into one parent ID; passing the per-row UniqueID to
+the native `-id` runner led to zero executed tests.
+Therefore **all parameterized xUnit Theory situations are
+refused before execution**, not run by approximate name or
+parent method and checked afterward. Deferred: true per-row
+selection, Run Both, cancellation and atomic dependency closure.
+No changes to user's localhost app and no release.

@@ -460,3 +460,23 @@ Vitest passes and one expected Failed result.
 Frontend Testing API profile source-ready, NOT installed
 in ordinary VS Code. Backend and Both unfinished;
 no new VSIX, localhost app integration or release.
+
+## D-074 - First safe P4 Backend execution: xUnit direct Fact only
+
+Source-only profile `Run Backend Fact` added to the VS Code
+Testing API. It runs one uniquely mapped, trusted/Fresh
+non-parameterized xUnit v3 Fact by native case ID, after
+the normal project build and fresh compiled-case discovery.
+The JSON events must prove one exact executed Fact.
+Both parameterized Theory rows are intentionally refused
+before execution: in the fixture, native runner discovery
+folds them into a parent ID and cannot select the concrete
+materialized row safely.
+
+Windows unit tests 113/113 PASS; real Fact passed/executed=1,
+temporary failing Fact reported Failed/executed=1, both Theory
+rows refused. D-073 Vitest profile regression PASS and isolated
+VS Code Extension Host smoke PASS (exit 0). Ordinary installed
+D-065 unchanged, source-only P4 UI manual PENDING.
+Backend Theory, Run Both and cancellation still unfinished;
+own localhost app integration DEFERRED; no release.

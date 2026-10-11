@@ -1613,3 +1613,50 @@ technically verified; ordinary installed extension still
 D-065, so P4 UI manual acceptance is NOT yet claimed.
 Next P4 target: safe exact Backend/xUnit execution,
 then Run Both and cancellation/selection improvements.
+
+## 30. D-074 - P4 Backend Run: exact xUnit v3 Fact only
+
+2026-10-11, following D-073 Frontend, implemented a second explicitly
+user-invoked VS Code Testing API profile: `Run Backend Fact`.
+Selected TestItem must be exactly one Backend part in a trusted,
+Fresh single-folder workspace with no dirty file documents and
+configuration equal to the prior Refresh snapshot. Run All, mixed
+or parent nodes, concurrent stale-state changes and blocked/degraded
+evidence are refused.
+
+The plan is derived from the same joined Situation/definition as
+Projection. It resolves one direct non-parameterized xUnit Fact
+(method signature `Class.Method()`) and one contained .csproj.
+The executor **rebuilds the xUnit project** for correctness,
+discovers the compiled xUnit v3 test assembly using native
+`-list full/json`, requires one exact fullName/Class/Method and
+a unique 64-hex case ID, then uses native `-id` for the explicit
+execution. Native `-automated` JSON events must prove exactly
+one successful/failed test with matching CaseUniqueID and
+assembly counters; zero or multiple tests are an Error, not PASS.
+It compares the selected C# source and .csproj byte hashes before
+and after; no cache or skip-build shortcut.
+
+**Critical xUnit limitation:** this project's xUnit.net v3 runner 4.0.1
+exposes two distinct Theory labels from the custom materializer,
+but native `-list full/json` exposes only the folded parent
+Theory ID; running `-id` using a materialized row's test.UniqueID
+actually selected zero tests. Therefore **both parameterized
+Backend Situation rows are refused BEFORE the build or test run**.
+Do not substitute method/display-name substring filters: they may
+execute both rows. Individual Theory-row support requires a
+separately proved runner adapter and pre-execution exactness.
+
+Source-only Windows fixture proof: one direct Backend Fact
+PASS/executed=1; both parameterized Backend Situation
+requests rejected before execution. A disposable OS-temp xUnit
+project with an intentionally failing Fact reported
+Failed/executed=1. Test suite covers source identity, trust,
+freshness, dirty editors, duplicate/invalid IDs and contradictory
+automated runner events. Existing D-073 Frontend remains unchanged.
+
+Still pending: true per-row Backend Theory, Run Both,
+in-flight cancellation and stronger transitive input race
+handling; installed VSIX/manual UI gate is separate.
+Original D-065 ordinary VS Code installation remains untouched.
+User's localhost app DEFERRED. No version/tag/release.

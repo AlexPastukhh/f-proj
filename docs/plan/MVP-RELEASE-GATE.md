@@ -139,3 +139,22 @@ Restricted, duplicate, dirty-buffer and wrong-role refusals
 are covered by automated tests; no extra manual clicks.
 The user's localhost application is explicitly deferred.
 This is not release approval or an installed UI PASS.
+
+## D-074 P4 Backend Fact joins the future single manual gate
+
+New source code offers `Run Backend Fact` only for direct,
+uniquely identified xUnit Facts; selected Theory rows are
+intentionally disabled. Existing D-065 ordinary VS Code
+installation has NOT been replaced, so no ordinary installed
+P4 manual PASS exists.
+
+After future new SHA-pinned VSIX validation and explicit
+installation permission, **combine** D-066 standalone HTML,
+P4 Frontend and P4 Backend into ONE short manual session:
+Reload Window; trusted fixture Refresh/Fresh; Open HTML and
+follow one Situation anchor plus one vscode source link;
+in Testing, invoke Run Frontend Situation for one part
+and Run Backend Fact for the direct
+`refresh_token_expired` Backend part; confirm each Passed.
+No manual attempt to execute Theory rows or the user's
+localhost application. This is not release approval.

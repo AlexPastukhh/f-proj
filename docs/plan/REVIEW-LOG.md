@@ -1603,3 +1603,65 @@ The prior D-065 VSIX is unchanged. Manual D-066+P4 is one
 future combined scenario after a separately validated and
 authorized new candidate. No release, localhost app changes
 or Backend/Run Both claim.
+
+## 2026-10-11 - D-074 P4 Backend xUnit Fact first slice
+
+Preflight: primary Windows and GitHub main both
+`08d76309d15021f78156663ea7aea76c42e69ccf`,
+clean. Previous D-073 documentation-only Windows CI run
+`38123829223` SUCCESS. No installed VSIX modification.
+
+Added `src/core/backendSituationRun.ts` and
+`src/core/xunitFactRunner.ts` plus a Testing API
+`Run Backend Fact` profile. It refuses non-Backend,
+untrusted, Stale, dirty, blocked, ambiguous or multiple
+node selections. Exact direct Fact planning uses the
+existing Projection situation ID, static C# definition,
+source/role/framework scope and `Class.Method()`.
+It does not run Theory data rows and never launches tests
+on Refresh or source watching.
+
+The executor first builds the configured .csproj Release
+inside the trusted project, checks selected source/project
+byte digests, lists xUnit native compiled cases
+(`-list full/json`) and validates one unique exact
+64-character case ID, class, method, display name and
+assembly. It then runs native `-id` in `-automated` mode.
+A parsed event must match the case ID and an assembly
+completion must show exactly one executed result,
+consistent with the process exit. Wrong, zero, multiple
+or contradictory output is an Error/refusal.
+
+Technical evidence (primary Windows):
+
+- `npm test`: **113/113 PASS**, zero skips (+4 Backend
+  planner/discovery/automated-report safety tests).
+- `node scripts/verify-p4-backend-run.mjs`: PASS:
+  one authored direct Fact executed=1/pass, both xUnit
+  Theory rows refused; one deliberately failing Fact
+  executed=1/Failed in a disposable OS-temp project,
+  removed after test. Authored Backend source SHA-256
+  remained identical.
+- Prior D-073 `verify-p4-vitest-run.mjs`: PASS
+  (three distinct frontend exact cases and negative case).
+- Native xUnit discovery inspected: one Fact ID and
+  **one folded Theory parent ID** despite two data labels.
+  Running `-id` with a concrete Theory `test.UniqueID`
+  produced zero tests, establishing that this native
+  API cannot yet provide safe per-row P4 selection.
+- Source/config scope and native report negative cases
+  all fail closed in unit tests.
+
+Windows workflow includes the new real xUnit Fact proof
+after packaging the worker. CI result will be recorded
+on the pushed source SHA. The ordinary installed
+D-065 VSIX and D-066 standalone HTML manual gate are
+unchanged. No own-app integration, release or version bump.
+
+Isolated `npm run test:extension` smoke with the local
+ordinary VS Code executable was **PASS (exit 0)**, including
+extension activation and existing Testing/Markdown behaviors.
+This is a separate development-host test and does NOT
+constitute ordinary installed UI manual acceptance of the
+new `Run Backend Fact` profile. CI will independently
+verify the exact xUnit/negative-case proof on the pushed SHA.
