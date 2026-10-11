@@ -386,3 +386,18 @@ Commit `95398c8`, run `38118508738`: Windows CI SUCCESS,
 98/98 tests and real cold/hit/uncached equivalence PASS.
 D-069 remains opt-in source-only; no ordinary VS Code cache,
 new VSIX or release. D-066 browser manual PENDING.
+
+## D-070 - Static Vitest cache measured, not activated
+
+The opt-in D-069 cache was checked for file/editor state races:
+new files, modified sources and dirty buffers arising between
+captured reads force an uncached result. Windows tests
+**103/103 PASS** (no skips); real Vitest/xUnit cached/uncached
+engine, D-063/D-064/D-065 and D-068 proofs PASS.
+Measured local medians over 12 runs: maintained 1-file fixture
+2.834ms direct vs 7.542ms cache hit; 120-file synthetic fixture
+42.814ms direct vs 196.241ms cache hit. The cache is slower
+in these samples. **NO-GO for ordinary VS Code activation**.
+CI includes repeatable timing proof with no speed threshold.
+Existing installed D-065 unchanged, D-066 browser manual
+PENDING, own-app localhost DEFERRED, release unauthorized.

@@ -1379,3 +1379,50 @@ installed VSIX or ordinary-user browser acceptance.
 D-069 is technically accepted as opt-in **source-only proof**.
 Default VS Code Refresh remains uncached; D-066 browser manual
 is PENDING, own-app localhost DEFERRED, release unapproved.
+
+## 2026-10-11 - D-070 safety races and Vitest static-cache cost
+
+Input state: GitHub main / primary Windows main clean and synced at
+`d7d6b37c28a138663c146ce1f86a1a428e593d22`.
+The previous documentation-only Windows CI
+https://github.com/AlexPastukhh/f-proj/actions/runs/38118791675
+was verified **SUCCESS** before D-070 work.
+
+Updated opt-in `VitestStaticCache` to re-check trusted and explicitly
+supplied empty dirty-file set after the second input capture.
+Five deterministic new tests inject a same-run source edit,
+a new Feature test file, or a dirty editor state between
+snapshot reads on miss/hit, and assert uncached fallback with
+current definitions and no unsafe cache entry.
+No VS Code ordinary Refresh cache activation.
+
+Local Windows `npm test`: **103/103 PASS**, 0 skipped.
+`scripts/measure-vitest-static-cache.mjs 12`: PASS and
+did not modify real fixture files. Measured median 12-run
+direct vs cache-hit static analysis:
+- Real maintained fixture: 2.834ms vs 7.542ms
+  (1 Feature file, 2 TestDefinitions).
+- Generated temp corpus: 42.814ms vs 196.241ms
+  (120 Feature files, 360 TestDefinitions).
+Cache-hit required two scans and was slower in both samples.
+No performance claim outside these samples; benchmark threshold
+is intentionally NOT used as a build gate.
+
+Real Windows `verify-vitest-static-cache.mjs` PASS for
+3 joined Situations, cold/hit/uncached identical complete
+Projection, Vitest runtime and xUnit/Roslyn still invoked.
+`verify-experimental-json-snapshot.mjs` PASS for
+D-063/D-064/D-065 dual-view; `verify-refresh-input-probe.mjs`
+PASS for D-068. Windows CI workflow includes the new timing
+study and unit tests; result must be checked after push.
+
+Decision D-070: **NO-GO** for installing or enabling the
+Vitest static cache in ordinary VS Code. The editor state
+would have to be read from live VS Code documents, and
+filesystem scans are not atomic relative to later external
+writes. The limited test fixture demonstrates cost overhead,
+not a useful performance win. Favor measuring and safely
+isolating actual .NET xUnit/Roslyn project-analysis costs
+before attempting wider caching. No new VSIX/tag/release.
+D-066 standalone browser manual acceptance stays PENDING;
+integration with user's own localhost app remains DEFERRED.

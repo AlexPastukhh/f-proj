@@ -99,7 +99,9 @@ export class VitestStaticCache {
     if(entry && entry.hash===before.hash) {
       try {
         const after=capture(workspaceRoot,source,key);
-        if(after.hash===before.hash){
+        // The editor state can change while filesystem input is being captured.
+        if(after.hash===before.hash && context.trusted &&
+          Array.isArray(context.dirtyDocumentPaths) && context.dirtyDocumentPaths.length===0){
           this.entries.delete(key);
           this.entries.set(key,entry); // bounded in-memory LRU
           return {definitions:clone(entry.definitions),state:'hit'};
@@ -112,7 +114,9 @@ export class VitestStaticCache {
     // Files may have changed while parsing. Never publish an unverified cache entry.
     try {
       const after=capture(workspaceRoot,source,key);
-      if(after.hash!==before.hash) return fresh();
+      if(after.hash!==before.hash || !context.trusted ||
+        !Array.isArray(context.dirtyDocumentPaths) || context.dirtyDocumentPaths.length)
+        return fresh();
     } catch { return fresh(); }
     this.entries.delete(key);
     this.entries.set(key,{hash:before.hash,definitions:clone(definitions)});

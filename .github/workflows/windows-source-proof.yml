@@ -58,6 +58,8 @@ jobs:
         run: node scripts/verify-refresh-input-probe.mjs
       - name: D-069 opt-in Vitest static-cache full engine equivalence
         run: node scripts/verify-vitest-static-cache.mjs
+      - name: D-070 safe timing study (no production cache activation)
+        run: node scripts/measure-vitest-static-cache.mjs 12
       - name: Package .NET worker and verify payload
         shell: pwsh
         run: |

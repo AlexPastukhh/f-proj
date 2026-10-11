@@ -1471,3 +1471,32 @@ real-engine equivalence and prior source proofs PASS.
 Source-only feasibility DONE; full active Refresh cache,
 dirty-buffer race integration, and measured speed benefit LATER.
 Installed D-065 candidate and D-066 manual gate unchanged.
+
+## 27. D-070 - Vitest cache cost and mid-Refresh safety (NO-GO for activation)
+
+2026-10-11 source-only engineering proof. D-069 corrected and
+documentation commits both passed Windows CI; ordinary D-065 stays installed.
+Extended opt-in Vitest static cache with a second dirty-editor/trust check
+after both captured-source observations, on cache hit and miss.
+Deterministic tests mutate files or add feature tests after the first
+capture read, and make the editor dirty between captures. In each case
+the cache bypasses and returns fresh uncached definitions, not stale
+ones. This does NOT prove an atomic filesystem transaction or full
+VS Code editor event integration; the default Refresh has no cache.
+
+Measured 12 interleaved repetitions (median, local Windows Node 24):
+maintained real frontend fixture (1 file, 2 definitions) uncached static
+2.834ms versus cache-hit 7.542ms; generated temporary 120-file corpus
+(360 definitions) uncached 42.814ms versus cache-hit 196.241ms.
+Each measurement checks detached result equality and identical source
+file bytes. This is a local sample, NOT a universal performance claim.
+The current double hash/file scan costs more than parsing here.
+Therefore **do not activate** this cache in VS Code; no VSIX packaging.
+
+Source suite 103/103 PASS, 0 skips; Windows real D-069 full-engine,
+D-063/D-064/D-065 and D-068 regressions rechecked. Benchmark is
+reproducible: `node scripts/measure-vitest-static-cache.mjs 12`;
+Windows CI also runs it without an unstable performance threshold.
+NEXT: investigate actual xUnit/Roslyn+build bottlenecks and safe
+dependency closure before suggesting cache, or return to D-066
+standalone browser acceptance. User's own localhost app deferred.

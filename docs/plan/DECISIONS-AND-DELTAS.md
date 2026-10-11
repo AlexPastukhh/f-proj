@@ -1628,3 +1628,37 @@ was corrected and is retained as historical evidence.
 D-069 source feasibility proof is DONE, **not** a decision to
 enable the cache in ordinary Refresh. Browser/localhost/release
 status remains unchanged.
+
+## D-070 - Reject automatic Vitest static cache activation
+
+Status: SOURCE-ONLY safety/cost proof; NOT installed. D-069 CI
+for `95398c8` and final documentation commit `d7d6b37`
+completed SUCCESS (Windows).
+The bounded D-069 static cache now checks supplied dirty editor
+state AGAIN after its second filesystem snapshot, on cold and warm
+paths. Deterministic mutation hooks confirm a same-run file change,
+arrival of a new Feature test, or editor becoming dirty between
+captured reads forces uncached analysis. In-memory snapshots and
+synthetic fixtures only; no user's source edits.
+
+Local Windows 12-run medians: maintained 1-file fixture direct
+2.834ms, cache-hit 7.542ms; generated temporary 120-file fixture
+direct 42.814ms, cache-hit 196.241ms. Cache incurs two full
+content scans, and in these tests it is slower than re-parsing.
+These are samples, not cross-project guarantees. No defensible
+performance benefit has been demonstrated.
+
+**Decision:** NO-GO for wiring static Vitest cache into the
+ordinary extension. Keep the opt-in experiment for research only.
+Do not cache Vitest runtime materialization, xUnit/Roslyn workers,
+results in dirty editors, or partial source snapshots. The dynamic
+editor state is not yet observed from a live VS Code Refresh.
+A second synchronous scan reduces observable races but cannot
+guarantee atomicity versus external writes after the final read.
+
+D-070 adds 5 deterministic race/dirty tests and a reproducible,
+non-gating benchmark. Windows local source suite 103/103 PASS,
+the D-069 real cached/uncached full engine and D-063/D-064/D-065
+regressions PASS. CI runs benchmark without a speed threshold.
+Do not build or install another VSIX, integrate the user's app,
+or publish a release. D-066 browser manual acceptance PENDING.

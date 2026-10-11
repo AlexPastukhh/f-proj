@@ -131,3 +131,76 @@ test('aliased workspace root is safe when scoped paths are not junctions',(t)=>{
   assert.equal(second.state,'hit')
   assert.deepEqual(second.definitions,analyzeVitestSource(x.source,'account',alias))
 })
+
+function injectAfterFirstFileRead(target,mutation,invoke){
+  const original=fs.readFileSync
+  let triggered=false
+  fs.readFileSync=function(file,...args){
+    const bytes=original.call(this,file,...args)
+    if(!triggered && typeof file==='string' &&
+      path.resolve(file)===path.resolve(target)){
+      triggered=true
+      mutation()
+    }
+    return bytes
+  }
+  try {
+    const result=invoke()
+    assert.equal(triggered,true,'the test must exercise a real capture read')
+    return result
+  } finally {
+    fs.readFileSync=original
+  }
+}
+test('file edited during cold capture is reparsed uncached, not stored',(t)=>{
+  const x=setup(t)
+  const result=injectAfterFirstFileRead(x.one,
+    ()=>x.write(x.one,x.literal('changed')),()=>x.run())
+  assert.equal(result.state,'bypass')
+  assert.deepEqual(result.definitions,analyzeVitestSource(x.source,'account',x.root))
+  assert.equal(result.definitions[0].directSituation,'changed')
+  assert.equal(x.cache.size,0)
+  assert.equal(x.run().state,'miss')
+})
+
+test('warm hit refuses file edit between input observations',(t)=>{
+  const x=setup(t)
+  assert.equal(x.run().state,'miss')
+  const result=injectAfterFirstFileRead(x.one,
+    ()=>x.write(x.one,x.literal('changed')),()=>x.run())
+  assert.equal(result.state,'bypass')
+  assert.deepEqual(result.definitions,analyzeVitestSource(x.source,'account',x.root))
+  assert.equal(result.definitions[0].directSituation,'changed')
+  assert.equal(x.run().state,'miss')
+})
+test('new feature file arriving during cold capture is not cached',(t)=>{
+  const x=setup(t)
+  const added=path.join(path.dirname(x.one),'later.feature.test.ts')
+  const result=injectAfterFirstFileRead(x.one,
+    ()=>x.write(added,x.literal('added')),()=>x.run())
+  assert.equal(result.state,'bypass')
+  assert.equal(result.definitions.length,2)
+  assert.deepEqual(result.definitions,analyzeVitestSource(x.source,'account',x.root))
+  assert.equal(x.cache.size,0)
+})
+
+test('dirty editor appearing mid-capture prevents cold cache entry',(t)=>{
+  const x=setup(t)
+  const dirty=[]
+  const context=x.opts({dirtyDocumentPaths:dirty})
+  const result=injectAfterFirstFileRead(x.one,()=>dirty.push(x.one),
+    ()=>x.cache.analyze(x.source,'account',x.root,context))
+  assert.equal(result.state,'bypass')
+  assert.deepEqual(result.definitions,analyzeVitestSource(x.source,'account',x.root))
+  assert.equal(x.cache.size,0)
+})
+test('dirty editor appearing during warm hit forces authoritative bypass',(t)=>{
+  const x=setup(t)
+  assert.equal(x.run().state,'miss')
+  const dirty=[]
+  const context=x.opts({dirtyDocumentPaths:dirty})
+  const result=injectAfterFirstFileRead(x.one,()=>dirty.push(x.one),
+    ()=>x.cache.analyze(x.source,'account',x.root,context))
+  assert.equal(result.state,'bypass')
+  assert.deepEqual(result.definitions,analyzeVitestSource(x.source,'account',x.root))
+})
