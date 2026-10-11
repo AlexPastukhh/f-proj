@@ -52,7 +52,7 @@ jobs:
         run: node scripts/verify-usage-symbol-feasibility.mjs
       - name: In-memory C# Rename feasibility proof (no source edits)
         run: node scripts/verify-rename-feasibility.mjs
-      - name: Internal JSON normalization and metadata-only disclosure proof (no public export)
+      - name: Internal JSON, metadata disclosure, and Portable Markdown/HTML fixture proof
         run: node scripts/verify-experimental-json-snapshot.mjs
       - name: Package .NET worker and verify payload
         shell: pwsh

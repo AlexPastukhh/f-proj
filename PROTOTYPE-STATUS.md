@@ -272,3 +272,34 @@ No new command, JSON file creation, clipboard/network export,
 public schema/version, license or user data mutation exists.
 The D-062 no-Rename MVP and its release/manual pending boundaries
 remain unchanged. Public P1/7.4 export remains LATER.
+
+## D-065 — P3 Portable Projection (single document, Markdown + HTML)
+
+The user's existing localhost app will **serve** the Projection;
+Feature Projection itself starts no server. A single detached internal
+JSON-compatible `ProjectionDocument` (not D-064's redacted
+disclosure/export draft) now feeds Markdown and standalone HTML.
+The generated HTML shows exact Situation scope, Frontend/Backend,
+expected behavior, literal assertions, and `vscode://file`
+editor links. HTML is script-free, escape-safe and has a restrictive CSP.
+
+Trusted, unblocked, non-stale Refresh automatically writes
+`projection.html` to a stable workspace-specific folder under
+extension storage, or optionally to an explicitly configured absolute
+`featureProjection.portableHtmlDirectory` for a local static-asset
+server. Writes are atomic; unrelated existing destination files are
+not overwritten. Stale/Error/Restricted Mode does not publish a
+replacement file. Browser reload is still needed; no live reload.
+The public `Open HTML Projection` command opens the last fresh file.
+
+Source: **79/79 tests PASS**; real Vitest/xUnit proof **PASS**
+(3 Situations, 6 assertions, linked offline HTML and unchanged
+Markdown semantics). P3 candidate VSIX is separate from D-062,
+20,500,133 bytes, SHA256
+`1E99142C54B9CD559EE883F371F1BB73ADBDC12A8D7F7F005B33B6C351B270C7`.
+
+**Privacy:** HTML contains literal source code; localhost routes
+should remain private and bound to loopback. This prototype does NOT
+give a public JSON export, release approval, browser/iframe manual
+acceptance or general mutating Rename support. D-065 and
+`docs/plan/PORTABLE-PROJECTION-INTEGRATION.md` hold details.

@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
+import fs from 'node:fs'
+import os from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
 const require=createRequire(import.meta.url)
@@ -10,6 +12,11 @@ const { buildExperimentalSnapshot,serializeExperimentalSnapshot }=
   require('../dist/core/normalizedSnapshot.js')
 const { buildExperimentalExportDraft,serializeExperimentalExportDraft }=
   require('../dist/core/exportDraft.js')
+const {buildProjectionDocument}=require('../dist/core/projectionDocument.js')
+const {renderProjection}=require('../dist/core/projection.js')
+const {renderPortableProjection}=require('../dist/core/portableProjection.js')
+const {resolvePortableHtmlDirectory,writePortableHtmlAtomic}=
+  require('../dist/core/portableHtmlStorage.js')
 const workspace=path.join(root,'fixtures')
 const config=readPrototypeConfig(path.join(workspace,'feature-projection.config.json'))
 const result=await runFullPrototype({
@@ -61,3 +68,30 @@ console.log('P1_7_4_METADATA_ONLY_DISCLOSURE_DRAFT_PASS'+
 console.log('P1_7_4_INTERNAL_NORMALIZED_JSON_FEASIBILITY_PASS'+
   ' situations=3 matched_parts=6 literal_assertions=6'+
   ' paths=workspace-relative no_source_mutation=true public_schema=false')
+
+// P3 feasibility: a single in-memory JSON-compatible Projection snapshot
+// drives both Markdown and a complete offline HTML file (no localhost server).
+const model=buildProjectionDocument(result.joined)
+const markdownView=renderProjection(model.situations)
+const htmlView=renderPortableProjection(model.situations,{
+  sourceHref:s=>'vscode://file/'+s.file.replace(/\\/g,'/').replace(/^\//,'')+
+    ':'+s.line+':'+s.column,
+})
+assert.equal((markdownView.markdown.match(/Situation: /g)||[]).length,3)
+assert.equal((htmlView.match(/class="situation"/g)||[]).length,3)
+assert.equal((htmlView.match(/class="assertion-heading"/g)||[]).length,6)
+assert.ok(htmlView.includes('vscode://file/'))
+assert.match(htmlView,/Content-Security-Policy/)
+const temp=fs.mkdtempSync(path.join(os.tmpdir(),'feature-projection-html-proof-'))
+try {
+  const directory=resolvePortableHtmlDirectory(path.join(temp,'extension-storage'),workspace)
+  assert.ok(!directory.startsWith(workspace))
+  const written=writePortableHtmlAtomic(directory,htmlView)
+  assert.equal(written.changed,true)
+  assert.equal(fs.readFileSync(written.file,'utf8'),htmlView)
+  assert.equal(writePortableHtmlAtomic(directory,htmlView).changed,false)
+  assert.deepEqual(fs.readdirSync(directory),['projection.html'])
+} finally {fs.rmSync(temp,{recursive:true,force:true})}
+console.log('P3_PORTABLE_HTML_DUAL_VIEW_PASS situations=3 assertions=6'+
+  ' source_links=VSCode default_storage=outside_workspace'+
+  ' atomic=true localhost_server_not_required=true')

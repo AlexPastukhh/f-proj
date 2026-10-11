@@ -1360,3 +1360,101 @@ UX consent and review, data classification, dirty/fresh snapshot
 checks, atomic output handling and path/identifier privacy policy.
 D-062 no-Rename MVP/release scope and manual pending status remain
 unchanged. Do not mistake this technical proof for release approval.
+
+## D-065 — P3 portable HTML view from the canonical Projection model
+
+Status: SOURCE/REAL FIXTURE PASS; ISOLATED INSTALLED CANDIDATE RUNNING;
+ordinary-user browser/localhost acceptance **PENDING** (2026-10-11).
+
+User clarified that an **existing separate localhost app** will host or
+embed the finished Projection; Feature Projection itself must not start
+another server. The user wants Markdown inside VS Code and a complete
+HTML Projection outside VS Code, with possible links back to exact
+source lines. JSON is the shared *internal data model*, not a separate
+public export button. The user approved proceeding.
+
+Implemented a detached, JSON-compatible in-memory
+`ProjectionDocument` from `JoinedSituation[]`, rendered as both:
+VS Code Markdown (existing `renderProjection`) and standalone,
+script-free HTML (`renderPortableProjection`). HTML preserves exact
+FeatureScope/Outcome/Situation identities, Frontend/Backend, literal
+assertions, expected behavior, trust and source/navigation links;
+unmatched parts are explicit. Case anchors use encoded complete
+Testing API identity, never labels alone.
+
+
+Added `featureProjection.portableHtmlDirectory` (optional **absolute**
+directory). On a trusted, non-blocking, non-stale **explicit Refresh**,
+the extension atomically writes a generated `projection.html` into
+this directory. Without configuration, it uses a stable workspace-
+qualified folder beneath extension global storage, outside project
+source. The "Open HTML Projection" command opens the last fresh file;
+no separate "Export" command, JSON file, server or network requests.
+
+HTML uses escaped text/attributes, protocol-restricted `vscode://file`
+links and a restrictive Content Security Policy; no scripts, dynamic
+DOM or generated JS. Generated-file ownership marker and atomic
+replacement refuse overwriting unrelated `projection.html`.
+No automatic writes happen in Restricted Mode or after blocking/stale
+Refresh. Existing files may remain **stale** until next good Refresh.
+The caller's existing localhost static file route/port/server is
+outside this extension's responsibility.
+
+
+Technical source evidence: **79/79** Node tests, including 6 new
+tests for detached internal document, two-scope rendering, HTML
+escaping/link guards, stable storage, no clobber, repeat updates,
+unmatched states and duplicate identity refusal. Real Vitest+xUnit
+proof: 3 Situations, 6 literal assertions, same snapshot powering
+Markdown and generated HTML, atomic file under isolated temporary
+storage. Existing D-063 and D-064 source proofs stay green.
+Added installed VSIX checks for the normal public "Open HTML"
+command, trusted Refresh generating the actual HTML, source links,
+no writes during Stale, and Restricted Mode no-publish safety.
+
+**Not demonstrated/approved yet:** actual human browser/iframe
+behavior, externally served localhost path, automatic page reload,
+browser external URI confirmation, multi-root scope, public release
+or release/version bump. The old D-062 MVP candidate and historical
+artifacts remain untouched. This P3 change is separate from the
+older accepted scope and requires its own manual acceptance before
+any release. No broad web access or automatic publication is enabled.
+
+
+### D-065 watcher-safe revision and candidate
+
+Because the user may configure their localhost static directory
+under a watched frameworkProject, the first generated HTML could
+otherwise self-invalidate the VS Code projection as Stale.
+`isPortableHtmlOutputPath` therefore excludes only the exact
+`projection.html` and 24-hex atomic `.projection-*.tmp` files
+inside the configured directory. Other files remain watched.
+Added source unit and installed trusted smoke checks proving
+that a successful Refresh to such a configured directory remains
+Fresh while a genuine feature-test edit still makes it Stale.
+
+Original P3 candidate: `...p3-dual-projection-candidate.vsix`
+20,500,133 bytes, SHA-256
+`1E99142C54B9CD559EE883F371F1BB73ADBDC12A8D7F7F005B33B6C351B270C7`.
+The watcher-safe final candidate was packaged **separately** at
+`artifacts/feature-projection-prototype-p0-0.1.0-p3-dual-projection-watcher-fixed-candidate.vsix`,
+20,500,451 bytes, SHA-256
+`A995A0690144E343EEF500D5CB16A20D6E0C40E1B6E9B804C8C879B3935C84F5`.
+All older candidate bytes were preserved. Manual localhost/browser
+acceptance and release approval remain PENDING.
+
+
+### D-065 final candidate — confirmed event-watcher wiring
+
+Source review found that the watcher exclusion helper existed in
+the second P3 VSIX but its call was not present in the VS Code
+`isRelevantUri` function. It was explicitly wired and independently
+confirmed by searching the activation source; the final candidate is
+`artifacts/feature-projection-prototype-p0-0.1.0-p3-dual-projection-source-watch-fixed-candidate.vsix`,
+20,500,477 bytes; SHA-256
+`4468280CE13A55FFDAE69CA7F086F6FC68F9342DF9EC7C393692688AB4091380`.
+Earlier P3 candidates are immutable historical test evidence, not the
+recommended candidate. Unit suite **79/79 PASS**; real fixture proof
+PASS. The final installed Windows regression is separately verified.
+No ordinary-user browser acceptance, release or public export is
+assumed.

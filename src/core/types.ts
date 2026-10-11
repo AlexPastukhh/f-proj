@@ -113,4 +113,5 @@ export interface PrototypeConfig {
   workerTimeoutMs?: number;
   buildTimeoutMs?: number;
   nodePath?: string;
+  portableHtmlDirectory?: string;
 }

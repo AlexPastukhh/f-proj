@@ -1141,6 +1141,7 @@ DONE-22 D-062 replacement MVP candidate without user-visible Rename Preview: sou
 NEXT-1  Resume ONE ordinary-user acceptance checklist **without** Rename Preview; no new release until explicit approval
 DONE-23 P1/7.4 internal normalized JSON feasibility (68 unit tests, real Vitest+xUnit 3 Situations / 6 parts, deterministic workspace-relative source links), D-063; PUBLIC export still deferred
 DONE-24 P1/7.4 metadata-only JSON disclosure draft (D-064): excludes diagnostic message and literal assertion source, explicit no-publication/consent flags, 73 unit tests and real Vitest+xUnit proof PASS; public export LATER
+DONE-25 P3/9.1 Portable Projection: one internal JSON-compatible document for Markdown and standalone HTML, 79 source tests and real fixture proof (D-065); watcher-safe final installed acceptance and browser/localhost manual pending
 LATER-1  P1/7.4 stable normalized JSON/export requires separate scope/privacy/version decision
 ```
 
@@ -1279,3 +1280,40 @@ explicit public contract requires review/consent UX, redaction
 policy beyond diagnostic messages, schema version and compatibility,
 freshness checks and safe file-output behavior.
 D-062 no-Rename MVP and ordinary-user manual pending are unchanged.
+
+## 22. P3/9.1 Portable Projection — dual Markdown + HTML (D-065)
+
+User requirement: one Projection shown as Markdown inside VS Code and
+as `projection.html` served/embedded by the user's **existing**
+localhost app; no separate server or manual JSON Export step.
+
+`buildProjectionDocument()` detaches the engine's `JoinedSituation[]`
+into a single JSON-compatible semantic model. The existing VS Code
+Markdown renderer and a new script-free HTML renderer use that exact
+document. HTML preserves Feature/Outcome/Situation, roles, expected
+behavior, unmatched evidence and literal assertion snippets. Its
+scoped Situation permalink is derived from full Testing API identity.
+Source links use the configured VS Code URI handler when supported.
+
+Explicit trusted Fresh Refresh atomically updates `projection.html`.
+Default output is in workspace-qualified extension global storage,
+not the source repository. The optional **absolute**
+`featureProjection.portableHtmlDirectory` setting targets the
+static asset directory of the user's already-running localhost app.
+The command `Feature Projection: Open HTML Projection` opens the
+existing Fresh document. No server, external upload, editor source
+mutation or new generic Rename is introduced. Stale/blocked/Restricted
+Refresh cannot write a new HTML file, and collisions with unrelated
+`projection.html` files are rejected.
+
+Technical evidence: Node 79/79 source PASS, real Vitest+xUnit dual-view
+proof (3 Situations, 6 assertions, atomic file outside workspace) PASS.
+Isolated installed VSIX proof of generation/freshness/restricted mode
+is separately required before technical acceptance. **Human browser,
+iframe, localhost routing, protocol-handler prompts and browser reload
+remain MANUAL PENDING**. Full HTML contains literal user source and is
+not a share-safe export: never serve it publicly without user review.
+Candidate `artifacts/feature-projection-prototype-p0-0.1.0-p3-dual-projection-candidate.vsix`,
+20,500,133 bytes, SHA-256
+`1E99142C54B9CD559EE883F371F1BB73ADBDC12A8D7F7F005B33B6C351B270C7`
+is not a public release and does not replace the D-062 manual gate.

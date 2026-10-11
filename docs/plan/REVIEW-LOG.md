@@ -1087,3 +1087,52 @@ names are still potentially private. Stable schema/versioning,
 explicit user review/consent, freshness, filtering and atomic
 output are outside this bounded phase. Do not mark the MVP
 manual checklist PASS or publish a release from this result.
+
+## 2026-10-11 — D-065 one Projection document and portable HTML
+
+User confirmed Markdown is best inside VS Code, while their own
+existing localhost application should host/consume the same
+completed Projection. JSON remains an internal model; no export
+button or standalone server is desired.
+
+Added `projectionDocument.ts` (detached JSON-compatible model),
+`portableProjection.ts` (script-free, escaped HTML with scoped
+situation anchors and checked VS Code source URIs),
+`portableHtmlStorage.ts` (workspace-qualified default global
+storage and opt-in absolute localhost directory, atomic output,
+non-owned file overwrite refusal), and the VS Code activation
+wiring/setting/open-command. Existing Markdown actions, Testing API
+and read-only C# Usages still use their original code paths.
+
+Added 6 portable tests: single internal document/Markdown+HTML,
+escape/protocol/scope behavior, default vs configured storage,
+idempotent and collision-safe atomic files, duplicate refusal.
+Source suite **79/79 PASS**. Expanded the real xUnit/Vitest proof
+to exercise dual view and file output; 3 Situations, 6 assertions,
+native VS Code links and no writes to test sources: PASS.
+The installed trusted/normal/restricted smoke was extended to
+check generated HTML, stale non-overwrite and missing Restricted
+Mode generation. Full installed technical result is tracked
+separately, not inferred from source unit tests.
+
+Browser/iframe rendering, localhost static serving and external
+protocol prompts are still manual acceptance PENDING. No release,
+license, version bump, Marketplace publication or source mutations
+were authorized. Original D-062 candidate remains preserved.
+
+
+### D-065 watcher wiring review
+
+A source audit after the first installed P3 technical PASS noticed
+that the newly tested `isPortableHtmlOutputPath` helper was
+**not actually called** by the extension's `isRelevantUri`.
+The second candidate that included only the helper was superseded;
+its lengthy technical run was interrupted rather than being
+misrepresented as a PASS. The final revision wires the exact helper
+into the watcher handler, then independently verifies both the
+handler's source reference and the configured-host-directory behavior
+during an installed smoke. A separate immutable VSIX,
+`...p3-dual-projection-source-watch-fixed-candidate.vsix`
+(20,500,477 bytes, SHA-256
+`4468280CE13A55FFDAE69CA7F086F6FC68F9342DF9EC7C393692688AB4091380`)
+contains this fix. Browser/manual acceptance is still PENDING.

@@ -24,6 +24,9 @@ Do not confuse a technical/acceptance candidate with a new public release.
 | `artifacts/feature-projection-prototype-p0-0.1.0-p2-rename-preview-readonly-fixed-candidate.vsix` | 20489453 | `23C01AC1CEFFE89DE9D2A38A5CEC17ED2494636F7D9E9BFB7EDA47409753B416` |
 | `artifacts/feature-projection-prototype-p0-0.1.0-mvp-batched-acceptance-candidate.vsix` | 20490576 | `54D4B3D1F5C17B3657C91AA299A129B66D146A72178633221FBC2FB0A3D83A29` |
 | `artifacts/feature-projection-prototype-p0-0.1.0-mvp-no-rename-preview-candidate.vsix` | 20490605 | `09E71D305560DD7E3ECCF7E161DA35FA6585D05992B4E9CE36AFD7B25FCB68A0` |
+| `artifacts/feature-projection-prototype-p0-0.1.0-p3-dual-projection-candidate.vsix` | 20500133 | `1E99142C54B9CD559EE883F371F1BB73ADBDC12A8D7F7F005B33B6C351B270C7` |
+| `artifacts/feature-projection-prototype-p0-0.1.0-p3-dual-projection-watcher-fixed-candidate.vsix` | 20500451 | `A995A0690144E343EEF500D5CB16A20D6E0C40E1B6E9B804C8C879B3935C84F5` |
+| `artifacts/feature-projection-prototype-p0-0.1.0-p3-dual-projection-source-watch-fixed-candidate.vsix` | 20500477 | `4468280CE13A55FFDAE69CA7F086F6FC68F9342DF9EC7C393692688AB4091380` |
 | `artifacts/releases/feature-projection-prototype-p0-0.1.0.vsix` | 20457995 | `49704A1072FD571BFEC94139BBC865F9B75F40CD899E6CDC531E9E605E951CC1` |
 | `artifacts/releases/feature-projection-prototype-p0-0.1.0-release.zip` | 31853862 | `16D23889C6702D392B9935E6794034EBA1D492FB05BC496F6FE865F28D6C8D08` |
 
@@ -37,3 +40,10 @@ to this Git checkout instead of assuming the old `Downloads` checkout persists.
 Installed acceptance reports are kept locally under `artifacts/local-acceptance-results/` and intentionally excluded from Git. D-061 contains the verified result summary.
 
 The previous cumulative candidate `...mvp-batched-acceptance-candidate.vsix` remains archived with D-061 technical evidence, **not** accepted for user release after D-062. The user-facing Rename Preview was removed; source research remains in the repository.
+
+P3 D-065 **Portable Projection** candidate is separate from the D-062
+user-facing MVP candidate. It adds automatic trusted-Refresh
+`projection.html` generation, an optional localhost static-assets
+directory, and the VS Code “Open HTML Projection” action. Source and
+installed technical gates are recorded independently. It is **not**
+a public release and does not imply browser/iframe manual acceptance.

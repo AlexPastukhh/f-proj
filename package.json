@@ -18,7 +18,8 @@
                              "onCommand:featureProjection.refresh",
                              "onCommand:featureProjection.showOutput",
                              "onCommand:featureProjection.configure",
-                             "onCommand:featureProjection.showRegisteredUsages"
+                             "onCommand:featureProjection.showRegisteredUsages",
+                             "onCommand:featureProjection.openPortableHtml"
                          ],
     "contributes":  {
                         "commands":  [
@@ -49,6 +50,10 @@
                                          {
                                              "command":  "featureProjection.showRegisteredUsages",
                                              "title":  "Feature Projection: Show Registered C# Usages"
+                                         },
+                                         {
+                                             "command":  "featureProjection.openPortableHtml",
+                                             "title":  "Feature Projection: Open HTML Projection"
                                          }
                                      ],
                         "menus":  {
@@ -87,6 +92,11 @@
                                                                                                           "minimum":  10000,
                                                                                                           "description":  "Timeout in milliseconds for development-source .NET worker fallback and trusted xUnit project builds."
                                                                                                       },
+                                                                 "featureProjection.portableHtmlDirectory":  {
+                                                                                                            "type":  "string",
+                                                                                                            "default":  "",
+                                                                                                            "description":  "Optional absolute directory served by your localhost app. On each successful trusted Refresh, automatically update its generated projection.html; otherwise the HTML is stored privately by the extension. The HTML includes literal assertions and user-authored names. Existing non-Feature-Projection files are never overwritten."
+                                                                                                        },
                                                                  "featureProjection.nodePath":  {
                                                                                                     "type":  "string",
                                                                                                     "default":  "",

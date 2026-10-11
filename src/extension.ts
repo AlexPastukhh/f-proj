@@ -12,6 +12,9 @@ import { resolveExternalNodeRuntime, sanitizeExternalNodeEnvironment } from './c
 import { validatePrototypeConfig } from './core/configValidation';
 import { applySourceConfigurationChange, SourceConfigurationChange } from './core/configureModel';
 import { isFeatureProjectionTestMode } from './core/testMode';
+import { buildProjectionDocument } from './core/projectionDocument';
+import { renderPortableProjection } from './core/portableProjection';
+import { resolvePortableHtmlDirectory, writePortableHtmlAtomic, isPortableHtmlOutputPath } from './core/portableHtmlStorage';
 
 const scheme = 'feature-projection';
 const projectionUri = vscode.Uri.parse(`${scheme}:/projection.md`);
@@ -54,6 +57,7 @@ export function activate(context: any) {
 
   let uiState: UiState = 'stale';
   let hasProjection = false;
+  let lastPortableHtmlFile: string | undefined;
   let refreshing = false;
   let staleRequestedDuringRefresh = false;
   let stalePromptOpen = false;
@@ -108,6 +112,21 @@ export function activate(context: any) {
   };
 
   const showOutput = () => output.show(true);
+  const openPortableHtml = async ():Promise<boolean> => {
+    if (!vscode.workspace.isTrusted || uiState !== 'fresh') {
+      void vscode.window.showWarningMessage(
+        'Feature Projection: HTML can be opened only after a fresh, trusted Refresh.'
+      );
+      return false;
+    }
+    if (!lastPortableHtmlFile || !fs.existsSync(lastPortableHtmlFile)) {
+      void vscode.window.showInformationMessage(
+        'Feature Projection: run a successful trusted Refresh to generate projection.html first.'
+      );
+      return false;
+    }
+    return await vscode.env.openExternal(vscode.Uri.file(lastPortableHtmlFile));
+  };
 
   const selectedSituationId = (argument: any): string | undefined => {
     const candidate = typeof argument === 'string' ? argument : argument?.id;
@@ -309,6 +328,7 @@ export function activate(context: any) {
       workerTimeoutMs: cfg.get('workerTimeoutMs') ?? 30000,
       buildTimeoutMs: cfg.get('buildTimeoutMs') ?? 120000,
       nodePath: cfg.get('nodePath') ?? undefined,
+      portableHtmlDirectory: cfg.get('portableHtmlDirectory') ?? undefined,
     };
   };
 
@@ -501,6 +521,7 @@ export function activate(context: any) {
     const folder = vscode.workspace.workspaceFolders?.[0];
     if (!folder || uri.scheme !== 'file') return false;
     const config = getConfig();
+    if (isPortableHtmlOutputPath(uri.fsPath,config.portableHtmlDirectory)) return false;
     for (const space of config.featureSpaces) {
       for (const source of space.sources ?? []) {
         if (!source?.root || !source?.frameworkProject) continue;
@@ -649,7 +670,9 @@ export function activate(context: any) {
         log,
       });
 
-      const projection = renderProjection(result.joined, { sourceHref: sourceDeepLink });
+      // A single JSON-compatible semantic document drives BOTH views.
+      const projectionDocument = buildProjectionDocument(result.joined);
+      const projection = renderProjection(projectionDocument.situations, { sourceHref: sourceDeepLink });
       lastMarkdown = projection.markdown;
       lastSourceActions = projection.sourceActions;
       lastAssertionSourceActions = projection.assertionSourceActions;
@@ -662,6 +685,28 @@ export function activate(context: any) {
 
       const blocking = result.diagnostics.filter(d => d.projectionImpact === 'blocks-part');
       const sourceLess = result.diagnostics.filter(d => !d.source?.file);
+      // Publish a complete, trusted snapshot only. Never silently replace
+      // the previous HTML with restricted, blocked or stale evidence.
+      if (trusted && blocking.length === 0 && !staleRequestedDuringRefresh) {
+        try {
+          const directory=resolvePortableHtmlDirectory(
+            context.globalStorageUri.fsPath,folder.uri.fsPath,config.portableHtmlDirectory,
+          );
+          const html=renderPortableProjection(projectionDocument.situations,{
+            sourceHref:sourceDeepLink,
+          });
+          const written=writePortableHtmlAtomic(directory,html);
+          lastPortableHtmlFile=written.file;
+          log(`portable-html: ${written.changed?'updated':'unchanged'} ${written.file}`);
+        } catch(error:any) {
+          log(`portable-html: not updated: ${error?.message ?? error}`);
+          void vscode.window.showWarningMessage(
+            `Feature Projection: HTML snapshot not updated: ${error?.message ?? error}`,
+          );
+        }
+      } else {
+        log('portable-html: not updated (untrusted, blocking or stale during Refresh)');
+      }
       log(`refresh result: definitions=${result.definitions.length}; cases=${result.cases.length}; joined=${result.joined.length}; blocking=${blocking.length}; source-less diagnostics=${sourceLess.length}`);
 
       if (blocking.length) {
@@ -916,6 +961,7 @@ export function activate(context: any) {
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.refresh', refresh));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.configure', configure));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.showOutput', showOutput));
+  context.subscriptions.push(vscode.commands.registerCommand('featureProjection.openPortableHtml', openPortableHtml));
   context.subscriptions.push(vscode.commands.registerCommand('featureProjection.showRegisteredUsages', () => showRegisteredUsages()));
   // D-062: Rename Preview is research-only, excluded from public MVP commands.
   // Its read-only implementation remains available only via isolated test hooks.
@@ -940,6 +986,7 @@ export function activate(context: any) {
         await showRegisteredRenamePreview({featureSpaceId:spaceId,sourceId,symbol,newName})));
     context.subscriptions.push(vscode.commands.registerCommand('featureProjection.__debugState', () => ({
       usageMarkdown:lastUsageMarkdown,
+      portableHtmlFile:lastPortableHtmlFile,
       usageActions:lastUsageActions,
       uiState,
       hasProjection,
