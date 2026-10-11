@@ -118,3 +118,16 @@ test('bounded LRU storage evicts inactive source identities',(t)=>{
   assert.equal(run('first').state,'miss')
   assert.throws(()=>new VitestStaticCache(0),/1\.\.128/)
 })
+
+test('aliased workspace root is safe when scoped paths are not junctions',(t)=>{
+  const x=setup(t)
+  const holder=fs.mkdtempSync(path.join(os.tmpdir(),'fp-d069-alias-'))
+  t.after(()=>fs.rmSync(holder,{recursive:true,force:true}))
+  const alias=path.join(holder,'workspace')
+  fs.symlinkSync(x.root,alias,'junction')
+  const first=x.cache.analyze(x.source,'account',alias,x.opts())
+  const second=x.cache.analyze(x.source,'account',alias,x.opts())
+  assert.equal(first.state,'miss')
+  assert.equal(second.state,'hit')
+  assert.deepEqual(second.definitions,analyzeVitestSource(x.source,'account',alias))
+})

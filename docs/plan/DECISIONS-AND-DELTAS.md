@@ -1607,3 +1607,14 @@ evaluate total scan/hash/parse cost and dirty editor/watcher race
 handling before opting into the live installed extension.
 D-066 browser manual pending; own-app localhost DEFERRED.
 No new VSIX, version, tag, release or publication.
+
+### D-069 portability correction - hosted Windows runner
+
+Original CI run for `1469b99` failed 8 new cache tests:
+the expected cache miss was an actual fail-closed bypass.
+Adjusted source-path validation to tolerate a differently
+canonicalized workspace root while still refusing source/project
+junctions and file aliases. Added a positive workspace-alias test,
+retaining the negative source-junction test. Local tests now 98/98
+PASS; CI confirmation must be checked on the correction commit.
+No ordinary Refresh cache or release is permitted by this fix.

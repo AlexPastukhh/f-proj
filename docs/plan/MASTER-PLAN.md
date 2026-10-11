@@ -1453,3 +1453,12 @@ narrow cache at all, with dirty-document integration, simultaneous
 file-change safety and measured benefit, before any VSIX rollout.
 D-065 ordinary install and D-066 standalone browser acceptance
 remain separate; user's localhost app integration is DEFERRED.
+
+### D-069 hosted Windows path canonicalization correction
+
+First CI run failed on the new cache-only unit tests; root
+path aliases on hosted Windows require canonical workspace-
+relative checks, not raw absolute path-string equality.
+Added positive workspace-alias/negative source-junction tests.
+Local Windows 98/98 PASS plus real cached/full uncached
+engine proof PASS. See REVIEW-LOG; remote CI must verify.

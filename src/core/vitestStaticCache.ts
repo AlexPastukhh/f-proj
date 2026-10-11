@@ -40,9 +40,15 @@ function capture(workspaceRoot:string,source:FeatureSourceConfig,
   const framework=path.resolve(workspace,source.frameworkProject);
   if(!contained(workspace,sourceRoot) || !contained(workspace,framework))
     throw Error('cache roots escape workspace');
-  for(const root of [workspace,sourceRoot,framework]) {
-    if(!samePhysicalPath(fs.realpathSync.native(root),root))
-      throw Error('cache path is an alias or junction');
+  // The OS temporary/workspace root itself may use a short or aliased path
+  // (notably on GitHub Windows runners). Compare children against the same
+  // canonical workspace rather than rejecting that harmless top-level alias.
+  const physicalWorkspace=fs.realpathSync.native(workspace);
+  for(const root of [sourceRoot,framework]) {
+    const relative=path.relative(workspace,root);
+    const expected=path.resolve(physicalWorkspace,relative);
+    if(!samePhysicalPath(fs.realpathSync.native(root),expected))
+      throw Error('cache source or framework root is a junction');
   }
   const files=listVitestFeatureFiles(sourceRoot);
   const hash=createHash('sha256');
@@ -52,8 +58,10 @@ function capture(workspaceRoot:string,source:FeatureSourceConfig,
   for(const file of files){
     if(!contained(sourceRoot,file)) throw Error('feature test escapes source root');
     const stats=fs.lstatSync(file);
+    const relativeFromWorkspace=path.relative(workspace,file);
     if(!stats.isFile() || stats.isSymbolicLink() ||
-      !samePhysicalPath(fs.realpathSync.native(file),file))
+      !samePhysicalPath(fs.realpathSync.native(file),
+        path.resolve(physicalWorkspace,relativeFromWorkspace)))
       throw Error('feature test is not a regular unaliased file');
     const bytes=fs.readFileSync(file);
     const relative=path.relative(workspace,file).split(path.sep).join('/');

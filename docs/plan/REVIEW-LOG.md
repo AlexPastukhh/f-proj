@@ -1343,3 +1343,23 @@ does not supply it. No real-world speedup established; D-067
 observed static Vitest extraction as minor compared with .NET.
 D-066 manual browser still PENDING; own localhost application
 integration DEFERRED. No new VSIX, source fixture mutations or release.
+
+### D-069 Windows CI discrepancy and path-alias regression
+
+The first D-069 push `1469b99` failed its GitHub Windows unit
+test gate (run 38118157671): the new static cache's initial
+snapshot returned `bypass` on the hosted runner, where source
+capture was expected to return `miss`; existing 89 tests passed,
+8 new cache tests failed. No source runtime/Projection failure
+was inferred from these test assertions.
+
+Investigated path canonicalization differences between the main
+Windows checkout and the runner's temporary workspace. The cache
+now canonicalizes the **workspace root once** and checks the
+expected physical source/project/file locations relative to it.
+A benign alias of the workspace itself must not disable caching;
+a junction of a configured source/project root still refuses cache
+reuse. Added an independent aliased-workspace junction unit test.
+The new Windows source suite is 98/98 PASS locally (no skips).
+Remote Windows CI must independently confirm the fix.
+No installed VSIX, source fixture edits or public cache activation.
