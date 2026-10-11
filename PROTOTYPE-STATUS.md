@@ -241,3 +241,34 @@ file write, stable JSON/export or Rename operation. The user's
 tentative checklist feedback is not a release publication consent;
 ordinary-user acceptance formalization and release go/no-go remain
 separate. Future P1/7.4 public schema and privacy need a new decision.
+
+## D-064 — Internal metadata-only disclosure draft (no public JSON export)
+
+Added `src/core/exportDraft.ts`, a research-only in-memory JSON
+disclosure draft built from the D-063 normalized snapshot.
+It retains exact FeatureScope/Situation, role, trust, expected behavior,
+structured diagnostic rule/severity/impact and source coordinates.
+Raw `Diagnostic.message` and literal `Assertion.sourceCode` are omitted.
+Missing parts are explicit null; unresolved cases are preserved.
+
+Every draft has `publishable: false`, `requiresExplicitConsent: true`
+and `containsUserAuthoredIdentifiers: true`. Counts of omitted
+diagnostic messages and assertion snippets, unmatched parts,
+unresolved definitions and blocking evidence are reported.
+Paths are rechecked workspace-relative, source locations cloned,
+and unknown serializer fields or attempted publication fail closed.
+
+**Source validation:** `npm test` **73/73 PASS**; expanded real
+`scripts/verify-experimental-json-snapshot.mjs` PASS on Vitest 5 +
+xUnit v3 (3 Situations, 6 snippets withheld, deterministic ordering).
+Windows CI runs the same proof; its post-commit status is recorded
+separately. No installed VSIX validation is required for this
+source-only, non-contributed research module.
+
+**Privacy boundary:** Feature names, expected behavior and file names
+can be sensitive even without literal assertions or diagnostic messages.
+The draft is not a certificate that content is safe to share.
+No new command, JSON file creation, clipboard/network export,
+public schema/version, license or user data mutation exists.
+The D-062 no-Rename MVP and its release/manual pending boundaries
+remain unchanged. Public P1/7.4 export remains LATER.

@@ -1140,6 +1140,7 @@ DONE-21 One cumulative 0.1.0 MVP candidate, installed Windows aggregate technica
 DONE-22 D-062 replacement MVP candidate without user-visible Rename Preview: source 62/62, isolated installed normal + Restricted Mode + Usage View + cross-navigation PASS, research hooks retained
 NEXT-1  Resume ONE ordinary-user acceptance checklist **without** Rename Preview; no new release until explicit approval
 DONE-23 P1/7.4 internal normalized JSON feasibility (68 unit tests, real Vitest+xUnit 3 Situations / 6 parts, deterministic workspace-relative source links), D-063; PUBLIC export still deferred
+DONE-24 P1/7.4 metadata-only JSON disclosure draft (D-064): excludes diagnostic message and literal assertion source, explicit no-publication/consent flags, 73 unit tests and real Vitest+xUnit proof PASS; public export LATER
 LATER-1  P1/7.4 stable normalized JSON/export requires separate scope/privacy/version decision
 ```
 
@@ -1249,3 +1250,32 @@ address diagnostic-message path redaction, privacy, schemas,
 compatibility, edit freshness and explicit export UX/consent.
 Existing D-062 no-Rename MVP manual acceptance remains provisional;
 no release authorization has been inferred.
+
+## 21. Metadata-only disclosure draft — INTERNAL SOURCE PROOF DONE (D-064)
+
+The D-063 normalized snapshot still includes untrusted free-text
+diagnostics and literal snippets. Added `src/core/exportDraft.ts`
+to construct a **separately tagged, non-publishable disclosure draft**.
+It retains exact semantic scope, parts/trust, assertion kind and
+workspace-relative location, unresolved cases and diagnostic codes.
+By default **all raw diagnostic messages and literal assertion
+source text are omitted**. The result records how many were omitted,
+whether blocking evidence remains and requires explicit consent.
+
+The draft serializer rejects extra fields at every depth, so future
+accidental `message`, `sourceCode` and secret-field regressions fail
+instead of silently entering JSON. All paths are independently
+validated as workspace-relative POSIX and source locations cloned.
+
+Source tests **73/73 PASS**. The real Vitest+xUnit proof verifies
+3 Situations, 6 omitted literal snippets and deterministic result
+across reversed discovery order, no filesystem mutation.
+Windows source CI includes the expanded real proof; its status
+requires independent confirmation after the D-064 commit is pushed.
+
+**No public export yet.** Identifiers, expected behavior and
+filenames remain user-authored content, possibly private. A future
+explicit public contract requires review/consent UX, redaction
+policy beyond diagnostic messages, schema version and compatibility,
+freshness checks and safe file-output behavior.
+D-062 no-Rename MVP and ordinary-user manual pending are unchanged.

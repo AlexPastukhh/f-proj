@@ -1049,3 +1049,41 @@ xUnit project restore and the real JSON proof. Confirm CI status
 on GitHub after push; local source PASS alone does not certify CI.
 Stable schema, export UI/file handling and diagnostic privacy
 remain LATER; no new VSIX/manual acceptance/release implied.
+
+## 2026-10-11 — D-064 Internal metadata-only JSON disclosure draft
+
+### Risk and bounded scope
+
+D-063's normalized result preserves literal feature assertions and
+free-form diagnostic messages that can contain developer machine
+paths, source code or tokens. Do not mistake relative source paths
+for an authorization to disclose the entire normalized document.
+Implemented `src/core/exportDraft.ts` without any VS Code command
+or file/network output. All drafts are explicitly non-publishable,
+require future consent and acknowledge user-authored identifiers.
+
+### Technical evidence
+
+The allowlisted metadata projection removes every diagnostic.message
+and assertion.sourceCode, preserving exact scope/role/trust,
+source coordinates, diagnostic rule/severity/impact and unresolved
+definitions. Counts of omitted fields and blocking evidence are
+machine-readable. Independent relative-path checks, source cloning
+and a strict JSON property allowlist prevent accidental extra
+secret/raw-code fields from entering serialized drafts.
+
+Source **73/73 PASS** (+5 D-064 tests), including realistic token/
+path-bearing diagnostics, omitted snippets, deterministic output,
+tamper attempts, path traversal, cloning and malformed consent.
+The expanded real fixture proof PASS uses actual Vitest5+xUnit3
+source analysis, 3 Situations and 6 withheld raw assertions.
+Windows CI script step now identifies both normalization and
+disclosure checks. Final CI result should be verified on GitHub.
+
+### Deferred decisions
+
+User-authored identifiers, expected behavior and relative file
+names are still potentially private. Stable schema/versioning,
+explicit user review/consent, freshness, filtering and atomic
+output are outside this bounded phase. Do not mark the MVP
+manual checklist PASS or publish a release from this result.

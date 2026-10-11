@@ -1300,3 +1300,63 @@ snapshot freshness/dirty VS Code documents; file atomicity, user
 confirmation and security review. P1/7.4 **stable JSON/export remains
 LATER**. The D-062 user-facing no-Rename MVP and its manual/release
 status are unchanged.
+
+## D-064 — Internal metadata-only JSON disclosure draft; no public export
+
+Status: SOURCE + REAL FIXTURE PROOF PASS / WINDOWS CI PENDING / 2026-10-11
+
+Following D-063, internal normalized evidence still contains potentially
+private free-text diagnostic messages (including machine paths) and
+literal source snippets from feature tests. A public JSON/export contract
+must not accidentally expose these fields before explicit informed user
+review and consent. The next bounded unit implements a **non-publishable
+metadata-only disclosure draft**, not a shipping exporter.
+
+New `src/core/exportDraft.ts` consumes a trusted in-memory
+`NormalizedSnapshot` and reconstructs an allowlisted result:
+`kind: feature-projection/disclosure-draft`, `publishable: false`,
+`requiresExplicitConsent: true`, `containsUserAuthoredIdentifiers: true`,
+`diagnosticMessages: omitted`, `assertionSourceCode: omitted`.
+FeatureSpace/feature/outcome/situation identity, part roles, trust,
+expected behavior, assertion kind/source location and structured
+diagnostic rule/severity/impact/source remain available.
+Unmatched parts stay null and unresolved definitions remain explicit.
+
+Every normalized path is independently checked as workspace-relative
+POSIX and every coordinate is validated when copied into the draft.
+Source objects are copied, not shared with the underlying snapshot.
+The serializer rejects unknown JSON property names at all depths
+(including any reintroduced diagnostic `message`, raw `sourceCode`,
+or injected secret field), absolute/traversal/backslash paths,
+and any attempt to set `publishable: true` or disable consent.
+
+The draft includes a disclosure summary with situation count,
+unmatched part count, unresolved definition count, count of literal
+assertions omitted, count of diagnostic messages omitted and whether
+blocking evidence exists. It is deliberately deterministic and
+contains no timestamps, file writes, workspace mutations, new
+VS Code commands or stable public schema/version claims.
+
+Source unit tests expanded **68/68 -> 73/73 PASS**. Dedicated
+`test/export-draft.test.mjs` tests adversarial diagnostics containing
+absolute machine paths/Bearer-looking text, raw assertion snippets,
+scope/structure retention, consent flags, nested field injection,
+traversal/absolute path refusal, clone separation and determinism.
+The real Vitest 5 + xUnit v3 proof
+`scripts/verify-experimental-json-snapshot.mjs` also verifies the
+metadata-only draft: 3 Situations, 6 literal snippets omitted,
+byte-for-byte deterministic when source discovery is reversed,
+no user-source writes and `publishable: false`.
+Windows CI's existing real fixture step runs the expanded proof.
+
+**IMPORTANT PRIVACY LIMIT:** although diagnostics and snippets are
+omitted, user-authored FeatureName/Outcome/Situation/ExpectedBehavior,
+file names and unresolved definition IDs can themselves contain
+private data. The draft does **not** certify arbitrary user strings
+as safe for external sharing. No actual JSON file export, clipboard,
+network upload, public command or automated disclosure is permitted.
+Before a public exporter: separately decide schema/version policy,
+UX consent and review, data classification, dirty/fresh snapshot
+checks, atomic output handling and path/identifier privacy policy.
+D-062 no-Rename MVP/release scope and manual pending status remain
+unchanged. Do not mistake this technical proof for release approval.
