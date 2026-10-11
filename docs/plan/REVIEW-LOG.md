@@ -1363,3 +1363,19 @@ reuse. Added an independent aliased-workspace junction unit test.
 The new Windows source suite is 98/98 PASS locally (no skips).
 Remote Windows CI must independently confirm the fix.
 No installed VSIX, source fixture edits or public cache activation.
+
+### D-069 final Windows CI gate - PASS (2026-10-11)
+
+Correction source commit `95398c8f2ad6b5300549cde2fbd17c03a8bebdbd`
+passed GitHub Windows source-proof workflow:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38118508738
+Conclusion: **SUCCESS**, including 98/98 Windows unit tests,
+D-068 known-input proof, D-063/D-064/D-065 real fixtures,
+and the new D-069 cold-miss/warm-hit/full-uncached
+Vitest+xUnit equivalence step. This supersedes the first
+D-069 CI failure in run 38118157671; it is not an
+installed VSIX or ordinary-user browser acceptance.
+
+D-069 is technically accepted as opt-in **source-only proof**.
+Default VS Code Refresh remains uncached; D-066 browser manual
+is PENDING, own-app localhost DEFERRED, release unapproved.

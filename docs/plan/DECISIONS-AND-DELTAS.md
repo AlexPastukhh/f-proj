@@ -1618,3 +1618,13 @@ junctions and file aliases. Added a positive workspace-alias test,
 retaining the negative source-junction test. Local tests now 98/98
 PASS; CI confirmation must be checked on the correction commit.
 No ordinary Refresh cache or release is permitted by this fix.
+
+### D-069 corrected source gate - final Windows CI SUCCESS
+
+Commit `95398c8`: GitHub Actions Windows run `38118508738`
+completed SUCCESS (98 unit tests and exact Vitest static-cache
+full-engine equivalence). Original `1469b99` CI failure
+was corrected and is retained as historical evidence.
+D-069 source feasibility proof is DONE, **not** a decision to
+enable the cache in ordinary Refresh. Browser/localhost/release
+status remains unchanged.

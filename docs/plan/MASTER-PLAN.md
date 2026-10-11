@@ -1462,3 +1462,12 @@ relative checks, not raw absolute path-string equality.
 Added positive workspace-alias/negative source-junction tests.
 Local Windows 98/98 PASS plus real cached/full uncached
 engine proof PASS. See REVIEW-LOG; remote CI must verify.
+
+### D-069 final source/Windows CI result
+
+Final corrected commit `95398c8` passed Windows CI
+`38118508738`: 98 unit tests, D-069 cold/hit/uncached
+real-engine equivalence and prior source proofs PASS.
+Source-only feasibility DONE; full active Refresh cache,
+dirty-buffer race integration, and measured speed benefit LATER.
+Installed D-065 candidate and D-066 manual gate unchanged.

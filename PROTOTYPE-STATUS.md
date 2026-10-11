@@ -379,3 +379,10 @@ D-063/D-064/D-065 and D-068 regressions PASS. Windows CI runs
 the new source-only proof and needs post-push result confirmation.
 D-066 browser manual gate pending, own localhost integration
 deferred, no new VSIX or release.
+
+### D-069 corrected Windows CI final status
+
+Commit `95398c8`, run `38118508738`: Windows CI SUCCESS,
+98/98 tests and real cold/hit/uncached equivalence PASS.
+D-069 remains opt-in source-only; no ordinary VS Code cache,
+new VSIX or release. D-066 browser manual PENDING.
