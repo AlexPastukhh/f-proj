@@ -1603,3 +1603,13 @@ user's D-066 standalone browser check, Backend xUnit runner,
 Run Both, cancellation/race guarantees, generalized test
 selection. There is NO new VSIX installed in ordinary VS Code
 and NO release. Own-app localhost integration remains DEFERRED.
+
+### P4 Frontend execution Windows CI confirmation
+
+GitHub Windows CI `38123512775` for `96a4744`:
+SUCCESS, 109 unit tests, actual Vitest 3 exact selected
+passes plus a temporary failing case. Source D-073 is
+technically verified; ordinary installed extension still
+D-065, so P4 UI manual acceptance is NOT yet claimed.
+Next P4 target: safe exact Backend/xUnit execution,
+then Run Both and cancellation/selection improvements.

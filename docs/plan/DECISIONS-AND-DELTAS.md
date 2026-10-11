@@ -1750,3 +1750,12 @@ C# implementation, Both profile and general group selection
 are future P4 steps. No new VSIX, release or localhost app
 integration. D-066 one-session ordinary browser manual
 acceptance still remains PENDING.
+
+### D-073 P4 Frontend source gate final status
+
+Commit `96a4744`, Windows CI `38123512775`: SUCCESS,
+including 109 unit tests and the real exact-selected Vitest
+run with a negative Failed case. D-073 first P4 Frontend
+source slice DONE. Installed ordinary UI profile verification
+PENDING; Backend/Run Both and cancellation remain LATER.
+No return to unproven caching, no own-app integration/release.

@@ -1585,3 +1585,21 @@ Unresolved: cancellation cannot stop an already running child,
 dependency write races outside the selected file are not atomic,
 Backend xUnit/Run Both unimplemented. Next P4 slice should
 address exact xUnit targeting and cancellation before release.
+
+### D-073 independent Windows source CI - PASS (2026-10-11)
+
+GitHub Windows source-proofs for
+`96a47441b2b1eead6131ff53248492e6928a1e4e`:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38123512775
+completed **SUCCESS**. This includes 109/109 unit tests,
+the new real P4 Vitest exact-run proof (3 separate passed
+Situations + an intentionally failed temporary case), the
+previous Roslyn/xUnit source regression suite and package
+validation, and Portable Markdown/HTML checks.
+
+D-073 is technically accepted as source + isolated Extension
+Host proof, NOT ordinary VS Code installed UI acceptance.
+The prior D-065 VSIX is unchanged. Manual D-066+P4 is one
+future combined scenario after a separately validated and
+authorized new candidate. No release, localhost app changes
+or Backend/Run Both claim.

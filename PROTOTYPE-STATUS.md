@@ -451,3 +451,12 @@ Ordinary installed D-065 VSIX remains unchanged:
 actual user Testing UI acceptance PENDING. Backend xUnit,
 Run Both and in-flight cancellation remain LATER.
 Own-app localhost integration DEFERRED; no release.
+
+### D-073 Windows source CI accepted
+
+Commit `96a4744`, GitHub Actions `38123512775`:
+SUCCESS, including 109 unit tests, 3 exact selected
+Vitest passes and one expected Failed result.
+Frontend Testing API profile source-ready, NOT installed
+in ordinary VS Code. Backend and Both unfinished;
+no new VSIX, localhost app integration or release.
