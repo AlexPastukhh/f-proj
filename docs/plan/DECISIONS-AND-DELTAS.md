@@ -1575,3 +1575,35 @@ workflow; remote result requires separate post-push confirmation.
 D-065 ordinary VS Code installation not touched; no VSIX, external
 localhost server, JSON Export, Rename, or release. D-066 standalone
 browser manual gate PENDING; own localhost app integration DEFERRED.
+
+## D-069 - Bounded static Vitest caching proof, not deployed
+
+Status: source-only opt-in proof; public Refresh cache is OFF.
+D-068 Windows CI for `08dfa7c` independently confirmed SUCCESS:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38116681639
+
+The source adapter now supports a captured set of exact test-file
+contents for parsing. A per-instance `VitestStaticCache` observes
+the same test-file discovery list and content, hashes complete
+effective configuration, scope/source properties, TypeScript version
+and relative file paths, and scans twice before retaining data.
+Returns detached deep copies; invalid paths, alias/junction, unknown
+dirty state, unsaved buffers or untrusted scope use authoritative
+uncached parsing. Bounded LRU is per process, not persistent.
+This is an explicit optional `runFullPrototype` argument only.
+No runtime cases, Roslyn/.NET, HTML or materialization is cached.
+
+Unit tests cover cold/hit and mutation isolation, same-length
+same-mtime content changes, file enumeration edits, FeatureSpace/
+config isolation, unknown/dirty/untrusted cases, linked paths
+and bounded eviction. Real `verify-vitest-static-cache.mjs`
+runs the full Vitest5+xUnit3 engine with cold cache, warm cache,
+then without cache; it asserts identical full results and
+continued runtime materialization. CI runs this proof on Windows.
+
+Decision: no automatic cache deployment. The measured static
+Vitest phase is too small to assume a meaningful user benefit;
+evaluate total scan/hash/parse cost and dirty editor/watcher race
+handling before opting into the live installed extension.
+D-066 browser manual pending; own-app localhost DEFERRED.
+No new VSIX, version, tag, release or publication.

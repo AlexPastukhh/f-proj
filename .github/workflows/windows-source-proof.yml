@@ -56,6 +56,8 @@ jobs:
         run: node scripts/verify-experimental-json-snapshot.mjs
       - name: D-068 known-input drift probe (no cache reuse)
         run: node scripts/verify-refresh-input-probe.mjs
+      - name: D-069 opt-in Vitest static-cache full engine equivalence
+        run: node scripts/verify-vitest-static-cache.mjs
       - name: Package .NET worker and verify payload
         shell: pwsh
         run: |

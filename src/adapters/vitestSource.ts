@@ -4,11 +4,11 @@ import ts = require('typescript');
 import { Diagnostic, FeatureSourceConfig, TestDefinition } from '../core/types';
 import { parseDescription, VITEST_SITUATION_MARKER } from '../core/naming';
 
-function walk(root: string): string[] {
+export function listVitestFeatureFiles(root: string): string[] {
   const out: string[] = [];
   for (const ent of fs.readdirSync(root, { withFileTypes: true })) {
     const p = path.join(root, ent.name);
-    if (ent.isDirectory()) out.push(...walk(p));
+    if (ent.isDirectory()) out.push(...listVitestFeatureFiles(p));
     else if (/\.feature\.(test|spec)\.[cm]?[tj]sx?$/.test(ent.name)) out.push(p);
   }
   return out.sort();
@@ -103,12 +103,18 @@ function bodyDiagnostics(block: any, sf: any, file: string): Diagnostic[] {
   return out;
 }
 
-export function analyzeVitestSource(source: FeatureSourceConfig, featureSpaceId: string, workspaceRoot: string): TestDefinition[] {
+export interface VitestCapturedInput { file:string; text:string; }
+
+export function analyzeVitestSource(source: FeatureSourceConfig, featureSpaceId: string,
+  workspaceRoot: string, captured?:readonly VitestCapturedInput[]): TestDefinition[] {
   const physicalRoot = path.resolve(workspaceRoot, source.root);
   const frameworkProject = path.resolve(workspaceRoot, source.frameworkProject);
   const definitions: TestDefinition[] = [];
-  for (const file of walk(physicalRoot)) {
-    const text = fs.readFileSync(file, 'utf8');
+  // The optional capture lets the static cache parse precisely the bytes it hashed.
+  // Without a capture the existing adapter still reads the current source files.
+  const inputs = captured ?? listVitestFeatureFiles(physicalRoot).map(file =>
+    ({file,text:fs.readFileSync(file,'utf8')}));
+  for (const {file,text} of inputs) {
     const kind = file.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
     const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, kind);
     const visit = (node: any) => {

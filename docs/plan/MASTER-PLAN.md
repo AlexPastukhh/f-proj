@@ -1423,3 +1423,33 @@ no runtime/Roslyn result reuse without closure and trust guards.
 Ordinary D-065 install remains unchanged. D-066 standalone
 browser manual acceptance PENDING, user's localhost integration
 DEFERRED and release unauthorized.
+
+## 26. D-069 - Opt-in Vitest static parser cache feasibility
+
+2026-10-11 source-only P3 experiment, NOT enabled for ordinary VS Code
+Refresh. Added bounded in-memory `VitestStaticCache`: caches only
+TypeScript static feature-test `TestDefinition[]`, never
+Vitest concrete runtime cases, xUnit/Roslyn results or rendered HTML.
+Inputs are the exact Feature-test file list and captured content bytes,
+FeatureSpace/source metadata, effective configuration and TypeScript
+version. A second observation guards in-flight input changes.
+Hits return detached copies; missing files, links/junctions, dirty or
+unknown editor state, untrusted workspaces and escapes bypass caching.
+Cache entries are explicitly bounded/LRU; no disk or network writes.
+
+`runFullPrototype` accepts the cache **only as an optional research
+argument**; VS Code activation does not provide one. Windows tests
+cover cold/hit, same-size/mtime edits, add/rename/delete, scoped
+identity/config changes, trust and dirty state, junction and eviction.
+Real Vitest+xUnit full-engine proof checks a cold miss and warm hit
+against a fully uncached run, including all three Situations and
+the original diagnostics; the concrete Vitest worker and Roslyn
+continue running on every run.
+
+This does NOT prove that the cache improves real Refresh time.
+D-067 measured static Vitest extraction as a small cost compared
+with .NET and project builds. NEXT: evaluate whether to adopt this
+narrow cache at all, with dirty-document integration, simultaneous
+file-change safety and measured benefit, before any VSIX rollout.
+D-065 ordinary install and D-066 standalone browser acceptance
+remain separate; user's localhost app integration is DEFERRED.

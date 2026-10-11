@@ -1308,3 +1308,38 @@ invalidation, but may not reuse Roslyn or Vitest runtime cases.
 
 No regular VS Code reinstall/new VSIX, no manual browser PASS,
 no own-app localhost integration or release.
+
+## 2026-10-11 - D-069 static-only Vitest cache feasibility
+
+Verified D-068 GitHub Windows CI run `38116681639`: SUCCESS.
+Added `src/core/vitestStaticCache.ts` and a captured-source option
+to the existing Vitest static adapter. The capture hashes actual
+feature-test file bytes, relative paths, scope/source/config identity
+and TypeScript version. It is validated again after parsing.
+A bounded per-process cache stores detached definitions; clients
+receive new clones on hits. Failed capture, aliased root/junction,
+untrusted workspace, or missing/dirty editor-state evidence
+bypass cache and invoke the normal source analyzer. The cache
+does not touch runtime framework cases, Roslyn, .NET build,
+Projection join, Markdown, HTML, or the installed extension.
+
+Source proof `npm test` **97/97 PASS**, 0 SKIP:
+8 new cache tests for hits, clone isolation, same-length same-mtime
+changes, new/renamed/deleted tests, FeatureSpace/config/role
+isolation, trust/dirty/unknown state, junction and bounded LRU.
+The first run exposed a test-fixture naming error and unavailable
+file-symlink privilege; the test now uses the canonical 4-part
+description and a working Windows junction, final run all PASS.
+
+Full real engine proof `node scripts/verify-vitest-static-cache.mjs`
+PASS: 3 Situations, cold cache miss, warm hit, identical complete
+projection/diagnostics versus an uncached third run. Vitest runtime
+materialization and xUnit/Roslyn work still execute every time.
+D-063/D-064/D-065 dual-view proof and D-068 input probe PASS.
+Added Windows CI step for the end-to-end proof.
+
+Scope: only an opt-in FullRunOptions parameter; VS Code Refresh
+does not supply it. No real-world speedup established; D-067
+observed static Vitest extraction as minor compared with .NET.
+D-066 manual browser still PENDING; own localhost application
+integration DEFERRED. No new VSIX, source fixture mutations or release.

@@ -1,6 +1,7 @@
 import fs = require('node:fs');
 import { performance } from 'node:perf_hooks';
 import { analyzeVitestSource } from '../adapters/vitestSource';
+import { VitestStaticCache } from './vitestStaticCache';
 import { materializeVitest, NodeWorkerRuntime } from '../adapters/vitestMaterializer';
 import { analyzeDotnet, buildDotnetProject, materializeXunit } from '../adapters/dotnetClient';
 import { Diagnostic, FrameworkConcreteCase, PrototypeConfig, TestDefinition } from './types';
@@ -17,6 +18,9 @@ export interface FullRunOptions {
   vitestNodeRuntime?: NodeWorkerRuntime;
   log?: (message:string) => void;
   onTiming?: (sample: FullRunTiming) => void;
+  // Opt-in only; ordinary VS Code Refresh does not use this source cache.
+  vitestStaticCache?: VitestStaticCache;
+  dirtyDocumentPaths?: readonly string[];
 }
 
 export interface FullRunTiming {
@@ -80,8 +84,16 @@ export async function runFullPrototype(options: FullRunOptions) {
   for (const {spaceId, source} of validation.valid) {
     log(`source:${source.id}: adapter=${source.adapter} role=${source.role} root=${source.root}`);
     if (source.adapter === 'vitest-5') {
-      const defs = timed(options,'vitest-static',()=>analyzeVitestSource(source, spaceId, options.workspaceRoot),
-        {featureSpaceId:spaceId,sourceId:source.id});
+      const defs = timed(options,'vitest-static',()=>{
+        if(!options.vitestStaticCache)
+          return analyzeVitestSource(source,spaceId,options.workspaceRoot);
+        const cached=options.vitestStaticCache.analyze(source,spaceId,options.workspaceRoot,{
+          config:options.config,trusted:options.trusted,
+          dirtyDocumentPaths:options.dirtyDocumentPaths,
+        });
+        log(`source:${source.id}: static-cache=${cached.state}`);
+        return cached.definitions;
+      },{featureSpaceId:spaceId,sourceId:source.id});
       definitions.push(...defs);
       log(`source:${source.id}: static definitions=${defs.length}`);
       if (defs.some(d => d.isParameterized)) {

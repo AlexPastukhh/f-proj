@@ -365,3 +365,17 @@ status tracked in REVIEW-LOG.
 Existing ordinary D-065 installation unchanged; D-066 manual
 standalone browser check still PENDING. Own localhost application
 integration DEFERRED; no release or new VSIX.
+
+## D-069 - Vitest static-only cache feasibility, not enabled
+
+A bounded in-memory, opt-in static Vitest cache has been implemented
+for detached TestDefinition data, with exact Feature-test bytes,
+source/scope/config keys, recheck after scan, and dirty/trust
+bypass. No runtime cases, xUnit/Roslyn results or HTML are cached.
+Ordinary VS Code Refresh still uses uncached analysis.
+Windows `npm test` **97/97 PASS**, 0 skipped; real three-Situation
+Vitest+xUnit full-engine cached/uncached equivalence PASS;
+D-063/D-064/D-065 and D-068 regressions PASS. Windows CI runs
+the new source-only proof and needs post-push result confirmation.
+D-066 browser manual gate pending, own localhost integration
+deferred, no new VSIX or release.
