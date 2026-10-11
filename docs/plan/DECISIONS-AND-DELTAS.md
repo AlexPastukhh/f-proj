@@ -1876,3 +1876,30 @@ Frontend+Backend Fact execution. The D-076 source gate is
 DONE. No change to first-slice Theory prohibition in Run
 Both, no in-flight cancellation claim, no ordinary installed
 VSIX or release authorization.
+
+## D-077 - Abort live runner process trees instead of only hiding results
+
+P4 cancellation now propagates from VS Code's Testing API token
+to `runExactVitestSituation` and `runExactXunitCase` through
+an optional AbortSignal. This is an actual process termination,
+not a UI-only invalidation: Node/Vitest and dotnet/xUnit
+launchers plus their ordinary descendants are killed as a
+process tree on Windows via `taskkill /T /F`. Pre-cancelled
+requests start no processes. The same tree termination now
+protects explicit child-worker timeouts.
+
+**Decision:** an aborted runner returns no Passed/Failed
+assertion evidence even if a partial report already exists,
+and VS Code marks the cancelled selection Skipped. Run Both
+does not start Backend after cancellation of Frontend, and
+cannot report aggregate Passed when cancellation arrives in
+Backend. No automatic restart or retry is introduced.
+
+The boundary is not a guarantee that arbitrary subprocesses
+detached intentionally by user test code or external side
+effects can be rolled back. In-flight source changes still
+invalidate test results, but transitive workspace state is
+not atomically snapshotted. Continue P4 feature development
+only after source/Windows CI passes; no cache reactivation,
+ordinary installed VSIX change, release/version/tag or
+deferred localhost-app integration.

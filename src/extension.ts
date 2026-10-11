@@ -1037,6 +1037,9 @@ export function activate(context: any) {
   // P4 first slice: explicit single Frontend Situation, never Run All/Backend.
   const runFrontendSituation = async (request:any, token:any) => {
     const run = testController.createTestRun(request);
+    const abort=new AbortController();
+    const cancellation=token.onCancellationRequested(()=>abort.abort());
+    if(token.isCancellationRequested)abort.abort();
     const selected = request.include?.[0];
     const refused = (reason:string) => {
       log(`p4 frontend refused: ${reason}`);
@@ -1057,10 +1060,7 @@ export function activate(context: any) {
         refused('requires one published Fresh Situation in a trusted single-folder workspace');
         return;
       }
-      if (token.isCancellationRequested) {
-        refused('test run cancelled before execution');
-        return;
-      }
+      if(abort.signal.aborted){run.skipped(selected);return;}
       const snapshot=runSnapshot;
       if (JSON.stringify(getConfig())!==JSON.stringify(snapshot.config))
         throw new Error('configuration changed since Refresh');
@@ -1079,9 +1079,10 @@ export function activate(context: any) {
       const result=await runExactVitestSituation(plan,
         context.asAbsolutePath('workers/vitest-materialize.mjs'),
         Math.min(120000,Math.max(30000,snapshot.config.workerTimeoutMs??30000)),
-        {command:node.command,env},log);
-      if (uiState!=='fresh' || refreshing || runSnapshot!==snapshot ||
-          token.isCancellationRequested || !vscode.workspace.isTrusted ||
+        {command:node.command,env},log,abort.signal);
+      if(abort.signal.aborted){run.skipped(selected);}
+      else if (uiState!=='fresh' || refreshing || runSnapshot!==snapshot ||
+          !vscode.workspace.isTrusted ||
           vscode.workspace.textDocuments.some((doc:any)=>
             doc.isDirty && doc.uri.scheme==='file')) {
         refused('source/trust/editor state changed during the test run');
@@ -1093,7 +1094,7 @@ export function activate(context: any) {
       log(`p4 frontend result: ${result.status} executed=${result.executed}`);
     } catch (err:any) {
       refused(err?.message ?? String(err));
-    } finally { run.end(); }
+    } finally { cancellation.dispose();run.end(); }
   };
   context.subscriptions.push(testController.createRunProfile(
     'Run Frontend Situation',vscode.TestRunProfileKind.Run,runFrontendSituation,false,frontendTag));
@@ -1101,6 +1102,9 @@ export function activate(context: any) {
   // Folded Theory rows fail closed before executing any tests.
   const runBackendFact = async (request:any,token:any) => {
     const run=testController.createTestRun(request);
+    const abort=new AbortController();
+    const cancellation=token.onCancellationRequested(()=>abort.abort());
+    if(token.isCancellationRequested)abort.abort();
     const selected=request.include?.[0];
     const refused=(reason:string)=>{
       log('p4 backend refused: '+reason);
@@ -1121,7 +1125,7 @@ export function activate(context: any) {
         refused('requires one published Fresh Backend Situation in a trusted single-folder workspace');
         return;
       }
-      if(token.isCancellationRequested){refused('test run cancelled before execution');return;}
+      if(abort.signal.aborted){run.skipped(selected);return;}
       const snapshot=runSnapshot;
       if(JSON.stringify(getConfig())!==JSON.stringify(snapshot.config))
         throw Error('configuration changed since Refresh');
@@ -1137,9 +1141,10 @@ export function activate(context: any) {
       const result=await runExactXunitFact(plan,
         Math.min(600000,Math.max(30000,snapshot.config.buildTimeoutMs??120000)),
         Math.min(120000,Math.max(30000,snapshot.config.workerTimeoutMs??30000)),
-        log);
-      if(uiState!=='fresh'||refreshing||runSnapshot!==snapshot||
-         token.isCancellationRequested||!vscode.workspace.isTrusted||dirty()||
+        log,abort.signal);
+      if(abort.signal.aborted){run.skipped(selected);}
+      else if(uiState!=='fresh'||refreshing||runSnapshot!==snapshot||
+         !vscode.workspace.isTrusted||dirty()||
          JSON.stringify(getConfig())!==JSON.stringify(snapshot.config)){
         refused('source/trust/editor/config changed during Backend test run');
       }else if(result.status==='passed'){run.passed(selected);}
@@ -1148,7 +1153,7 @@ export function activate(context: any) {
       }else{refused(result.message);}
       log(`p4 backend result: ${result.status} executed=${result.executed}`);
     }catch(err:any){refused(err?.message??String(err));}
-    finally{run.end();}
+    finally{cancellation.dispose();run.end();}
   };
   context.subscriptions.push(testController.createRunProfile(
     'Run Backend Situation',vscode.TestRunProfileKind.Run,runBackendFact,false,backendTag));
@@ -1157,6 +1162,9 @@ export function activate(context: any) {
   let runBothActive=false;
   const runBothSituation=async(request:any,token:any)=>{
     const run=testController.createTestRun(request);
+    const abort=new AbortController();
+    const cancellation=token.onCancellationRequested(()=>abort.abort());
+    if(token.isCancellationRequested)abort.abort();
     const selected=request.include?.[0];
     const refuse=(message:string)=>{
       log('p4 both refused: '+message);
@@ -1180,15 +1188,15 @@ export function activate(context: any) {
       const snapshot=runSnapshot;
       const dirty=()=>vscode.workspace.textDocuments.some((doc:any)=>
         doc.isDirty&&doc.uri.scheme==='file');
-      const valid=()=>ownsLock&&!token.isCancellationRequested&&
+      const valid=()=>ownsLock&&!abort.signal.aborted&&
         uiState==='fresh'&&!refreshing&&runSnapshot===snapshot&&
         vscode.workspace.isTrusted&&!dirty()&&
         vscode.workspace.workspaceFolders?.length===1&&
         vscode.workspace.workspaceFolders[0].uri.fsPath===snapshot.workspaceRoot&&
         JSON.stringify(getConfig())===JSON.stringify(snapshot.config);
-      if(token.isCancellationRequested||dirty()||
-         JSON.stringify(getConfig())!==JSON.stringify(snapshot.config)){
-        refuse('test request cancelled, dirty files, or changed configuration');return;
+      if(abort.signal.aborted){run.skipped(selected);return;}
+      if(dirty()||JSON.stringify(getConfig())!==JSON.stringify(snapshot.config)){
+        refuse('dirty files or changed configuration');return;
       }
       const plan=planRunBoth({
         workspaceRoot:snapshot.workspaceRoot,config:snapshot.config,
@@ -1213,15 +1221,16 @@ export function activate(context: any) {
         frontend:target=>runExactVitestSituation(target,
           context.asAbsolutePath('workers/vitest-materialize.mjs'),
           Math.min(120000,Math.max(30000,snapshot.config.workerTimeoutMs??30000)),
-          {command:node.command,env},log),
+          {command:node.command,env},log,abort.signal),
         backend:target=>runExactXunitFact(target,
           Math.min(600000,Math.max(30000,snapshot.config.buildTimeoutMs??120000)),
           Math.min(120000,Math.max(30000,snapshot.config.workerTimeoutMs??30000)),
-          log),
+          log,abort.signal),
         started:stage=>run.started(child(stage)),
         finished:(stage,result)=>{
           const item=child(stage);
-          if(!valid()) run.errored(item,[new vscode.TestMessage('State changed during test')]);
+          if(abort.signal.aborted)run.skipped(item);
+          else if(!valid()) run.errored(item,[new vscode.TestMessage('State changed during test')]);
           else if(result.status==='passed') run.passed(item);
           else if(result.status==='failed')
             run.failed(item,[new vscode.TestMessage(result.message)]);
@@ -1229,14 +1238,15 @@ export function activate(context: any) {
         },
       });
       if(!outcome.backend)run.skipped(backItem);
-      if(outcome.status==='passed')run.passed(selected);
+      if(abort.signal.aborted)run.skipped(selected);
+      else if(outcome.status==='passed')run.passed(selected);
       else if(outcome.status==='failed')
         run.failed(selected,[new vscode.TestMessage(outcome.message)]);
       else refuse(outcome.message);
       log('p4 both result: '+outcome.status+
         ' frontend='+outcome.frontend?.status+' backend='+outcome.backend?.status);
     }catch(err:any){refuse(err?.message??String(err));}
-    finally{if(ownsLock)runBothActive=false;run.end();}
+    finally{cancellation.dispose();if(ownsLock)runBothActive=false;run.end();}
   };
   context.subscriptions.push(testController.createRunProfile(
     'Run Both Situation',vscode.TestRunProfileKind.Run,runBothSituation,false));

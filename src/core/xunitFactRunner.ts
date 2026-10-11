@@ -82,8 +82,10 @@ export function validateXunitAutomatedRun(
 export async function runExactXunitCase(
   target:XunitCaseTarget, buildTimeoutMs:number, runTimeoutMs:number,
   log?:(message:string)=>void,
+  signal?:AbortSignal,
 ):Promise<VitestRunResult> {
   const error=(message:string)=>failure(target,message);
+  if(signal?.aborted)return error('xUnit run cancelled before launch');
   if(!Number.isSafeInteger(buildTimeoutMs)||buildTimeoutMs<1000||buildTimeoutMs>600000 ||
      !Number.isSafeInteger(runTimeoutMs)||runTimeoutMs<1000||runTimeoutMs>600000)
     return error('invalid xUnit build/run timeout');
@@ -109,7 +111,8 @@ export async function runExactXunitCase(
   };
   const built=await runProcess('dotnet',
     ['build',projectFile,'-c','Release','--nologo'],project,buildTimeoutMs,
-    {label:'p4-xunit-build',log});
+    {label:'p4-xunit-build',log,signal});
+  if(signal?.aborted||built.cancelled)return error('xUnit build cancelled');
   if(!built.ok||!unchanged()) return error('xUnit build failed or source changed');
   try{
     if(!fs.statSync(assembly).isFile()||
@@ -119,7 +122,8 @@ export async function runExactXunitCase(
   const isTheory='displayName' in target;
   const theoryOption=isTheory?['-preEnumerateTheories']:[];
   const listed=await runProcess('dotnet',[assembly,'-list','full/json','-noLogo',...theoryOption],
-    project,runTimeoutMs,{label:'p4-xunit-discover',log});
+    project,runTimeoutMs,{label:'p4-xunit-discover',log,signal});
+  if(signal?.aborted||listed.cancelled)return error('xUnit discovery cancelled');
   if(!listed.ok||!unchanged()) return error('xUnit discovery failed or inputs changed');
   let selected:XunitListEntry|undefined;
   try {
@@ -134,9 +138,11 @@ export async function runExactXunitCase(
   if(!unchanged()) return error('xUnit source changed after discovery');
   const executed=await runProcess('dotnet',
     [assembly,'-id',selected.ID,...theoryOption,'-automated','-noLogo','-noColor'],
-    project,runTimeoutMs,{label:'p4-xunit-exact',log});
+    project,runTimeoutMs,{label:'p4-xunit-exact',log,signal});
+  if(signal?.aborted||executed.cancelled)return error('selected xUnit test cancelled');
   if(executed.timedOut||!unchanged()) return error('xUnit timed out or inputs changed while running');
   const checked=validateXunitAutomatedRun(executed.stdout??'',selected.ID,executed.exitCode??null);
+  if(signal?.aborted)return error('xUnit test cancelled after execution');
   return {...checked,
     message:isTheory?checked.message.replace('Fact','Theory row'):checked.message,
     testName:isTheory?target.displayName:target.fullName};

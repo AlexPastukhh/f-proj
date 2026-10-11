@@ -54,8 +54,10 @@ export async function runExactVitestSituation(
   timeoutMs:number,
   runtime:NodeWorkerRuntime,
   log?:(message:string)=>void,
+  signal?:AbortSignal,
 ):Promise<VitestRunResult> {
   const error=(reason:string)=>({...fail(reason),testName:target.testName});
+  if(signal?.aborted)return error('selected Vitest test cancelled before launch');
   if(!Number.isSafeInteger(timeoutMs)||timeoutMs<1000||timeoutMs>600000)
     return error('invalid test-run timeout');
   let original:string,cli:string,project:string;
@@ -80,7 +82,8 @@ export async function runExactVitestSituation(
     runtime.command,[...(runtime.argsPrefix??[]),workerPath],{
       frameworkProject:project,filters:[target.sourceFile],
       configFile:target.configFile,
-    },project,timeoutMs,{env:runtime.env,label:'p4-vitest-collect',log});
+    },project,timeoutMs,{env:runtime.env,label:'p4-vitest-collect',log,signal});
+  if(signal?.aborted||collected.cancelled)return error('Vitest collection cancelled');
   if(!collected.ok || !collected.value || collected.value.diagnostics?.length)
     return error('fresh Vitest collection failed or returned diagnostics');
   // Name filtering drives execution: duplicates at OTHER source lines must
@@ -99,7 +102,8 @@ export async function runExactVitestSituation(
       '--reporter=json','--outputFile',reportFile,'--no-file-parallelism'];
     if(target.configFile) args.push('--config',target.configFile);
     const run=await runProcess(runtime.command,args,project,timeoutMs,{
-      env:runtime.env,label:'p4-vitest-exact',log});
+      env:runtime.env,label:'p4-vitest-exact',log,signal});
+    if(signal?.aborted||run.cancelled)return error('selected Vitest test cancelled');
     if(run.timedOut) return error('selected Vitest test timed out');
     if(!fs.existsSync(reportFile)) return error('Vitest produced no test report');
     let report:any;
@@ -112,6 +116,7 @@ export async function runExactVitestSituation(
       return error('runner did not execute exactly the preflight-selected test');
     if(digest(target.sourceFile)!==original)
       return error('test source changed during execution');
+    if(signal?.aborted)return error('selected Vitest test cancelled after execution');
     const only=executed[0];
     if(only.status==='passed'&&run.ok)
       return {status:'passed',message:'Selected Vitest test passed',executed:1,testName:target.testName};

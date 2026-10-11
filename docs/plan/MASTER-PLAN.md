@@ -1776,3 +1776,51 @@ P4 Run Both (direct Fact subset) source-ready.
 Next: correct cancellation of in-flight worker processes,
 then safe support for pre-enumerable Theory in Run Both.
 Ordinary D-065 installed unchanged; manual D-066 pending.
+
+## 33. D-077 - Stop in-flight P4 test process trees on Cancel
+
+2026-10-11: Added a shared optional AbortSignal to the existing
+`runProcess` and `runJsonWorker` process launch contracts.
+Calls with an already-aborted signal never spawn a process.
+A running process handles Abort by terminating its process
+tree, not only its launcher: Windows uses native
+`taskkill /PID <pid> /T /F` (with fallback to child.kill);
+non-Windows launches a separate process group and signals
+that group. Aborted results return `cancelled:true`,
+`ok:false`, and never carry parsed successful worker data.
+Abort subscriptions/timers are disposed. The same tree stop
+is also used on timeout; ordinary non-aborted calls preserve
+the legacy result schema and path.
+
+The VS Code Testing API cancellation token is now bridged to
+an AbortController for all three explicit P4 profiles:
+`Run Frontend Situation`, `Run Backend Situation`, and
+`Run Both Situation`. Vitest collection and execution,
+and xUnit build/discovery/execution, receive the same signal.
+An abort during a stage interrupts its process tree and its
+result is not presented as Passed; cancelled items are
+reported Skipped. Run Both also checks its state guard
+between Frontend and Backend, so cancelled Frontend cannot
+start Backend. Genuine Failed test behavior is unchanged.
+
+D-077 evidence includes three new core unit tests:
+no spawn on pre-aborted CLI/JSON worker, cancellation of an
+actual Windows parent+child process tree, and interruption
+of a JSON worker without accepted evidence. Extra Run Both
+unit tests reject cancellation at either phase boundary.
+A new real Windows script starts a slow Vitest test and a
+slow xUnit Fact in disposable OS-temp projects, cancels
+each after its marker proves execution started, and demands
+Error/executed=0 without authored-source mutation.
+
+Scope and limitations: P4 remains explicitly user-started,
+trusted/Fresh and single selected Situation; cancellation
+is best-effort OS-process-tree termination, not a rollback
+of test side effects already performed. An external process
+deliberately detached from the test runner's tree cannot
+be guaranteed stopped. Dependency writes that race while
+test code executes are not transactional. Run Both still
+supports only direct Backend Facts; D-075 standalone Theory
+is unchanged. Ordinary installed D-065 VSIX not replaced;
+D-066 manual browser/UI acceptance remains PENDING.
+No release or own-app localhost integration.

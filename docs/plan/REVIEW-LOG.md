@@ -1820,3 +1820,61 @@ step. Source-only D-076 technical gate PASS. Ordinary
 installed D-065 VSIX, D-066 manual browser/UI acceptance,
 Run Both Theory support, and in-flight cancellation are
 still separate and NOT accepted by this CI.
+
+## 2026-10-11 - D-077 interrupt active P4 children on Cancel
+
+Preflight: Windows source clean at `de2649d6d2d6ee90ed34ab60a19cad21dea16d66`,
+matching GitHub main via the GitHub connector. The
+documentation-only previous CI `38129952246` was still
+in progress at the beginning of D-077. Some Windows
+direct-to-GitHub HTTPS probes intermittently failed.
+
+Implemented optional AbortSignal support in the shared
+`runProcess`/`runJsonWorker` launch functions. Child
+workers cancel early when pre-aborted; live abort terminates
+a process tree using Windows taskkill PID/T/F rather than
+only killing the Node/dotnet parent. Non-Windows workers
+are launched in their own process group; group kill is used.
+Closed worker results include `cancelled:true` and
+`ok:false`. Aborted JSON evidence is discarded. Timeout
+also uses process-tree termination.
+
+Connected Testing API cancellation for all P4 Frontend,
+Backend and Run Both profiles. Vitest discovery and selected
+run, and xUnit build/discovery/selected run are cancellable.
+Interrupted items are marked Skipped, not Passed. Run Both
+checks validity between stages so cancelling Frontend
+stops Backend from starting; cancellation during Backend
+prevents parent Passed.
+
+Local Windows evidence before final regression:
+`npm test` PASS **127/127**, including new preabort,
+actual Windows parent+grandchild termination and live
+JSON worker cancellation tests. Isolated
+`node scripts/verify-p4-cancellation.mjs` **PASS**:
+actual long-running Vitest test wrote its started marker
+then was terminated with Error/executed=0; real long-running
+xUnit Fact did likewise. Both scripts use disposable OS
+temp projects, automatically deleted; no user source edits.
+Two more Run Both cancellation unit tests were then added
+before the final full source test run.
+
+Final Windows local regression after adding Run Both cancellation
+cases: `npm test` **129/129 PASS**, 0 skipped.
+`node scripts/verify-p4-cancellation.mjs`: **PASS**, actual
+slow Vitest and actual slow xUnit started then both stopped
+without Passed evidence. `node scripts/verify-p4-run-both.mjs`:
+PASS, two exact executed tests (Frontend then Backend).
+`node scripts/verify-experimental-json-snapshot.mjs`:
+PASS, 3 Situations/6 literal assertions in Portable HTML.
+Windows CI includes the real P4 cancellation script.
+The ordinary installed D-065 VSIX was not replaced.
+
+`npm run test:extension` using the local VS Code executable:
+**PASS (exit 0)** in isolated Extension Host, after all D-077
+source and cancellation changes. The Host emitted unrelated
+AgentHost/GitHub authentication warnings. This does not
+constitute ordinary installed VS Code manual cancellation
+acceptance. `git diff --check` and the new CI step presence
+also PASS. Prior D-076 documentation CI `38129952246`
+was later confirmed **SUCCESS** via GitHub API.

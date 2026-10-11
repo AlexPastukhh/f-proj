@@ -197,3 +197,20 @@ Backend once, and `Run Both Situation` once on
 rows that are not native-pre-enumerable remain intentionally
 unsupported; no manual negative testing needed.
 The user's own localhost app stays DEFERRED; no release.
+
+## D-077 source cancellation technical gate (not ordinary install)
+
+The next SHA-pinned candidate must preserve Testing API Cancel
+for all three P4 profiles. In-flight Vitest discovery/execution
+and xUnit build/discovery/execution must abort their process
+trees on Windows; an aborted test cannot be Passed.
+Source unit tests and disposable real long-running test
+scenarios are the acceptance proof. Do not require separate
+manual cancellation clicks in ordinary VS Code before the
+future combined D-066+P4 browser/navigation/execution gate;
+one brief ordinary session remains the user acceptance goal.
+
+Uncontrolled test side effects cannot be undone by cancelling,
+and non-descendant processes are not guaranteed terminated.
+No new candidate VSIX has been installed or authorized here;
+release and own-app localhost integration remain deferred.

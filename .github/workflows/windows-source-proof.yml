@@ -77,6 +77,10 @@ jobs:
         run: node scripts/verify-p4-xunit-theory-run.mjs
       - name: P4 Run Both one complete Situation (Frontend then Backend)
         run: node scripts/verify-p4-run-both.mjs
+      - name: D-077 cancel running Vitest and xUnit test processes
+        run: node scripts/verify-p4-cancellation.mjs
+      - name: P4 cancellation of running Vitest and xUnit user tests
+        run: node scripts/verify-p4-cancellation.mjs
 
 # This source-proof job is not installed-extension acceptance.
 # The isolated VSIX smoke (trusted/restricted, scoped links, P2

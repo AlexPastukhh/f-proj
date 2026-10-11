@@ -147,3 +147,27 @@ test('P4 Run Both rejects state drift after Backend even if both tests passed',a
   assert.equal(result.frontend.executed,1)
   assert.equal(result.backend.executed,1)
 })
+test('D-077 Run Both cancellation during Frontend prevents Backend',async t=>{
+  const plan=planRunBoth(fixture(t).input)
+  const abort=new AbortController()
+  let backend=0
+  const result=await executeRunBoth(plan,{
+    valid:()=>!abort.signal.aborted,
+    frontend:async()=>{abort.abort();return passed('front')},
+    backend:async()=>{backend++;return passed('back')},
+  })
+  assert.equal(result.status,'error')
+  assert.equal(backend,0)
+  assert.equal(abort.signal.aborted,true)
+})
+test('D-077 Run Both cancellation during Backend prevents aggregate Passed',async t=>{
+  const plan=planRunBoth(fixture(t).input)
+  const abort=new AbortController(),calls=[]
+  const result=await executeRunBoth(plan,{
+    valid:()=>!abort.signal.aborted,
+    frontend:async()=>{calls.push('front');return passed('front')},
+    backend:async()=>{calls.push('back');abort.abort();return passed('back')},
+  })
+  assert.deepEqual(calls,['front','back'])
+  assert.equal(result.status,'error')
+})

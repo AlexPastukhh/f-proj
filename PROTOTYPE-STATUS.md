@@ -541,3 +541,24 @@ GitHub Windows `38129614852`, source `8710b71`:
 SUCCESS including 124 unit tests and exact Frontend then
 Backend Fact Run Both real proof. Source-only acceptance
 DONE; ordinary installed P4 profile/UI acceptance PENDING.
+
+## D-077 - P4 in-flight cancellation of Vitest and xUnit tests
+
+Source-only P4 launchers now accept AbortSignal and stop
+real running child process trees when VS Code's Testing API
+Cancel is invoked: Windows `taskkill /PID /T /F`;
+process-group kill on non-Windows. Vitest collection/test
+execution and xUnit build/discovery/test execution all receive
+the same signal. Cancelled work cannot publish Passed or
+interpreted JSON evidence, and Run Both will not launch
+Backend after interrupted Frontend.
+
+Windows local tests include actual parent+child process
+tree termination and cancellation of a live JSON worker,
+plus disposable long-running Vitest and xUnit Fact tests:
+both cancelled after starting with Error/executed=0.
+No authored workspace inputs changed. Cancellation does not
+undo prior test side effects or arbitrary detached subprocesses.
+The first Run Both slice still uses direct Backend Facts only.
+The user's installed D-065 VSIX remains unchanged, ordinary
+manual gate PENDING, localhost integration DEFERRED; no release.
