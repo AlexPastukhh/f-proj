@@ -1136,3 +1136,40 @@ during an installed smoke. A separate immutable VSIX,
 (20,500,477 bytes, SHA-256
 `4468280CE13A55FFDAE69CA7F086F6FC68F9342DF9EC7C393692688AB4091380`)
 contains this fix. Browser/manual acceptance is still PENDING.
+
+### Final SHA-pinned installed proof — D-065 PASS
+
+The final watcher-wired VSIX, internal version 0.1.0,
+`artifacts/feature-projection-prototype-p0-0.1.0-p3-dual-projection-source-watch-fixed-candidate.vsix`
+(20,500,477 bytes; SHA-256
+`4468280CE13A55FFDAE69CA7F086F6FC68F9342DF9EC7C393692688AB4091380`)
+passed the **full installed aggregate** (Windows, exit 0).
+It installed only into a fresh isolated extensions directory
+with independent trusted/Restricted profiles, not the user's
+ordinary VS Code.
+
+The trusted installed smoke confirmed Markdown (3 Situations),
+HTML (3 Situations, source links and literal assertions) written
+outside the workspace, and then reconfigured the HTML output into
+a locally served assets folder *inside* a watched frameworkProject.
+The second Refresh remained Fresh; generated HTML/temp files did
+not self-invalidate. A genuine feature-test source edit still
+marked Stale and did not rewrite the last-good HTML.
+
+The same SHA-pinned run passed normal public-hook security,
+Restricted Mode no HTML publication, two-scope Roslyn Usage View,
+test-only read-only Rename proof, prior P2 6-Situation/10-assertion
+link cross-navigation and historical artifact safety. The full
+installed aggregate result is archived locally in
+`artifacts/local-acceptance-results/mvp-installed-2e97c7e18da549149617ce688833b5cf.json`
+with `status: INSTALLED_TECHNICAL_PASS`, D-065 candidate SHA
+`4468280CE13A55FFDAE69CA7F086F6FC68F9342DF9EC7C393692688AB4091380`
+and `ordinaryUserManualAcceptance: PENDING`.
+
+GitHub Windows source CI for implementation commit `23d832c`
+completed successfully:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38110064549
+
+**No ordinary-user acceptance is claimed** for browser rendering,
+the user's actual localhost app/iframe or VS Code protocol handler.
+The prior D-062 MVP candidate and original release are untouched.

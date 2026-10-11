@@ -1141,7 +1141,7 @@ DONE-22 D-062 replacement MVP candidate without user-visible Rename Preview: sou
 NEXT-1  Resume ONE ordinary-user acceptance checklist **without** Rename Preview; no new release until explicit approval
 DONE-23 P1/7.4 internal normalized JSON feasibility (68 unit tests, real Vitest+xUnit 3 Situations / 6 parts, deterministic workspace-relative source links), D-063; PUBLIC export still deferred
 DONE-24 P1/7.4 metadata-only JSON disclosure draft (D-064): excludes diagnostic message and literal assertion source, explicit no-publication/consent flags, 73 unit tests and real Vitest+xUnit proof PASS; public export LATER
-DONE-25 P3/9.1 Portable Projection: one internal JSON-compatible document for Markdown and standalone HTML, 79 source tests and real fixture proof (D-065); watcher-safe final installed acceptance and browser/localhost manual pending
+DONE-25 P3/9.1 Portable Projection: one internal JSON-compatible document for Markdown and standalone HTML, 79 source tests + real fixture proof + pinned final installed VSIX technical PASS (D-065); browser/localhost manual PENDING
 LATER-1  P1/7.4 stable normalized JSON/export requires separate scope/privacy/version decision
 ```
 

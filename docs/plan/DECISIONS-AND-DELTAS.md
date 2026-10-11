@@ -1363,7 +1363,7 @@ unchanged. Do not mistake this technical proof for release approval.
 
 ## D-065 — P3 portable HTML view from the canonical Projection model
 
-Status: SOURCE/REAL FIXTURE PASS; ISOLATED INSTALLED CANDIDATE RUNNING;
+Status: SOURCE/REAL FIXTURE + FINAL SHA-PINNED INSTALLED PASS;
 ordinary-user browser/localhost acceptance **PENDING** (2026-10-11).
 
 User clarified that an **existing separate localhost app** will host or
