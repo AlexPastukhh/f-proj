@@ -303,3 +303,20 @@ should remain private and bound to loopback. This prototype does NOT
 give a public JSON export, release approval, browser/iframe manual
 acceptance or general mutating Rename support. D-065 and
 `docs/plan/PORTABLE-PROJECTION-INTEGRATION.md` hold details.
+
+## D-066 - D-065 final candidate and browser readiness correction
+
+The first P3 VSIX cited in the historical D-065 section above was
+superseded. **Only the final source-watch-fixed D-065 VSIX** is
+recommended for any ordinary-user acceptance: 20,500,477 bytes,
+SHA-256 `4468280CE13A55FFDAE69CA7F086F6FC68F9342DF9EC7C393692688AB4091380`.
+Its installed Windows technical gate passed in an isolated profile.
+
+D-066 preflight (2026-10-11): GitHub/Windows main equal and clean,
+source 79/79 PASS, real Vitest/xUnit dual-view PASS. The actual user's
+ordinary VS Code extension currently lacks the HTML command/renderer,
+so D-065 ordinary browser/localhost/VS Code protocol acceptance
+remains PENDING. One permissioned install and a single compact
+browser gate are next; no release, new VSIX, source fixture mutation
+or localhost server creation occurred. See REVIEW-LOG D-066 and
+PORTABLE-PROJECTION-INTEGRATION.md.

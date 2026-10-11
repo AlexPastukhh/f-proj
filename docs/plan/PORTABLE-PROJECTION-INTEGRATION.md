@@ -74,3 +74,33 @@ workspace is untrusted or the Projection is Stale/Error.
 - Manual browser/localhost integration acceptance remains **PENDING**;
   source tests and isolated installed Extension Host smoke are
   technical evidence only.
+
+## One consolidated ordinary-user browser gate (D-066: PENDING)
+
+Technical Windows D-065 is PASS; this section is **not** a claim of
+human browser/localhost acceptance. On 2026-10-11 the ordinary VS Code
+installation was inspected read-only and did **not** include the HTML
+command; do not assume the final candidate is installed.
+
+1. **Once, with the user's approval:** install only
+   `artifacts/feature-projection-prototype-p0-0.1.0-p3-dual-projection-source-watch-fixed-candidate.vsix`
+   (SHA-256 `4468280CE13A55FFDAE69CA7F086F6FC68F9342DF9EC7C393692688AB4091380`)
+   in ordinary VS Code, Reload, open the trusted prepared fixture,
+   and run one explicit `Feature Projection: Refresh`.
+2. **One browser inspection:** confirm Fresh and the same one scoped
+   Situation/Frontend/Backend/expected behavior/literal assertions in
+   Markdown and the HTML opened by `Open HTML Projection`; follow one
+   HTML Situation `#...` anchor and click one real `vscode://file`
+   source link, confirming file and line (and any browser prompt).
+3. **Existing localhost app only, if available:** after permission to
+   set its *actual* absolute static directory, Refresh and inspect
+   the real loopback URL or iframe for that same Situation. Reload the
+   browser after Refresh; do not expect auto-reload. If no app/directory
+   is available, record localhost as PENDING rather than inventing
+   a route or starting a replacement server.
+
+Return **one** PASS/FAIL result with the failing step/details only;
+no success screenshots needed. Watcher, Stale, Restricted Mode,
+source immutability and SHA protections are covered by automated gates,
+not extra repetitive manual clicks. HTML includes literal user source:
+keep any serving route private/loopback unless explicitly authorized.

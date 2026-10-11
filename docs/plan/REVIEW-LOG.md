@@ -1173,3 +1173,37 @@ https://github.com/AlexPastukhh/f-proj/actions/runs/38110064549
 **No ordinary-user acceptance is claimed** for browser rendering,
 the user's actual localhost app/iframe or VS Code protocol handler.
 The prior D-062 MVP candidate and original release are untouched.
+
+## 2026-10-11 - D-066 portable browser gate preflight (not manual PASS)
+
+Rechecked GitHub origin/main and the clean primary Windows main checkout:
+both were at `c466a4fe16a63bbe6290594d4a97dd1b3d19a047`.
+Read the current master plan, decisions, review log and integration guide.
+No D-065 source or binary changes were made.
+
+Fresh Windows source run: `npm test` **79/79 PASS** (exit 0).
+`node scripts/verify-experimental-json-snapshot.mjs` **PASS**:
+real Vitest 5/xUnit v3 3 Situations, 6 literal assertions, dual HTML/
+Markdown view, atomic output, and previous D-063/D-064 proofs.
+Source audit confirms `isPortableHtmlOutputPath` is actually called
+inside `isRelevantUri` (no space after comma in source).
+Final candidate still measures 20,500,477 bytes; SHA-256
+`4468280CE13A55FFDAE69CA7F086F6FC68F9342DF9EC7C393692688AB4091380`.
+Prior ignored installed report is still `INSTALLED_TECHNICAL_PASS`,
+`ordinaryUserManualAcceptance: PENDING`; the long installed
+regression was **not** rerun because the SHA and source are unchanged.
+
+Read-only inspection of the ordinary VS Code installed extension found
+`local-prototype.feature-projection-prototype-p0@0.1.0`, **without**
+the `featureProjection.openPortableHtml` contributed command or HTML
+renderer. Thus ordinary-user D-065 installation is NOT verified and
+browser UX cannot be marked PASS. The prepared manual fixture exists,
+but has no `portableHtmlDirectory` setting. A Node loopback listener
+was visible but is not evidence of the user's intended localhost app,
+static directory or route; none was configured or modified.
+
+Next gate: one consented installation of only the final SHA-pinned VSIX,
+then one short browser/localhost scenario in the integration guide.
+Never assume source/installed technical PASS proves a human browser
+click, localhost iframe, external protocol prompt, or publication.
+No user's ordinary VS Code or source fixture was modified; no release.

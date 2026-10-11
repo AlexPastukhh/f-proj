@@ -86,3 +86,22 @@ Its isolated result markers are reconciled by
 `scripts/verify-mvp-aggregate-report.ps1`; local JSON evidence is in the
 Git-ignored `artifacts/local-acceptance-results/` folder.
 See D-061 for the PowerShell 5.1 report-writing issue and recovery.
+
+## D-066 P3 browser supplement - one session, not a new release
+
+The D-062 candidate above is historical and its manual status remains
+provisional. For P3 dual HTML/Markdown ordinary acceptance, the only
+recommended candidate is the **final** D-065 source-watch-fixed VSIX:
+20,500,477 bytes, SHA-256
+`4468280CE13A55FFDAE69CA7F086F6FC68F9342DF9EC7C393692688AB4091380`.
+As of the 2026-10-11 D-066 preflight it is technically accepted in
+an isolated Extension Host, **not** installed in ordinary VS Code,
+which has an older build without the HTML command.
+
+Combine the original abbreviated Projection/source navigation checks
+with the one browser/localhost gate in
+`docs/plan/PORTABLE-PROJECTION-INTEGRATION.md`. Do not ask the user
+to recheck automated Stale/Restricted/Roslyn/source-hash regressions.
+Obtain approval before replacing the ordinary extension or setting a
+foreign app's static directory. Manual PASS and release go/no-go
+remain separate and PENDING. No version bump/tag/publish authorized.

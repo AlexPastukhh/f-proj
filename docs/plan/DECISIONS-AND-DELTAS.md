@@ -1458,3 +1458,27 @@ recommended candidate. Unit suite **79/79 PASS**; real fixture proof
 PASS. The final installed Windows regression is separately verified.
 No ordinary-user browser acceptance, release or public export is
 assumed.
+
+## D-066 - Browser/localhost integration gate preflight, no new feature
+
+Status: PREFLIGHT VERIFIED / ORDINARY-USER BROWSER ACCEPTANCE PENDING
+(2026-10-11). The nearest open D-065 successor is the **one**
+browser/localhost manual gate, not a repeat D-065 implementation,
+public JSON export, alternative server, or new candidate packaging.
+
+GitHub `main` and clean Windows checkout were both
+`c466a4fe16a63bbe6290594d4a97dd1b3d19a047`.
+New Windows `npm test` was 79/79 PASS; real
+`verify-experimental-json-snapshot.mjs` PASS (3 Situations,
+6 assertions, shared Markdown/HTML and D-063/D-064 regressions).
+Final existing D-065 VSIX SHA/size and ignored installed report were
+rechecked; the prior **isolated** installed PASS remains valid.
+
+Ordinary installed VS Code extension 0.1.0 lacks the public Open HTML
+command and renderer; it is not the final D-065 candidate. Do not
+replace the user's ordinary installation without explicit approval.
+The prepared fixture exists; actual app static directory/route remains
+unknown. The final manual gate is described in
+`docs/plan/PORTABLE-PROJECTION-INTEGRATION.md`.
+Browser/iframe, `vscode://` clicks, real localhost serve, user
+approval and release all remain PENDING. No new VSIX or release tag.

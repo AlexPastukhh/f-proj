@@ -1317,3 +1317,28 @@ Candidate `artifacts/feature-projection-prototype-p0-0.1.0-p3-dual-projection-ca
 20,500,133 bytes, SHA-256
 `1E99142C54B9CD559EE883F371F1BB73ADBDC12A8D7F7F005B33B6C351B270C7`
 is not a public release and does not replace the D-062 manual gate.
+
+## 23. D-066 - Portable browser integration: next acceptance gate
+
+2026-10-11 preflight of GitHub and Windows main: identical clean
+`c466a4fe16a63bbe6290594d4a97dd1b3d19a047`.
+Current Windows source unit 79/79 PASS, real Vitest/xUnit dual-view
+fixture PASS. Existing final D-065 SHA-pinned candidate and prior
+isolated installed PASS are unchanged; no new candidate is warranted.
+
+**Immediate NEXT (PENDING):** one compact ordinary-user browser gate,
+not another implementation cycle. The normal user VS Code currently
+has an older 0.1.0 extension missing Open HTML Projection, so a single
+approved install of the final SHA-pinned D-065 candidate is required
+before real browser checks. Use the prepared fixture without mutating
+its source. In the browser verify one scoped anchor and one actual
+`vscode://` source jump; verify the user's actual loopback static
+route/iframe only if its directory is known and configuration is
+authorized. An existing unrelated loopback listener does not establish
+this route. See `PORTABLE-PROJECTION-INTEGRATION.md` for the bundled
+manual scenario, and REVIEW-LOG D-066 for evidence.
+
+The historical first-candidate reference in section 22 is superseded
+by final D-065 details in decisions/review/artifacts index. No public
+JSON exporter, automatic refresh, second server, release or version
+bump. Browser and user-acceptance statuses remain PENDING.
