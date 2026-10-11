@@ -1867,3 +1867,12 @@ shows both exact tests executed=1/PASS, folded Theory preflight
 refusal; Portable HTML regression and isolated VS Code
 Extension Host smoke PASS. CI proof added; independent remote
 result must be recorded after push.
+
+### D-076 final remote source acceptance
+
+GitHub Windows Actions `38129614852` for `8710b71`:
+SUCCESS including 124 unit tests and exact sequential real
+Frontend+Backend Fact execution. The D-076 source gate is
+DONE. No change to first-slice Theory prohibition in Run
+Both, no in-flight cancellation claim, no ordinary installed
+VSIX or release authorization.

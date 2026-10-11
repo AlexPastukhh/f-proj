@@ -534,3 +534,10 @@ Ordinary installed D-065 remains unchanged: combined P4
 UI acceptance and D-066 browser acceptance PENDING.
 In-flight process kill/Run Both Theory/general Run All LATER.
 No localhost app integration, VSIX installation or release.
+
+### D-076 independent CI result
+
+GitHub Windows `38129614852`, source `8710b71`:
+SUCCESS including 124 unit tests and exact Frontend then
+Backend Fact Run Both real proof. Source-only acceptance
+DONE; ordinary installed P4 profile/UI acceptance PENDING.

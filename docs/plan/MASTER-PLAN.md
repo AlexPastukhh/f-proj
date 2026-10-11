@@ -1766,3 +1766,13 @@ exactly one test per role, in that order. The other two
 joined fixture Situations (folded xUnit Theory) fail planning
 before any framework execution. The prior Portable HTML
 proof and isolated Extension Host smoke also PASS.
+
+### D-076 Windows source CI result
+
+Source commit `8710b71` passed Windows CI `38129614852`:
+124 unit tests, real Run Both exact two-test sequential
+proof, previous P4 Frontend, Backend and Theory tests.
+P4 Run Both (direct Fact subset) source-ready.
+Next: correct cancellation of in-flight worker processes,
+then safe support for pre-enumerable Theory in Run Both.
+Ordinary D-065 installed unchanged; manual D-066 pending.

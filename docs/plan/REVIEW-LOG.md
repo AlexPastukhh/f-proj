@@ -1807,3 +1807,16 @@ the outcome after the phase. Other standalone profiles
 are not globally serialized. D-066 browser manual PENDING,
 new source-only P4 profiles not present in ordinary D-065,
 own-app localhost DEFERRED, no VSIX/tag/release.
+
+### D-076 independent Windows GitHub CI — SUCCESS
+
+Source commit `8710b7170eb16760c67849e562e8da90b1768bd5`
+passed Windows source-proof workflow `38129614852`:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38129614852
+Status SUCCESS including 124 source unit tests, established
+Frontend/Backend/individual Theory regressions and the
+new one-Situation `verify-p4-run-both.mjs` real execution
+step. Source-only D-076 technical gate PASS. Ordinary
+installed D-065 VSIX, D-066 manual browser/UI acceptance,
+Run Both Theory support, and in-flight cancellation are
+still separate and NOT accepted by this CI.
