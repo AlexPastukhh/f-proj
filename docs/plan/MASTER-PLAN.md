@@ -1970,3 +1970,13 @@ duplicates and unapproved version/dependency drift.
 one-session ordinary UI manual gate and the remaining explicit
 permission boundary. **No new VSIX produced.** D-065 remains
 installed unchanged; localhost app deferred, no release.
+
+### D-080 Windows source acceptance
+
+GitHub Windows `38144728290`, source `b1eb143`:
+SUCCESS, including 139 unit tests, packaged-worker payload,
+read-only full-dependency candidate file inventory and
+existing P4/portable HTML regressions. D-080 source gate
+DONE. Actual SHA-pinned VSIX creation/archive verification
+and ordinary D-066+P4 manual UI gate require separate
+explicit user permissions. P5 languages remain NOT STARTED.

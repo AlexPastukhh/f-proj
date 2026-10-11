@@ -651,3 +651,11 @@ Candidate VSIX packaging, archive verification, installation and
 ordinary UI acceptance NOT DONE; installed D-065 unchanged.
 The localhost app and additional language adapters remain deferred,
 no release.
+
+### D-080 independently verified
+
+GitHub Windows run `38144728290` on `b1eb143`:
+SUCCESS. 139 unit tests and D-080 full candidate
+inventory passed. Real package creation/installation
+and combined ordinary UI acceptance remain pending
+explicit authorization. Installed D-065 unchanged.

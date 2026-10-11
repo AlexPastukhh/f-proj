@@ -1988,3 +1988,11 @@ manual HTML/Testing API acceptance after separate consent.
 Neither source CI nor dev Extension Host smoke qualifies as
 ordinary installed UI acceptance. P5 multi-language support
 remains contract-only.
+
+### D-080 final CI decision
+
+GitHub Actions `38144728290`, source `b1eb143`:
+SUCCESS. `vsce ls` full dependency preview passed,
+without creating any VSIX, tag, release or installed
+extension change. This does not satisfy the archive
+integrity or ordinary installed UI gate.

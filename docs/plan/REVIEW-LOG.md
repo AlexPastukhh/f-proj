@@ -2054,3 +2054,15 @@ that `vsce package` can successfully write an archive, that
 the installed VSIX will load, or that the D-066/P4 ordinary
 manual acceptance has been performed. Installed D-065
 and user localhost app remain untouched, no version/tag/release.
+
+### D-080 independent Windows source inventory gate — SUCCESS
+
+Source commit `b1eb143edefcecaa8d716d6667b443b3207563b7`
+passed Windows source workflow `38144728290`:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38144728290
+Entire workflow **SUCCESS**, including 139 unit tests,
+the NEW D-080 read-only `vsce ls` file-list audit after
+.NET worker publish, and all P4 cancellation/Run Both
+regressions. The source-only candidate inventory gate is
+ACCEPTED; VSIX packaging and ordinary installed UI manual
+acceptance remain NOT DONE. No VSIX was created.
