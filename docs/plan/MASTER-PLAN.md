@@ -1660,3 +1660,13 @@ in-flight cancellation and stronger transitive input race
 handling; installed VSIX/manual UI gate is separate.
 Original D-065 ordinary VS Code installation remains untouched.
 User's localhost app DEFERRED. No version/tag/release.
+
+### D-074 independent Windows CI completion
+
+Source commit `5c9a102` passed GitHub Windows CI
+`38125108207` (113 unit tests, existing exact Frontend
+and new exact Backend Fact/negative result proofs).
+D-074 is source-technically accepted **only for direct
+xUnit Facts**. Theory-row targeting, Run Both and cancellation
+remain open. Installed D-065, manual D-066/P4 and release
+status unchanged.

@@ -480,3 +480,10 @@ VS Code Extension Host smoke PASS (exit 0). Ordinary installed
 D-065 unchanged, source-only P4 UI manual PENDING.
 Backend Theory, Run Both and cancellation still unfinished;
 own localhost app integration DEFERRED; no release.
+
+### D-074 independent Windows CI gate
+
+GitHub Actions `38125108207`, source commit `5c9a102`:
+SUCCESS. 113 unit tests and real positive/negative direct xUnit
+Fact proof PASS on Windows. Ordinary installed D-065 unchanged;
+Backend Theory/Run Both unsupported, manual UI acceptance PENDING.

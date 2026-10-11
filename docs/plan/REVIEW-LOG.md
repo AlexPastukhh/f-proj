@@ -1665,3 +1665,13 @@ This is a separate development-host test and does NOT
 constitute ordinary installed UI manual acceptance of the
 new `Run Backend Fact` profile. CI will independently
 verify the exact xUnit/negative-case proof on the pushed SHA.
+
+### D-074 final independent Windows CI
+
+Source commit `5c9a1021d073c75157b63f61d0eab32c5d3df517`,
+GitHub Actions `38125108207`: **SUCCESS**, including
+113 unit tests, Frontend Vitest exact-run proof, and the new
+Backend direct xUnit Fact PASS, negative Failed and unsafe
+Theory-row refusal proof. Isolated VS Code Extension Host
+smoke also PASS. Ordinary installed VSIX/UI manual acceptance
+remains PENDING; Theory/Run Both still unimplemented.

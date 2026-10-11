@@ -1783,3 +1783,9 @@ refused before execution**, not run by approximate name or
 parent method and checked afterward. Deferred: true per-row
 selection, Run Both, cancellation and atomic dependency closure.
 No changes to user's localhost app and no release.
+
+### D-074 final source acceptance decision
+
+GitHub Windows CI `38125108207` for `5c9a102`: SUCCESS.
+Native xUnit Fact exact-ID proof passed. Parameterized Theory,
+Run Both, production VSIX installation and release are NOT authorized.
