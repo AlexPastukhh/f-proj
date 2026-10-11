@@ -1962,3 +1962,11 @@ adapters. No new adapter ID or runtime worker was introduced;
 the first exploratory P5 candidate is Python/pytest, not a
 promised shipped feature. Do not restore caching, create a new VSIX
 or install/update ordinary extension without the user's approval.
+
+### D-079 CI acceptance decision
+
+Source `98b203e`, Windows Actions `38143163558`:
+SUCCESS. Shared P4 lease and exact published selection source
+gate PASSED; full atomic dependency snapshot not claimed.
+P5 contract documented, not a working new language.
+Installed VSIX/manual acceptance and release unapproved.

@@ -1993,3 +1993,15 @@ exit 0. Host emitted unrelated AgentHost/auth warnings.
 `git diff --check` PASS. No VSIX packaging, installation,
 tag or release was performed. Ordinary installed UI/manual
 acceptance remains PENDING.
+
+### D-079 independent Windows CI — SUCCESS
+
+Source SHA `98b203eb118e2e81016793a8f43d6351720e64c8`
+passed GitHub Actions Windows source-proof `38143163558`:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38143163558
+Entire workflow **SUCCESS**, including 135/135 unit tests,
+existing Frontend/Backend/Run Both/portable HTML regressions
+and new D-079 real live-Vitest session revocation/concurrency
+proof. Source-only D-079 technically accepted. Ordinary
+installed D-065 VSIX unchanged; combined D-066+P4 manual
+UI/browser acceptance PENDING, no release or localhost app.

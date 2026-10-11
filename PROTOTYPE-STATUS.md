@@ -627,3 +627,11 @@ multi-language contract; Python/pytest and Java/JUnit remain
 NOT IMPLEMENTED. Ordinary installed D-065 VSIX unchanged;
 new P4/D-066 manual gate PENDING, localhost app DEFERRED,
 no release.
+
+### D-079 GitHub Windows gate
+
+Source `98b203e`, Windows workflow `38143163558`:
+SUCCESS, including 135 unit tests and actual live-Vitest
+session invalidation / parallel-run refusal proof.
+Ordinary installed D-065 unchanged; manual browser/P4 gate
+pending, no release. P5 is contract-only, not Python support.

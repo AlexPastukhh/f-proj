@@ -1935,3 +1935,14 @@ Pending: independent Windows source CI for this D-079 SHA,
 the combined D-066 portable-browser/P4 ordinary VS Code
 manual session, and separately authorized VSIX candidate
 packaging and installation. Localhost app integration DEFERRED.
+
+### D-079 independent Windows source acceptance
+
+GitHub Windows workflow `38143163558`, source SHA `98b203e`:
+SUCCESS. Unit 135/135; real invalidated session abort and
+concurrent run refusal, prior P4 Frontend/Backend/Run Both,
+cancellation and Portable HTML all passed on independent
+Windows runner. D-079 source slice DONE. P5 adapter contract
+is documented, Python/pytest still NOT IMPLEMENTED.
+Next MVP work needs separately authorized verified VSIX
+candidate and one combined ordinary VS Code manual gate.
