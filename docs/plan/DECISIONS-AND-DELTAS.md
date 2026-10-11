@@ -1705,3 +1705,11 @@ regular builds, source-file integrity and no cache. A non-gating
 CI step runs after the existing worker package proof.
 D-065 remains installed; D-066 standalone browser acceptance
 PENDING, own-app localhost integration DEFERRED, no release.
+
+### D-071 source acceptance confirmed on Windows CI
+
+Source commit `da2b25a`, Windows workflow `38120636241`:
+SUCCESS including the new opt-in Roslyn profile proof and
+packaged-worker validation. D-071 is accepted as a
+measurement-only source stage, not an optimization rollout.
+No unsafe Roslyn compilation reuse or skip-build change.

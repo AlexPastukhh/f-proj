@@ -424,3 +424,9 @@ Projection regressions PASS. Windows CI includes the proof.
 No Roslyn compilation cache, xUnit build skip, regular
 Refresh profiler, new VSIX or release. D-066 standalone
 browser acceptance PENDING, own localhost integration DEFERRED.
+
+### D-071 Windows CI completion
+
+GitHub Windows workflow `38120636241`, commit `da2b25a`:
+SUCCESS. Stage profiling is internal and opt-in; ordinary
+installed D-065 remains unchanged. No cache/release.

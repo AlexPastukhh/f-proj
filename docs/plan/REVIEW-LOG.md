@@ -1504,3 +1504,15 @@ unsafe partial matches. `node scripts/verify-rename-feasibility.mjs`
 fail-closed checks. The `profile` parameter remains absent
 from these real worker requests and does not change their
 read-only Roslyn behavior.
+
+### D-071 final Windows CI source gate - SUCCESS
+
+For source commit `da2b25a8fd3276c463385801bfe381907c621544`,
+GitHub Actions Windows source-proofs run `38120636241`
+finished **SUCCESS**:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38120636241
+Confirmed TypeScript/unit tests, established C# and Portable
+Projection regressions, packaged .NET worker proof and the
+new opt-in D-071 profiled/unprofiled Roslyn equivalence step.
+This is source/CI acceptance only: no new VSIX or ordinary
+browser manual PASS. Roslyn/xUnit cache remains NO-GO.

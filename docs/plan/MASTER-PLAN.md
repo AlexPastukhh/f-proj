@@ -1544,3 +1544,10 @@ The next engineering candidate is a read-only closure/invalidation
 study (D-072), not a release optimization. D-066 browser
 manual PENDING, own localhost app DEFERRED. Ordinary D-065
 VSIX remains installed and unchanged; no release approval.
+
+### D-071 final technical result
+
+Windows CI `38120636241` for `da2b25a`: SUCCESS,
+including opt-in C# timing, worker packaging and complete
+source regressions. Source D-071 DONE; future dependency
+closure proof D-072 is a candidate, not active caching.
