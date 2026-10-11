@@ -430,3 +430,24 @@ browser acceptance PENDING, own localhost integration DEFERRED.
 GitHub Windows workflow `38120636241`, commit `da2b25a`:
 SUCCESS. Stage profiling is internal and opt-in; ordinary
 installed D-065 remains unchanged. No cache/release.
+
+## D-073 - P4 Run Frontend Situation: first executable source slice
+
+Source-only Testing API Run Frontend Situation profile added.
+An explicit user selection can run exactly one trusted, Fresh
+Frontend Vitest 5 test; ambiguous titles/scopes, wrong role,
+group Run All, dirty buffers and stale states fail closed.
+The runner re-collects test identity before execution, anchors
+the test-name filter and verifies exactly one executed test
+in a temporary Vitest JSON report. No automatic invocation,
+cache or source modification.
+
+Windows unit tests 109/109 PASS. Real fixture executes 3/3
+Frontend cases (1 direct + 2 parameterized) separately;
+a disposable intentionally failing case reports Failed.
+Isolated VS Code Extension Host smoke PASS; D-065 portable
+dual-view regression PASS. GitHub Windows CI runs P4 proof.
+Ordinary installed D-065 VSIX remains unchanged:
+actual user Testing UI acceptance PENDING. Backend xUnit,
+Run Both and in-flight cancellation remain LATER.
+Own-app localhost integration DEFERRED; no release.

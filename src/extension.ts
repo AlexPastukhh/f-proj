@@ -2,7 +2,9 @@ import fs = require('node:fs');
 import path = require('node:path');
 import vscode = require('vscode');
 import { runFullPrototype } from './core/fullEngine';
-import { Diagnostic, FeatureSourceConfig, PrototypeConfig, SourceRange } from './core/types';
+import { planVitestSituationRun } from './core/situationRunPlan';
+import { runExactVitestSituation } from './core/vitestSituationRunner';
+import { Diagnostic, FeatureSourceConfig, PrototypeConfig, SourceRange, JoinedSituation, TestDefinition, FrameworkConcreteCase } from './core/types';
 import { buildTestingTree, TestingTreeNode } from './core/testingTree';
 import { ProjectionSourceAction, ProjectionSituationAction, renderProjection } from './core/projection';
 import { runProcess, runJsonWorker } from './core/process';
@@ -64,6 +66,10 @@ export function activate(context: any) {
   let lastDiagnostics: Diagnostic[] = [];
   let lastTestingTree: TestingTreeNode[] = [];
   let situationTestItems = new Map<string, any>();
+  let runSnapshot: {
+    workspaceRoot:string; config:PrototypeConfig;
+    joined:JoinedSituation[]; definitions:TestDefinition[]; cases:FrameworkConcreteCase[];
+  } | undefined;
   let fileWatchers: any[] = [];
 
   const timestamp = () => new Date().toISOString();
@@ -74,6 +80,7 @@ export function activate(context: any) {
 
   const setState = (state: UiState, detail?: string) => {
     uiState = state;
+    if (state !== 'fresh') runSnapshot = undefined;
     if (state === 'fresh') {
       status.text = '$(check) Feature Projection: Fresh';
       status.tooltip = detail ?? 'Projection is up to date. Click to show it.';
@@ -721,6 +728,10 @@ export function activate(context: any) {
         setState('stale', 'Relevant files changed while the refresh was running.');
       } else {
         setState('fresh', result.diagnostics.length ? `Projection is current with ${result.diagnostics.length} non-blocking diagnostic(s).` : 'Projection is up to date. Click to show it.');
+        runSnapshot = {
+          workspaceRoot:folder.uri.fsPath,config,
+          joined:result.joined,definitions:result.definitions,cases:result.cases,
+        };
         if (result.diagnostics.length) {
           void vscode.window.showWarningMessage(
             `Feature Projection: ${result.diagnostics.length} non-blocking diagnostic(s).`,
@@ -1020,6 +1031,69 @@ export function activate(context: any) {
     }));
   }
 
+  // P4 first slice: explicit single Frontend Situation, never Run All/Backend.
+  const runFrontendSituation = async (request:any, token:any) => {
+    const run = testController.createTestRun(request);
+    const selected = request.include?.[0];
+    const refused = (reason:string) => {
+      log(`p4 frontend refused: ${reason}`);
+      if (selected) run.errored(selected,[new vscode.TestMessage(reason)]);
+      else void vscode.window.showWarningMessage(`Feature Projection: ${reason}`);
+    };
+    try {
+      if (request.include?.length !== 1 || (request.exclude?.length ?? 0) !== 0 || !selected) {
+        refused('select exactly one Frontend part; Run All/group selection is not supported');
+        return;
+      }
+      const situationId = selected.id.endsWith('/frontend')
+        ? selected.id.slice(0,-'/frontend'.length) : selected.id;
+      if (!situationTestItems.has(situationId) || !runSnapshot ||
+          uiState !== 'fresh' || refreshing || !vscode.workspace.isTrusted ||
+          vscode.workspace.workspaceFolders?.length !== 1 ||
+          vscode.workspace.workspaceFolders[0].uri.fsPath !== runSnapshot.workspaceRoot) {
+        refused('requires one published Fresh Situation in a trusted single-folder workspace');
+        return;
+      }
+      if (token.isCancellationRequested) {
+        refused('test run cancelled before execution');
+        return;
+      }
+      const snapshot=runSnapshot;
+      if (JSON.stringify(getConfig())!==JSON.stringify(snapshot.config))
+        throw new Error('configuration changed since Refresh');
+      const dirty=vscode.workspace.textDocuments.some((doc:any)=>
+        doc.isDirty && doc.uri.scheme==='file');
+      const plan=planVitestSituationRun({
+        workspaceRoot:snapshot.workspaceRoot,config:snapshot.config,
+        joined:snapshot.joined,definitions:snapshot.definitions,
+        cases:snapshot.cases,situationId,role:'frontend',
+        trusted:vscode.workspace.isTrusted,fresh:uiState==='fresh',
+        dirtyFilesKnownClean:!dirty,
+      });
+      run.started(selected);
+      const node=resolveExternalNodeRuntime(snapshot.config.nodePath,process.env);
+      const env=sanitizeExternalNodeEnvironment(process.env).env;
+      const result=await runExactVitestSituation(plan,
+        context.asAbsolutePath('workers/vitest-materialize.mjs'),
+        Math.min(120000,Math.max(30000,snapshot.config.workerTimeoutMs??30000)),
+        {command:node.command,env},log);
+      if (uiState!=='fresh' || refreshing || runSnapshot!==snapshot ||
+          token.isCancellationRequested || !vscode.workspace.isTrusted ||
+          vscode.workspace.textDocuments.some((doc:any)=>
+            doc.isDirty && doc.uri.scheme==='file')) {
+        refused('source/trust/editor state changed during the test run');
+      } else if (result.status==='passed') {
+        run.passed(selected);
+      } else if (result.status==='failed') {
+        run.failed(selected,[new vscode.TestMessage(result.message)]);
+      } else { refused(result.message); }
+      log(`p4 frontend result: ${result.status} executed=${result.executed}`);
+    } catch (err:any) {
+      refused(err?.message ?? String(err));
+    } finally { run.end(); }
+  };
+  context.subscriptions.push(testController.createRunProfile(
+    'Run Frontend Situation',vscode.TestRunProfileKind.Run,runFrontendSituation,false,frontendTag));
   rebuildWatchers();
 }
 

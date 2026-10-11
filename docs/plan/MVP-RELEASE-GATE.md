@@ -120,3 +120,22 @@ Reload Window, trusted fixture/Refresh/Fresh, Situation anchor and
 `vscode://file` source jump. Integration with the user's own
 localhost app is deferred, not required in this session.
 No manual PASS, release approval, tag or publication.
+
+## D-073 P4 Frontend source-only gate and future combined manual check
+
+The first P4 `Run Frontend Situation` Testing API profile is
+implemented in source only and is NOT present in the ordinary
+installed D-065 candidate. Do not replace the installed
+extension just to collect repeated manual smoke results.
+
+When a future SHA-pinned VSIX is explicitly approved for
+ordinary installation, combine D-066 and P4 in ONE short
+session: Reload Window -> trusted prepared workspace ->
+Refresh/Fresh -> Open HTML Projection, follow one Situation
+anchor and one vscode source link -> in Testing, run exactly
+one Frontend part using `Run Frontend Situation` and confirm
+Passed. There is no Backend or Both profile yet. All Stale,
+Restricted, duplicate, dirty-buffer and wrong-role refusals
+are covered by automated tests; no extra manual clicks.
+The user's localhost application is explicitly deferred.
+This is not release approval or an installed UI PASS.

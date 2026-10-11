@@ -69,6 +69,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: D-071 opt-in Roslyn phase profiling (no caching or timing threshold)
         run: node scripts/measure-roslyn-phases.mjs 2
+      - name: P4 first slice exact Vitest Situation execution
+        run: node scripts/verify-p4-vitest-run.mjs
 
 # This source-proof job is not installed-extension acceptance.
 # The isolated VSIX smoke (trusted/restricted, scoped links, P2

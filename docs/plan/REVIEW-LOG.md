@@ -1516,3 +1516,72 @@ Projection regressions, packaged .NET worker proof and the
 new opt-in D-071 profiled/unprofiled Roslyn equivalence step.
 This is source/CI acceptance only: no new VSIX or ordinary
 browser manual PASS. Roslyn/xUnit cache remains NO-GO.
+
+## 2026-10-11 - D-073 P4 Frontend single-Situation execution
+
+Before edits: primary Windows checkout and GitHub `main`
+were synced, clean at `8ddbfe4c48e392a7591ee680a573f4f0eb640bb3`.
+D-071 documentation-only GitHub Windows CI `38120897950`
+completed SUCCESS. User opted to pause caching (D-072
+dependency-closure study deferred) and continue product features.
+
+Implemented `src/core/situationRunPlan.ts` for pure, scoped
+Situation selection. The first supported role is Frontend only
+(Vitest 5): exactly one trusted and Fresh Situation/Frontend
+part, corresponding static definition, known-clean editor,
+matching framework-project source, and exactly one native case
+for parameterized tests. Duplicate names, feature/role/scope
+conflicts, partial or stale results and missing cases refuse
+before any execution. All actions require explicit user initiation.
+
+Added `src/core/vitestSituationRunner.ts`, which performs a
+fresh Vitest collection of ONLY the selected file, requires
+exact unique full test name and framework task line/column,
+then invokes Vitest CLI with one anchored escaped pattern.
+A temporary JSON report must prove exactly one executed
+matching test. Zero, multiple or wrong tests result in Error,
+not an invented pass. Source digest is checked before/after
+the collection and after execution, and temporary report
+is deleted. Explicit run may execute arbitrary test user code;
+it is never triggered by Refresh, watcher or activation.
+
+Connected source-only Testing API profile
+`Run Frontend Situation`, tagged for Frontend part nodes.
+Refuses Run All/group/multiple/excluded selection, untrusted,
+Stale, dirty/unknown snapshot, changing config and in-flight
+state drift. Results update only the chosen TestItem as Passed,
+Failed or Error. No xUnit Backend or Run Both profiles.
+
+Local Windows source `npm test`: **109/109 PASS**, zero
+skips (6 new plan/collection safety tests). First unit test
+run exposed a non-existent source path in the *test mock*;
+corrected it to a real maintained fixture. The safety
+implementation itself was not relaxed.
+
+`node scripts/verify-p4-vitest-run.mjs`: **PASS**,
+3 Frontend Situations, **3 precise passed tests**:
+one ordinary + two parameterized concrete cases, with
+3 actual selected executions and no authored-source edits.
+One intentionally failing test executed in an OS temporary
+project returned **Failed**, executed=1, not worker Error;
+temporary project deleted. Refusal proofs include wrong
+role, untrusted, Stale, unknown Situation and dirty state.
+`node scripts/verify-experimental-json-snapshot.mjs`
+D-063/D-064/D-065 Markdown+HTML regression PASS.
+
+`npm run test:extension` with a local VS Code executable:
+**PASS (exit 0)** in isolated Extension Host (not the ordinary
+user installation). Dev-host emitted unrelated GitHub
+authentication/AgentHost warnings. It did not independently
+exercise the new profile's human Testing UI click.
+Windows CI now includes the exact Vitest source execution
+proof. The ordinary D-065 VSIX was not repackaged or installed;
+one combined future manual session can cover existing D-066
+standalone browser and new P4 Frontend profile after a verified
+new candidate. Own-app localhost integration is deferred;
+no release, version bump or tag.
+
+Unresolved: cancellation cannot stop an already running child,
+dependency write races outside the selected file are not atomic,
+Backend xUnit/Run Both unimplemented. Next P4 slice should
+address exact xUnit targeting and cancellation before release.

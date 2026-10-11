@@ -1551,3 +1551,55 @@ Windows CI `38120636241` for `da2b25a`: SUCCESS,
 including opt-in C# timing, worker packaging and complete
 source regressions. Source D-071 DONE; future dependency
 closure proof D-072 is a candidate, not active caching.
+
+## 29. D-073 - P4 Run Situation / Frontend first executable slice
+
+2026-10-11: Following the D-067 to D-071 profiling/caching studies,
+D-072 transitive-cache-closure research was **deferred**, not
+started. The user prioritized product features instead.
+This first P4 implementation covers **one explicit Frontend Vitest
+Situation**, not Backend, Run Both, grouped runs or parallel runs.
+
+Added the existing Testing API's tagged `Run Frontend Situation`
+profile (not a public command) on a Frontend part. It requires
+exactly one selected published Situation and a trusted single-folder
+workspace with a Fresh Projection, matching configuration and
+zero unsaved file documents. Run All, multiple selections, stale
+or restricted data, mismatched definitions, duplicate scopes
+and parameterized cases without unique framework correlation
+fail closed. Selecting Backend is explicitly refused.
+
+The engine produces a scoped `VitestSituationTarget` from the
+same joined Situation, TestDefinitions and framework concrete
+cases as Projection. Before executing, a fresh Vitest collection
+must contain **one** unique full test name in the exact file at
+the expected framework source line/column. A duplicate name at
+a different source line is refused BEFORE executing. The runner
+passes an anchored, regex-escaped title to Vitest 5 and checks
+its machine-readable report: exactly one executed test with the
+expected fullName. The report lives in a temporary OS directory
+deleted after the run, not in workspace or HTML output. A source
+content digest guards pre/post collection and post run. Explicit
+tests may themselves have arbitrary user-code effects; never
+run during Refresh/watch, on untrusted workspaces or by default.
+
+The VS Code profile surfaces Passed, Failed or Error on the
+requested TestItem. The session snapshot is invalidated on
+Stale/Refreshing/Error, and results are refused if state or
+trust changes during execution. No persistent test result,
+automatic retry or cancellation of in-flight child process.
+
+Source technical proof uses the maintained Vitest5+xUnit3 fixture:
+all 3 Frontend Situations (1 ordinary, 2 concrete parameterized)
+selected individually and passed, while the regular full xUnit
+and Portable Projection contracts remain unchanged.
+`test/situation-run-plan.test.mjs` covers trust, freshness,
+wrong role/scope, duplicate Situations, missing or duplicate
+framework concrete cases and collision of exact full names.
+Windows CI runs the real execution script, not only a mock.
+
+**Pending:** independent installed-extension/UI acceptance,
+user's D-066 standalone browser check, Backend xUnit runner,
+Run Both, cancellation/race guarantees, generalized test
+selection. There is NO new VSIX installed in ordinary VS Code
+and NO release. Own-app localhost integration remains DEFERRED.

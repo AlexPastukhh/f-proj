@@ -1713,3 +1713,40 @@ SUCCESS including the new opt-in Roslyn profile proof and
 packaged-worker validation. D-071 is accepted as a
 measurement-only source stage, not an optimization rollout.
 No unsafe Roslyn compilation reuse or skip-build change.
+
+## D-073 - P4 first concrete Run Situation slice: Frontend only
+
+Decision: reprioritize from caching to user-facing behavior.
+D-072 dependency-closure research is **deferred**, not complete.
+D-065 Portable Projection remains implemented and technically
+accepted; its original installed candidate is NOT replaced.
+
+In source, an explicitly selected Frontend TestItem now offers
+`Run Frontend Situation` in VS Code Testing API. It does not
+register a Run All handler, create a P4 Backend/Run Both profile,
+or run during Refresh/source-watcher changes. The runner first
+maps the unique FeatureSpace/folder/Feature/outcome/Situation
+to one trusted TestDefinition + (if parameterized) one native
+Vitest case, then freshly recollects the exact task by full
+name, module path and framework task location before any
+test execution. Duplicate *names* are refused even on
+different source lines, because Vitest's run filter is a regex.
+
+Entry conditions: exactly one selected Situation/Frontend part;
+trusted, single-folder and Fresh snapshot; matching config;
+no unsaved file documents; stable source identity. After an
+explicit Vitest run, the machine-readable report must prove
+**exactly one** executed test with matching full name before
+reporting Passed/Failed. All other outcomes are Error/refusal.
+Temporary JSON is stored in OS temp and deleted, not in source
+trees. A changed source/editor/trust state after execution
+invalidates its displayed success.
+
+Known limitations: a test deliberately executes user code,
+can have side effects, and full dependency/dirty-buffer race
+atomicity is not proven. Cancellation while the child process
+is already running does not yet kill the process. Missing
+C# implementation, Both profile and general group selection
+are future P4 steps. No new VSIX, release or localhost app
+integration. D-066 one-session ordinary browser manual
+acceptance still remains PENDING.
