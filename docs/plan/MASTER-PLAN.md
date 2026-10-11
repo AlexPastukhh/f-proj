@@ -1718,3 +1718,12 @@ pre-enumerated (research/custom runner), Run Both, cancellation
 while a worker is in flight, and stronger dependency-input races.
 D-066 browser + Testing API combined ordinary-user manual check is
 PENDING; the user's own localhost app is DEFERRED, no public release.
+
+### D-075 final Windows source acceptance
+
+GitHub Windows Actions `38128162778` for `87aa697`:
+SUCCESS. Unit 116/116 and real separate Theory rows,
+expected negative case, existing Fact and folded Theory
+fail-closed behavior PASS. Source-only D-075 DONE;
+unpreenumerable Theory, Run Both and in-flight cancellation
+remain open. No new candidate VSIX or release.

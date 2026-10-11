@@ -505,3 +505,10 @@ Ordinary installed D-065 VSIX not replaced. P4 Run Both,
 in-flight cancellation and unsupported Theory rows remain open.
 D-066 combined manual browser/UI acceptance remains PENDING;
 own-app localhost integration deferred; no release.
+
+### D-075 final Windows CI
+
+GitHub Windows run `38128162778`, commit `87aa697`:
+SUCCESS. 116/116 source unit tests; individually selected
+pre-enumerated Theory rows, negative result and folded
+Theory refusal pass on Windows CI. UI/manual still PENDING.

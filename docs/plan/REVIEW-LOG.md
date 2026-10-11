@@ -1740,3 +1740,15 @@ unrelated GitHub sign-in/AgentHost warnings, but exited 0.
 This proves source activation smoke, not ordinary installed UI
 manual acceptance for the renamed Backend profile.
 `git diff --check` and new script syntax check PASS.
+
+### D-075 independent Windows CI — SUCCESS
+
+Source commit `87aa69791d12cabad6a590e44a1f3be1e8c491e5`
+passed GitHub Windows source-proof workflow `38128162778`:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38128162778
+Status **SUCCESS** including 116 unit tests, existing P4
+Frontend/Backend Fact regressions, the folded Theory
+fail-closed test, and the new exact native pre-enumerated
+Theory proof (2 Passed, 1 expected Failed, executed=1 each).
+D-075 source technical gate PASS. Ordinary VS Code P4
+installation/UI and D-066 browser manual remain PENDING.

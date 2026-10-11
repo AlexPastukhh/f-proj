@@ -1821,3 +1821,11 @@ does not constitute ordinary-user UI acceptance, and does not
 authorize a version bump, release, or the deferred localhost
 application integration. Windows real+negative proof and CI
 result belong in D-075 REVIEW-LOG.
+
+### D-075 acceptance status after remote verification
+
+GitHub Windows `38128162778`, source `87aa697`:
+SUCCESS. Explicitly permitted only for a Theory row that
+native pre-enumeration uniquely identifies. Maintained
+folded Theory remains NO-GO. This does not imply ordinary
+extension installed acceptance or permission to release.
