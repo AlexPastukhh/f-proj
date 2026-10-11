@@ -1970,3 +1970,21 @@ SUCCESS. Shared P4 lease and exact published selection source
 gate PASSED; full atomic dependency snapshot not claimed.
 P5 contract documented, not a working new language.
 Installed VSIX/manual acceptance and release unapproved.
+
+## D-080 — Do not confuse VSCE list with a packaged/installed candidate
+
+Decision: **no VSIX creation without separate explicit user consent**.
+For the next source-only release preparation slice, validate
+`vsce ls` with ordinary production dependency discovery, not
+`--no-dependencies` (which omits the required TypeScript runtime).
+Apply a fail-closed candidate file inventory + manifest audit and
+exclude .github workflow, REPOSITORY.md and .NET worker PDB.
+This is preparation, not packaging, installation or release.
+
+Candidate acceptance requires an exact future SHA, independent
+Windows CI, separately verified real VSIX contents + SHA-256
+after consent, and one combined ordinary installed VS Code
+manual HTML/Testing API acceptance after separate consent.
+Neither source CI nor dev Extension Host smoke qualifies as
+ordinary installed UI acceptance. P5 multi-language support
+remains contract-only.

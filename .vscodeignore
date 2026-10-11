@@ -1,4 +1,7 @@
 .vscode/**
+.github/**
+REPOSITORY.md
+**/*.pdb
 .vscode-test/**
 artifacts/**
 docs/**

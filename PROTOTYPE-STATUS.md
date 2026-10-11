@@ -635,3 +635,19 @@ SUCCESS, including 135 unit tests and actual live-Vitest
 session invalidation / parallel-run refusal proof.
 Ordinary installed D-065 unchanged; manual browser/P4 gate
 pending, no release. P5 is contract-only, not Python support.
+
+## D-080 — Source-only MVP candidate content audit
+
+Added read-only `vsce ls` inventory verification of the future
+extension payload: compiled extension/P4, Vitest worker, .NET worker
+and TypeScript 5.8.3 production dependency must all be present.
+VSIX contents will no longer include workflow, REPOSITORY.md or
+worker PDB. Local full-dependency inventory: **383** files,
+no created VSIX. Source manifest private/version remains 0.1.0.
+New source CI gate after worker publish; unit tests cover missing
+runtime, private files and version drift.
+
+Candidate VSIX packaging, archive verification, installation and
+ordinary UI acceptance NOT DONE; installed D-065 unchanged.
+The localhost app and additional language adapters remain deferred,
+no release.

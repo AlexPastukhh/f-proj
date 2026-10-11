@@ -1946,3 +1946,27 @@ Windows runner. D-079 source slice DONE. P5 adapter contract
 is documented, Python/pytest still NOT IMPLEMENTED.
 Next MVP work needs separately authorized verified VSIX
 candidate and one combined ordinary VS Code manual gate.
+
+## 36. D-080 — SHA-pinned MVP candidate inventory readiness, without VSIX
+
+2026-10-11. After D-079 source acceptance, added a **read-only** gate
+for the prospective installed VS Code extension payload.
+`scripts/verify-candidate-source-readiness.mjs` invokes **only**
+`vsce ls` with full production dependency resolution. It does
+not package, install, update, tag or publish any VSIX.
+`candidate-source-inventory.mjs` asserts complete compiled P4
+runtime, bundled Vitest worker, .NET worker runtime, TypeScript
+production dependency, pinned manifest/prepublish, and a small
+allowlisted set of paths. Missing runtime files or unexpected
+source/test/fixture/private/metadata files FAIL.
+`.vscodeignore` now excludes GitHub workflow, REPOSITORY.md
+and debug PDB; local inventory fell from 386 to 383 entries.
+
+A new Windows CI step after .NET worker publish independently
+runs the same no-package audit. Unit tests cover happy path,
+missing production deps/worker, unexpected/private files,
+duplicates and unapproved version/dependency drift.
+`docs/plan/MVP-CANDIDATE-READINESS.md` records the exact
+one-session ordinary UI manual gate and the remaining explicit
+permission boundary. **No new VSIX produced.** D-065 remains
+installed unchanged; localhost app deferred, no release.

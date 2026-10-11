@@ -247,3 +247,21 @@ in the current candidate. Preserve one combined later
 ordinary VS Code D-066 HTML + P4 execution manual gate.
 No VSIX, tag, version, publishing or localhost integration
 is authorized by D-079.
+
+## D-080 read-only prospective VSIX content gate
+
+Before authorizing packaging, run source CI on an exact SHA with
+`node scripts/verify-candidate-source-readiness.mjs`
+**after** publishing and checking the .NET worker runtime.
+This is `vsce ls` and manifest validation, NOT `vsce package`;
+it cannot prove an actual VSIX archive or installed behavior.
+Only permit compiled extension, Vitest worker, .NET runtime,
+TypeScript production dependency and package manifest/readme
+in the future VSIX, with no private fixtures/docs/workflows/PDB.
+
+Separate explicit permission is required for any new SHA-pinned
+VSIX build and for replacing installed D-065. After packaging,
+verify the REAL archive/sha256 before proposing one combined
+ordinary VS Code D-066 HTML + P4 Testing manual session.
+Release/tag/marketplace always requires its own decision.
+See `docs/plan/MVP-CANDIDATE-READINESS.md`.

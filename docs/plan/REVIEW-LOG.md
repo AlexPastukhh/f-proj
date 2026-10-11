@@ -2005,3 +2005,52 @@ and new D-079 real live-Vitest session revocation/concurrency
 proof. Source-only D-079 technically accepted. Ordinary
 installed D-065 VSIX unchanged; combined D-066+P4 manual
 UI/browser acceptance PENDING, no release or localhost app.
+
+## 2026-10-11 — D-080 prospective VSIX file-list readiness (source-only)
+
+Preflight: Windows repository and GitHub main clean and synchronized
+at `910a2454073e7988904e4adfbc261dbf2fcf4305`.
+Prior D-079 documentation Windows CI `38143635176` SUCCESS.
+The user authorized the next development stage, but did NOT
+explicitly authorize creating a VSIX, overwriting the installed
+D-065 version or publishing a release. Those actions were NOT taken.
+
+Observed `vsce ls --no-dependencies` returns **256** entries,
+not including production TypeScript. Normal `vsce ls` with
+dependencies returns **386** entries including exactly
+`node_modules/typescript` and required compiled P4 modules,
+Vitest worker and .NET worker. The initial list also exposed
+unnecessary `.github/workflows/windows-source-proof.yml`,
+`REPOSITORY.md`, and a .NET worker PDB. Added strict ignores
+for those paths. Repeat normal `vsce ls`: **383** prospective
+files (215 .NET runtime entries, 130 TypeScript entries)
+and no excluded sources/tests/fixtures/private/workflow/PDB.
+
+New `candidate-source-inventory.mjs` pure validation +
+`verify-candidate-source-readiness.mjs` read-only CLI:
+checks exact manifest/version and production dependency pinned
+in package+lock, mandatory native/JS runtime paths, blocked
+private/workspace/developer files and duplicate paths. The
+verification command invokes `node vsce ls`, NEVER
+`vsce package`, `npm run package:vsix`, nor installation.
+Four unit tests cover missing runtime, dependency-free
+inventories, prohibited paths and version/prepublish drift.
+Added a Windows CI step after .NET worker publish.
+
+Windows local gate:
+- `node scripts/verify-candidate-source-readiness.mjs`: PASS,
+  383 prospective inventory files, no VSIX output.
+- `npm test`: **139/139 PASS**, zero skipped.
+- `npm run verify:packaged-worker`: PASS.
+- `node scripts/verify-experimental-json-snapshot.mjs`: PASS,
+  portable 3 Situation / 6 literal assertion dual-view regression.
+- `npm run test:extension`: isolated VS Code Extension Host
+  PASS (exit 0). Non-feature AgentHost/auth warnings ignored.
+- `docs/plan/MVP-CANDIDATE-READINESS.md`: explicit
+  permission/real-archive/combined ordinary UI gate recorded.
+
+This is only a SOURCE-LEVEL INVENTORY GATE. It does not prove
+that `vsce package` can successfully write an archive, that
+the installed VSIX will load, or that the D-066/P4 ordinary
+manual acceptance has been performed. Installed D-065
+and user localhost app remain untouched, no version/tag/release.
