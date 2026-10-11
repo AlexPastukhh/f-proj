@@ -1752,3 +1752,58 @@ fail-closed test, and the new exact native pre-enumerated
 Theory proof (2 Passed, 1 expected Failed, executed=1 each).
 D-075 source technical gate PASS. Ordinary VS Code P4
 installation/UI and D-066 browser manual remain PENDING.
+
+## 2026-10-11 - D-076 P4 one-Situation Run Both
+
+Preflight: GitHub main and primary Windows checkout were
+synced, clean at `1b48ed3a3d449c01223b4c82b3e26e563ffc9b75`.
+No previous pending edits. P4 D-075 pre-enumerated Theory
+source CI `38128162778` SUCCESS; D-075 documentation
+CI `38128457937` was still in progress on preflight.
+
+Implemented new pure `src/core/runBothSituation.ts`:
+`planRunBoth` calls existing exact Frontend Vitest and
+direct Backend Fact planners for the same fully scoped
+Situation BEFORE executing user test code. Backend Theory,
+missing/degraded/ambiguous parts, stale, untrusted and dirty
+states refuse the full run. `executeRunBoth` invokes
+Frontend, rechecks a live caller-supplied validity guard,
+then Backend only when Frontend ran exactly one test with
+Passed or genuine Failed. Error or drift prevents Backend.
+
+Added source-only `Run Both Situation` VS Code Testing API
+profile requiring one exact published Situation TestItem and
+trusted, Fresh single-folder snapshot with unchanged config,
+zero dirty file documents, and no simultaneous Run Both.
+Run All/part/Feature/Outcome/multi-selection refuse.
+Results are reported per Frontend and Backend child and on
+the selected parent. A genuine Frontend Failed still allows
+Backend; errors/drift/cancellation at phase boundaries stop
+later execution. Existing standalone profiles unchanged.
+
+Local Windows `npm test`: **124/124 PASS**, no skipped tests
+(+8 new unit tests for exact dual preflight, order, per-role
+outcomes and cancellation/infrastructure drift).
+`node scripts/verify-p4-run-both.mjs`: **PASS**,
+maintained `refresh_token_expired` Situation,
+exact Frontend PASSED/executed=1, then Backend
+PASSED/executed=1, source input digests identical.
+Other two joined Situations fail preflight for folded
+Backend Theory BEFORE either test is executed.
+
+`node scripts/verify-experimental-json-snapshot.mjs`:
+PASS, Portable dual-view 3 Situations/6 literal assertions.
+`npm run test:extension` with isolated VS Code
+Extension Host: PASS/exit 0; emitted unrelated VS Code
+AgentHost/authentication and mutex warnings. These
+results do not prove an ordinary installed UI click.
+Windows source CI includes `verify-p4-run-both.mjs`.
+
+Limitations: Run Both only supports direct Backend Facts
+for now; D-075 standalone Backend Theory unchanged.
+An in-flight process is NOT killed on cancellation; the
+validity check prevents the next phase and invalidates
+the outcome after the phase. Other standalone profiles
+are not globally serialized. D-066 browser manual PENDING,
+new source-only P4 profiles not present in ordinary D-065,
+own-app localhost DEFERRED, no VSIX/tag/release.

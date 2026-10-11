@@ -4,6 +4,7 @@ import vscode = require('vscode');
 import { runFullPrototype } from './core/fullEngine';
 import { planVitestSituationRun } from './core/situationRunPlan';
 import { planXunitBackendRun } from './core/xunitBackendRun';
+import { planRunBoth, executeRunBoth } from './core/runBothSituation';
 import { runExactXunitFact } from './core/xunitFactRunner';
 import { runExactVitestSituation } from './core/vitestSituationRunner';
 import { Diagnostic, FeatureSourceConfig, PrototypeConfig, SourceRange, JoinedSituation, TestDefinition, FrameworkConcreteCase } from './core/types';
@@ -1151,6 +1152,94 @@ export function activate(context: any) {
   };
   context.subscriptions.push(testController.createRunProfile(
     'Run Backend Situation',vscode.TestRunProfileKind.Run,runBackendFact,false,backendTag));
+  // P4.4: one complete Situation, never a Feature/Outcome/Run All group.
+  // Preflight both targets before executing ANY user test.
+  let runBothActive=false;
+  const runBothSituation=async(request:any,token:any)=>{
+    const run=testController.createTestRun(request);
+    const selected=request.include?.[0];
+    const refuse=(message:string)=>{
+      log('p4 both refused: '+message);
+      if(selected) run.errored(selected,[new vscode.TestMessage(message)]);
+      else void vscode.window.showWarningMessage('Feature Projection: '+message);
+    };
+    let ownsLock=false;
+    try {
+      if(runBothActive){
+        refuse('another Run Both is already active');return;
+      }
+      if(request.include?.length!==1||(request.exclude?.length??0)!==0||
+         !selected||situationTestItems.get(selected.id)!==selected){
+        refuse('select exactly one Situation node, not a parent group or part');return;
+      }
+      if(!runSnapshot||uiState!=='fresh'||refreshing||!vscode.workspace.isTrusted||
+         vscode.workspace.workspaceFolders?.length!==1||
+         vscode.workspace.workspaceFolders[0].uri.fsPath!==runSnapshot.workspaceRoot){
+        refuse('requires one published Fresh Situation in a trusted single-folder workspace');return;
+      }
+      const snapshot=runSnapshot;
+      const dirty=()=>vscode.workspace.textDocuments.some((doc:any)=>
+        doc.isDirty&&doc.uri.scheme==='file');
+      const valid=()=>ownsLock&&!token.isCancellationRequested&&
+        uiState==='fresh'&&!refreshing&&runSnapshot===snapshot&&
+        vscode.workspace.isTrusted&&!dirty()&&
+        vscode.workspace.workspaceFolders?.length===1&&
+        vscode.workspace.workspaceFolders[0].uri.fsPath===snapshot.workspaceRoot&&
+        JSON.stringify(getConfig())===JSON.stringify(snapshot.config);
+      if(token.isCancellationRequested||dirty()||
+         JSON.stringify(getConfig())!==JSON.stringify(snapshot.config)){
+        refuse('test request cancelled, dirty files, or changed configuration');return;
+      }
+      const plan=planRunBoth({
+        workspaceRoot:snapshot.workspaceRoot,config:snapshot.config,
+        joined:snapshot.joined,definitions:snapshot.definitions,
+        cases:snapshot.cases,situationId:selected.id,
+        trusted:vscode.workspace.isTrusted,fresh:uiState==='fresh',
+        dirtyFilesKnownClean:!dirty(),
+      });
+      const frontItem=selected.children.get(selected.id+'/frontend');
+      const backItem=selected.children.get(selected.id+'/backend');
+      if(!frontItem||!backItem){
+        refuse('complete Frontend/Backend test items not found');return;
+      }
+      runBothActive=true;ownsLock=true;
+      run.started(selected);
+      const node=resolveExternalNodeRuntime(snapshot.config.nodePath,process.env);
+      const env=sanitizeExternalNodeEnvironment(process.env).env;
+      const child=(stage:'frontend'|'backend')=>
+        stage==='frontend'?frontItem:backItem;
+      const outcome=await executeRunBoth(plan,{
+        valid,
+        frontend:target=>runExactVitestSituation(target,
+          context.asAbsolutePath('workers/vitest-materialize.mjs'),
+          Math.min(120000,Math.max(30000,snapshot.config.workerTimeoutMs??30000)),
+          {command:node.command,env},log),
+        backend:target=>runExactXunitFact(target,
+          Math.min(600000,Math.max(30000,snapshot.config.buildTimeoutMs??120000)),
+          Math.min(120000,Math.max(30000,snapshot.config.workerTimeoutMs??30000)),
+          log),
+        started:stage=>run.started(child(stage)),
+        finished:(stage,result)=>{
+          const item=child(stage);
+          if(!valid()) run.errored(item,[new vscode.TestMessage('State changed during test')]);
+          else if(result.status==='passed') run.passed(item);
+          else if(result.status==='failed')
+            run.failed(item,[new vscode.TestMessage(result.message)]);
+          else run.errored(item,[new vscode.TestMessage(result.message)]);
+        },
+      });
+      if(!outcome.backend)run.skipped(backItem);
+      if(outcome.status==='passed')run.passed(selected);
+      else if(outcome.status==='failed')
+        run.failed(selected,[new vscode.TestMessage(outcome.message)]);
+      else refuse(outcome.message);
+      log('p4 both result: '+outcome.status+
+        ' frontend='+outcome.frontend?.status+' backend='+outcome.backend?.status);
+    }catch(err:any){refuse(err?.message??String(err));}
+    finally{if(ownsLock)runBothActive=false;run.end();}
+  };
+  context.subscriptions.push(testController.createRunProfile(
+    'Run Both Situation',vscode.TestRunProfileKind.Run,runBothSituation,false));
   rebuildWatchers();
 }
 

@@ -75,6 +75,8 @@ jobs:
         run: node scripts/verify-p4-backend-run.mjs
       - name: P4 exact individually pre-enumerated xUnit Theory rows
         run: node scripts/verify-p4-xunit-theory-run.mjs
+      - name: P4 Run Both one complete Situation (Frontend then Backend)
+        run: node scripts/verify-p4-run-both.mjs
 
 # This source-proof job is not installed-extension acceptance.
 # The isolated VSIX smoke (trusted/restricted, scoped links, P2

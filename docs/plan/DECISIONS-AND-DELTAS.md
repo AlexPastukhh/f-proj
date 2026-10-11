@@ -1829,3 +1829,41 @@ SUCCESS. Explicitly permitted only for a Theory row that
 native pre-enumeration uniquely identifies. Maintained
 folded Theory remains NO-GO. This does not imply ordinary
 extension installed acceptance or permission to release.
+
+## D-076 - P4 explicit Run Both for one fully runnable Situation
+
+Decision: ship a **source-only** conservative first combined
+runner that invokes one exact Frontend Vitest and one direct
+Backend xUnit Fact sequentially. Both plans must validate
+the same scoped Situation before ANY test code starts.
+An ambiguous/missing/degraded Backend or parameterized Theory
+refuses the entire operation. The previously delivered
+standalone Backend profile remains capable of individually
+pre-enumerable xUnit Theory (D-075); this is not a regression.
+
+A genuine failing Frontend test is recorded as Failed and
+Backend still runs; an infrastructure Error, invalid execution
+count, trust/editor/Fresh/config drift or cancellation between
+stages prevents a second test from starting. Parent and
+individual Frontend/Backend TestItems receive results in
+VS Code Testing API. User selection must be one Situation;
+Run All/Feature/Outcome, multi-item/part selections refuse.
+Only one Run Both may be in flight concurrently, but old
+standalone run profiles are not globally serialized.
+
+Scope: this D-076 slice does NOT attempt full Run Both support
+for parameterized Backend Theory even if a different workspace
+could enumerate a row. Per-row Backend remains standalone until
+a separately verified combined preflight can prove native
+run selection BEFORE executing Frontend. Neither cancellation
+of in-flight child processes nor atomic transitive source
+dependency checks is implemented. No cache, no new VSIX
+installation, version bump or release. Existing D-065 ordinary
+installation remains unchanged; D-066 and new P4 ordinary UI
+manual checks remain one future combined scenario.
+
+Windows source: 124/124 unit tests (0 skips); end-to-end fixture
+shows both exact tests executed=1/PASS, folded Theory preflight
+refusal; Portable HTML regression and isolated VS Code
+Extension Host smoke PASS. CI proof added; independent remote
+result must be recorded after push.

@@ -177,3 +177,23 @@ direct Backend Fact Passed using `Run Backend Situation`.
 The serialized-Theory behavior is already covered by
 automated Windows evidence, not another manual click.
 Own-app localhost integration DEFERRED; release unapproved.
+
+## D-076 source Run Both and future one-session manual acceptance
+
+The new source `Run Both Situation` profile can execute
+exactly one complete Situation containing Frontend Vitest
+and direct Backend xUnit Fact; it is NOT included in the
+currently ordinary-installed D-065 candidate. Do not
+create a separate manual gate or install a replacement
+extension without new independent VSIX verification and
+the user's permission.
+
+A future one-session manual gate (after verified install):
+Reload Window; trusted prepared fixture Refresh/Fresh;
+Open HTML Projection, follow one Situation anchor and
+a vscode:// source link; in Testing run Frontend once,
+Backend once, and `Run Both Situation` once on
+`refresh_token_expired`, each Passed. Backend Theory
+rows that are not native-pre-enumerable remain intentionally
+unsupported; no manual negative testing needed.
+The user's own localhost app stays DEFERRED; no release.

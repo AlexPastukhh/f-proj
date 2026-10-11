@@ -512,3 +512,25 @@ GitHub Windows run `38128162778`, commit `87aa697`:
 SUCCESS. 116/116 source unit tests; individually selected
 pre-enumerated Theory rows, negative result and folded
 Theory refusal pass on Windows CI. UI/manual still PENDING.
+
+## D-076 - P4 Run Both for one exact Frontend+Backend Fact Situation
+
+Source-only VS Code Testing API profile `Run Both Situation`
+added. A single selected Fresh/trusted Situation must have
+both exact Frontend Vitest and direct Backend xUnit Fact
+targets before execution. Frontend runs first; a genuine
+test failure still permits Backend and the parent fails,
+while errors, drift and cancellation between stages stop
+Backend. Child results are reported separately.
+Parameterized Backend Theory is intentionally blocked by
+Run Both preflight; D-075 standalone Theory remains supported
+where exact native case discovery permits.
+
+Local 124/124 unit tests PASS; real fixture dual execution
+2/2 PASS (1 per role, source unchanged); folded Backend
+Theory cases refuse before any user-code execution. Portable
+HTML proof and isolated Extension Host smoke PASS.
+Ordinary installed D-065 remains unchanged: combined P4
+UI acceptance and D-066 browser acceptance PENDING.
+In-flight process kill/Run Both Theory/general Run All LATER.
+No localhost app integration, VSIX installation or release.

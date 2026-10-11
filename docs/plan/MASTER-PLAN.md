@@ -1727,3 +1727,42 @@ expected negative case, existing Fact and folded Theory
 fail-closed behavior PASS. Source-only D-075 DONE;
 unpreenumerable Theory, Run Both and in-flight cancellation
 remain open. No new candidate VSIX or release.
+
+## 32. D-076 - P4 Run Both, one Situation, Frontend then Backend Fact
+
+2026-10-11: The fourth P4 source slice adds an explicit VS Code
+Testing API `Run Both Situation` profile. It requires exactly one
+published Situation node in a trusted, Fresh single-folder workspace,
+unchanged configuration, no dirty file documents and no concurrent
+Run Both. Group/Run All, part-node and multiple selections refuse.
+
+Both existing exact planners run BEFORE any test code. The first
+combined slice accepts direct xUnit Backend Facts only; folded and
+otherwise parameterized Theory refuse before Frontend. The separate
+Backend profile still supports uniquely pre-enumerated Theory rows
+(D-075). This first combined slice does not speculate that an xUnit
+Theory can be pre-enumerated after executing Frontend user tests.
+
+Run Both executes Frontend first, then the independently selected
+Backend Fact using the existing verified runners. A **genuine**
+Frontend test failure does not skip Backend: both subresults remain
+visible, and the parent Situation becomes Failed. An infrastructure
+Error, unexpected number of executed tests, lost trust/Fresh,
+dirty document, changed configuration, changed snapshot or
+cancellation at the boundary stops BEFORE Backend. Run Both never
+claims atomicity for external changes during the child processes.
+There is no automatic retry or ability yet to terminate a
+running child process on cancellation.
+
+The parent Situation and two part TestItems receive independent
+Testing API result states. Only one Run Both can execute at once;
+the new guard does not serialize older standalone profiles.
+No xUnit/Vitest caching, no changed Projection/HTML schema,
+no packaging/release or user's app integration.
+
+Local source proof: 124/124 unit tests, 0 skipped; direct
+joined `refresh_token_expired` Frontend+Backend both PASS,
+exactly one test per role, in that order. The other two
+joined fixture Situations (folded xUnit Theory) fail planning
+before any framework execution. The prior Portable HTML
+proof and isolated Extension Host smoke also PASS.
