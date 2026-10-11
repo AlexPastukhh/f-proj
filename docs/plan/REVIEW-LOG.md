@@ -1426,3 +1426,15 @@ isolating actual .NET xUnit/Roslyn project-analysis costs
 before attempting wider caching. No new VSIX/tag/release.
 D-066 standalone browser manual acceptance stays PENDING;
 integration with user's own localhost app remains DEFERRED.
+
+### D-070 independent Windows GitHub CI gate - PASS
+
+Source commit `55bb46135c07c76ee6fe59cb1bc949c95d367ad1`
+GitHub Actions run `38119514836`, Windows source proofs:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38119514836
+completed **SUCCESS**, including 103 unit tests, established
+Roslyn/metadata/Portable Projection regressions, the D-069
+full-engine cache equivalence, and the new non-gating D-070
+Vitest cost measurement. This is a CI/source-only gate and
+not installed-VSIX or standalone-browser manual acceptance.
+D-070 NO-GO for regular Refresh cache remains in effect.

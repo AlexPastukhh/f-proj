@@ -1500,3 +1500,11 @@ Windows CI also runs it without an unstable performance threshold.
 NEXT: investigate actual xUnit/Roslyn+build bottlenecks and safe
 dependency closure before suggesting cache, or return to D-066
 standalone browser acceptance. User's own localhost app deferred.
+
+### D-070 Windows CI completion
+
+Commit `55bb461`, Windows Actions `38119514836`:
+SUCCESS including 103 unit tests, D-069 cached/uncached full
+engine, older source regressions and repeatable D-070 timing
+study. Source-only D-070 DONE, automatic caching explicitly
+NO-GO. No candidate VSIX was packaged or installed.

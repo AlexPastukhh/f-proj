@@ -1662,3 +1662,11 @@ the D-069 real cached/uncached full engine and D-063/D-064/D-065
 regressions PASS. CI runs benchmark without a speed threshold.
 Do not build or install another VSIX, integrate the user's app,
 or publish a release. D-066 browser manual acceptance PENDING.
+
+### D-070 final independent source gate
+
+GitHub Windows source CI for `55bb461` run `38119514836`
+completed SUCCESS (103 unit tests and the new cost study).
+D-070 decision remains NO-GO to activate the cache:
+safety regressions PASS, measured hit is slower in both local
+sample sets. Ordinary installed D-065 and manual gate unchanged.

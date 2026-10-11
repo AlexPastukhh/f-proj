@@ -401,3 +401,9 @@ in these samples. **NO-GO for ordinary VS Code activation**.
 CI includes repeatable timing proof with no speed threshold.
 Existing installed D-065 unchanged, D-066 browser manual
 PENDING, own-app localhost DEFERRED, release unauthorized.
+
+### D-070 Windows CI verified
+
+GitHub Actions `38119514836` (commit `55bb461`):
+SUCCESS. D-070 code remains opt-in research only; ordinary
+Refresh cache disabled. D-066 browser acceptance still PENDING.
