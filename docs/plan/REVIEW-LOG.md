@@ -1207,3 +1207,31 @@ then one short browser/localhost scenario in the integration guide.
 Never assume source/installed technical PASS proves a human browser
 click, localhost iframe, external protocol prompt, or publication.
 No user's ordinary VS Code or source fixture was modified; no release.
+
+### D-066 continuation - ordinary VS Code D-065 install (2026-10-11)
+
+User authorized replacing the ordinary VS Code extension after recheck,
+but explicitly deferred integration with their own localhost app.
+Confirmed clean synced GitHub/Windows main `4176845c82accbabfc3df4f907ae34edad837bc0`.
+Final candidate SHA-256 `4468280CE13A55FFDAE69CA7F086F6FC68F9342DF9EC7C393692688AB4091380`,
+20,500,477 bytes; archived technical report was
+`INSTALLED_TECHNICAL_PASS`, manual `PENDING`.
+Inspected VSIX archive: manifest contributes the Open HTML command,
+and the compiled projection/document/storage modules are present.
+
+Backed up old ordinary extension to local Git-ignored
+`artifacts/local-acceptance-results/ordinary-vscode-extension-pre-d065-backup-20261011.zip`
+(23,224,471 bytes; SHA-256
+`B7A8383188E05386269ED480F57167C20EA004D16122E75855AAA1C1504B52DD`).
+Ran `code --install-extension <final SHA-pinned VSIX> --force`:
+exit 0, VS Code CLI reported successful installation. Verified exactly
+one ordinary installed extension, command manifest equivalence and
+**byte-for-byte matching** installed JS for `dist/extension.js`,
+`portableProjection.js`, `portableHtmlStorage.js`,
+`projectionDocument.js` against VSIX archive. The on-disk manifest
+adds VS Code `__metadata` (not a candidate mismatch).
+
+**Status:** ORDINARY INSTALLATION VERIFIED ON DISK; window reload,
+ordinary UI/real browser source-link click and manual acceptance are
+still PENDING. No source-fixture edits, localhost settings/route/server,
+public release, tag, version bump or VSIX repackaging.

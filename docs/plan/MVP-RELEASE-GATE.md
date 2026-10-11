@@ -105,3 +105,18 @@ to recheck automated Stale/Restricted/Roslyn/source-hash regressions.
 Obtain approval before replacing the ordinary extension or setting a
 foreign app's static directory. Manual PASS and release go/no-go
 remain separate and PENDING. No version bump/tag/publish authorized.
+
+### D-066 ordinary install verified; browser/manual gate still open
+
+After the D-066 preflight, the user explicitly authorized installing
+the final D-065 VSIX in ordinary VS Code. The CLI returned exit 0,
+the public HTML command is contributed and the compiled HTML modules
+match the archived VSIX byte-for-byte. The older installed extension
+was backed up locally. The running VS Code window has **not** been
+reloaded/accepted as part of this CLI check.
+
+Next one short manual session is **standalone HTML only**:
+Reload Window, trusted fixture/Refresh/Fresh, Situation anchor and
+`vscode://file` source jump. Integration with the user's own
+localhost app is deferred, not required in this session.
+No manual PASS, release approval, tag or publication.

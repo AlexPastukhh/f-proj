@@ -1342,3 +1342,19 @@ The historical first-candidate reference in section 22 is superseded
 by final D-065 details in decisions/review/artifacts index. No public
 JSON exporter, automatic refresh, second server, release or version
 bump. Browser and user-acceptance statuses remain PENDING.
+
+### D-066 installation update - next standalone browser gate
+
+Following final VSIX integrity/manifest recheck, the user approved
+replacing the older ordinary VS Code installation. CLI install
+completed successfully and installed compiled D-065 modules were
+verified byte-for-byte against the final VSIX. Previous ordinary
+extension was backed up in ignored local artifacts (REVIEW-LOG).
+
+Next **PENDING**: one VS Code window reload and compact *standalone*
+HTML browser check (Refresh/Fresh, Situation anchor, one real
+`vscode://file` source jump). Do not repeat the isolated full
+installed technical aggregate. User's **own** localhost application
+integration is explicitly postponed; no path request, setting,
+server/iframe test or integration development in this phase.
+No browser manual PASS or release authorization was inferred.

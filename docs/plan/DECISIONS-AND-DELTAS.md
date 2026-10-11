@@ -1482,3 +1482,22 @@ unknown. The final manual gate is described in
 `docs/plan/PORTABLE-PROJECTION-INTEGRATION.md`.
 Browser/iframe, `vscode://` clicks, real localhost serve, user
 approval and release all remain PENDING. No new VSIX or release tag.
+
+### D-066 ordinary installation following preflight (2026-10-11)
+
+User approved replacing the older ordinary VS Code extension after
+candidate recheck, and deferred any integration with their own
+localhost application. Final D-065 VSIX size/SHA and archive modules
+matched expected; original isolated installed technical report still
+PASS. The older ordinary extension was archived in a separate ignored
+local ZIP before replacement. The VS Code CLI installation returned
+exit 0. Confirmed ordinary installed Open HTML contribution, matching
+command set and identical compiled main/portable modules vs the VSIX.
+Installed `package.json` has only expected VS Code `__metadata`.
+
+**Ordinary installation: VERIFIED ON DISK.** UI window reload and
+actual standalone browser/VS Code external protocol behavior are not
+yet verified. Localhost app path/route/iframe intentionally DEFERRED
+at the user's instruction; do not request or configure it now.
+No manual browser PASS, new implementation, release or publication.
+Evidence and local backup hash: REVIEW-LOG D-066 continuation.

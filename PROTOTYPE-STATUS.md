@@ -320,3 +320,13 @@ remains PENDING. One permissioned install and a single compact
 browser gate are next; no release, new VSIX, source fixture mutation
 or localhost server creation occurred. See REVIEW-LOG D-066 and
 PORTABLE-PROJECTION-INTEGRATION.md.
+
+### D-066 follow-up - ordinary Windows extension installed
+
+After explicit user permission and repeat candidate integrity checks,
+the final source-watch-fixed D-065 VSIX was installed using VS Code
+CLI. Its contributed HTML command and compiled projection modules
+match the VSIX; the old installation was backed up in ignored local
+artifacts (see REVIEW-LOG). Ordinary **on-disk install VERIFIED**,
+but Reload Window and browser/manual PASS remain PENDING.
+Own-app localhost integration was explicitly postponed. No release.

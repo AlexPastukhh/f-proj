@@ -104,3 +104,20 @@ no success screenshots needed. Watcher, Stale, Restricted Mode,
 source immutability and SHA protections are covered by automated gates,
 not extra repetitive manual clicks. HTML includes literal user source:
 keep any serving route private/loopback unless explicitly authorized.
+
+### D-066 update - no localhost integration in the current session
+
+The user authorized installing the final D-065 candidate into
+ordinary VS Code. On-disk installation and compiled-file equality
+have been verified (see REVIEW-LOG); a VS Code **window reload** is
+still required before testing the running extension. Do not repeat
+the installation in step 1 above unless the installed files change.
+
+For now use only the default extension global-storage
+`projection.html`: trusted fixture, explicit Refresh, inspect
+Markdown and `Open HTML Projection` in the browser, follow one
+Situation anchor and one VS Code source link. Report one PASS/FAIL.
+No need to supply a static-assets folder or localhost URL.
+**The user's own localhost app / route / iframe is DEFERRED** by
+explicit request; do not configure `portableHtmlDirectory`,
+start a server, or claim the integration was accepted.
