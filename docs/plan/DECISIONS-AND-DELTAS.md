@@ -1931,3 +1931,11 @@ per-row IDs. The source-only Testing API profile name remains
 `Run Both Situation`; single-part profiles and D-077 cancellation still
 apply. No cache, full dependency closure claim, ordinary installed VSIX,
 localhost integration, version change, tag or release.
+
+### D-078 final Windows CI acceptance
+
+Source SHA `afe691e`, Windows workflow `38133826765`:
+SUCCESS. Pre-enumerated exact Theory Run Both is supported;
+folded/unverifiable Theory stays fail-closed before Frontend.
+No proof of full transitive dependency closure, ordinary
+installed extension UI acceptance or release authorization.

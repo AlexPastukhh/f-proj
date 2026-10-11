@@ -1876,3 +1876,12 @@ dependencies or arbitrary MSBuild tasks, and running external user code
 may have side effects. Repeat native discovery plus byte hashes closes
 the selected case/assembly identity, not full dependency closure. No
 cache/release/version/tag/VSIX install; own-app localhost integration deferred.
+
+### D-078 independent source verification complete
+
+GitHub Windows `38133826765` for `afe691e`:
+SUCCESS. Unit 132/132, real Theory Run Both pairs and negative
+identity-drift/folded refusal, existing Fact, cancellation
+and Portable HTML source regressions passed. Source D-078 DONE.
+Next P4 attention: installed-source candidate/UI acceptance and
+remaining freshness/selection race hardening, no auto release.

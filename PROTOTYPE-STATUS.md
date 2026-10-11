@@ -599,3 +599,11 @@ Backend. Both maintained folded `LoginCase` Theory situations
 blocked before Frontend. Existing Fact Run Both, real cancellation,
 Portable HTML and isolated Extension Host smoke PASS. GitHub
 Windows CI result is tracked separately after source push.
+
+### D-078 Windows CI source gate accepted
+
+GitHub run `38133826765` on `afe691e`: SUCCESS
+including 132 unit tests, real preflighted exact Theory
+Run Both and deliberate native ID mismatch refusal.
+Installed D-065 candidate unchanged, combined ordinary
+VS Code + portable HTML manual gate PENDING; no release.

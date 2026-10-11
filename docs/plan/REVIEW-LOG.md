@@ -1937,3 +1937,16 @@ constitute failures. `git diff --check` and script syntax PASS.
 Previous documentation CI `38132026004` later confirmed SUCCESS.
 The ordinary installed D-065 VSIX remains unchanged; combined
 manual browser + new P4 UI acceptance is still PENDING.
+
+### D-078 independent Windows source CI — SUCCESS
+
+Commit `afe691e64c6dfb7f4b10cce6c67ffef09ccb089e`
+passed Windows GitHub Actions run `38133826765`:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38133826765
+The entire workflow completed **SUCCESS**, including 132/132
+unit tests, D-078 exact serialized Theory preflighted Run Both
+with 2 Passed and one expected Backend Failed, forged ID
+rejection, maintained folded Theory refusal before Frontend,
+the original Fact Run Both and D-077 live cancellation.
+D-078 source technical gate ACCEPTED. Ordinary installed
+VSIX/UI and D-066 standalone HTML human acceptance still PENDING.
