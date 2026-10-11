@@ -1670,3 +1670,38 @@ completed SUCCESS (103 unit tests and the new cost study).
 D-070 decision remains NO-GO to activate the cache:
 safety regressions PASS, measured hit is slower in both local
 sample sets. Ordinary installed D-065 and manual gate unchanged.
+
+## D-071 - Profile MSBuild/Roslyn before optimization
+
+Status: internal read-only timing instrumentation, not a cached
+Roslyn implementation. A new optional `profile` flag in the
+existing .NET worker request emits fixed-phase numeric timings
+to stderr only; absent flag preserves the JSON stdout protocol.
+The phase split covers project opening, compilation, registered
+configuration discovery, Feature test source analysis, and total.
+No source paths, assertions or free-text diagnostics are emitted
+by the profile record.
+
+Maintained real xUnit fixture local samples:
+MSBuild open 3.19-3.22 s, compilation 2.28-2.35 s,
+registration scan 0.35-0.48 s, feature scan 0.53-0.59 s.
+Default repeated `dotnet build -c Release`: 2.38-3.32 s.
+A later local repeat showed project opening 3.81-4.31 s,
+compilation 2.36-2.47 s, and builds 2.89-2.93 s.
+This sample suggests load/compilation, not assertion rendering,
+dominates; it is not a speed guarantee.
+
+**Decision:** NO-GO for skipping xUnit build, reusing Roslyn
+compilation or persisting worker results. A current snapshot
+of only C# files and `.csproj` cannot establish the relevant
+MSBuild imported files, project references, NuGet assets,
+source generators, SDK/runtime versions, environment, and
+dirty editor buffers. Continue with isolated dependency closure
+proof before any change to ordinary Refresh (candidate D-072).
+
+`scripts/measure-roslyn-phases.mjs` checks worker response
+equality with opt-in profiling, numeric-only stage payload,
+regular builds, source-file integrity and no cache. A non-gating
+CI step runs after the existing worker package proof.
+D-065 remains installed; D-066 standalone browser acceptance
+PENDING, own-app localhost integration DEFERRED, no release.

@@ -15,5 +15,5 @@ Console.Write(JsonSerializer.Serialize(result, JsonOptions()));
 static JsonSerializerOptions JsonOptions() => new(JsonSerializerDefaults.Web) { WriteIndented = false };
 
 public sealed record WorkerRequest(string Command, string FeatureSpaceId, SourceConfig Source,
-    string? Symbol = null, string? NewName = null);
+    string? Symbol = null, string? NewName = null, bool Profile = false);
 public sealed record SourceConfig(string Id, string Role, string Root, string Adapter, string FrameworkProject, string? ProjectFile);

@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Text.Json;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -8,19 +10,33 @@ public static class RoslynFeatureAnalyzer
 {
     public static async Task<object> Analyze(WorkerRequest request)
     {
+        // Hidden diagnostic on a single explicitly profiled worker request.
+        // The normal JSON stdout protocol and C# evidence remain unchanged.
+        var overallStart = Stopwatch.GetTimestamp();
+        var stages = request.Profile ? new List<object>() : null;
+        void Record(string phase, long started)
+        {
+            if (stages is not null)
+                stages.Add(new { phase, elapsedMs = Math.Round(Stopwatch.GetElapsedTime(started).TotalMilliseconds, 3) });
+        }
+        var openStart = Stopwatch.GetTimestamp();
         if (!MSBuildLocator.IsRegistered) MSBuildLocator.RegisterDefaults();
         if (string.IsNullOrWhiteSpace(request.Source.ProjectFile))
             return new { definitions = Array.Empty<object>(), diagnostics = new[] { new { ruleId = "worker/missing-project-file", category = "runtime", severity = "error", projectionImpact = "blocks-part", message = "projectFile is required" } } };
 
         using var workspace = MSBuildWorkspace.Create();
         var project = await workspace.OpenProjectAsync(request.Source.ProjectFile);
+        Record("msbuild-open", openStart);
+        var compilationStart = Stopwatch.GetTimestamp();
         var compilation = await project.GetCompilationAsync();
+        Record("compilation", compilationStart);
         if (compilation is null) throw new InvalidOperationException("Could not create C# compilation");
         var definitions = new List<object>();
         var diagnostics = new List<object>();
         var registeredResponsibilities = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
         var registeredAssertions = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
 
+        var registrationStart = Stopwatch.GetTimestamp();
         // Configuration is inspected with Roslyn; it is never invoked or executed.
         // Search the project, not just feature roots: configuration commonly lives at project root.
         foreach (var document in project.Documents)
@@ -59,6 +75,8 @@ public static class RoslynFeatureAnalyzer
             }
         }
 
+        Record("registrations", registrationStart);
+        var featureStart = Stopwatch.GetTimestamp();
         foreach (var document in project.Documents)
         {
             var file = document.FilePath;
@@ -107,6 +125,10 @@ public static class RoslynFeatureAnalyzer
                 });
             }
         }
+        Record("features", featureStart);
+        Record("total", overallStart);
+        if (stages is not null)
+            Console.Error.WriteLine("FEATURE_PROJECTION_ROSLYN_PROFILE:" + JsonSerializer.Serialize(new { schema = 1, stages }));
         return new { definitions, diagnostics };
     }
 

@@ -407,3 +407,20 @@ PENDING, own-app localhost DEFERRED, release unauthorized.
 GitHub Actions `38119514836` (commit `55bb461`):
 SUCCESS. D-070 code remains opt-in research only; ordinary
 Refresh cache disabled. D-066 browser acceptance still PENDING.
+
+## D-071 - Opt-in Roslyn stage measurement, no build/cache shortcuts
+
+Profile-only internal `.NET` worker diagnostic emits fixed
+numeric phase durations to stderr on an explicitly profiled
+`analyze` request, leaving ordinary JSON output unchanged.
+Local two-run xUnit fixture measurements: MSBuild project open
+about 3.2-4.3s, compilation about 2.3-2.5s, feature and
+registration scans each below 0.7s; normal xUnit build
+about 2.4-3.3s. The profile proof compares full Roslyn
+results with legacy unprofiled calls and hashes fixture input.
+Windows 103/103 unit tests, packaged worker and real Portable
+Projection regressions PASS. Windows CI includes the proof.
+
+No Roslyn compilation cache, xUnit build skip, regular
+Refresh profiler, new VSIX or release. D-066 standalone
+browser acceptance PENDING, own localhost integration DEFERRED.

@@ -1508,3 +1508,39 @@ SUCCESS including 103 unit tests, D-069 cached/uncached full
 engine, older source regressions and repeatable D-070 timing
 study. Source-only D-070 DONE, automatic caching explicitly
 NO-GO. No candidate VSIX was packaged or installed.
+
+## 28. D-071 - Roslyn/xUnit worker phase profiling (no caching)
+
+2026-10-11: Source-only internal timing experiment after D-070.
+The .NET worker accepts an **optional** `profile:true` only on
+the existing `analyze` request; ordinary worker callers omit it.
+The response schema, definitions and diagnostics on stdout do not
+change. In opt-in mode only, a structured schema-1 timing record
+with fixed stage names and elapsed milliseconds goes to stderr;
+no source text, assertion values, workspace paths or user telemetry.
+
+Measured two real Windows profiled runs on the maintained
+xUnit v3 project, plus the ordinary build command:
+MSBuild project open 3.190-3.215 s, Roslyn compilation
+2.276-2.349 s, registrations 0.352-0.483 s,
+Feature scan 0.526-0.588 s. Full profiled worker wall
+6.77-6.99 s; ordinary `dotnet build -c Release` 2.38-3.32 s.
+One nonprofiled reference worker was 8.28 s (run-order
+effects expected). These are local samples, not general SLAs.
+
+`scripts/measure-roslyn-phases.mjs 2` compares complete
+unprofiled versus profiled worker evidence, checks fixed
+numeric timing fields, profiles two ordinary .NET builds and
+asserts source-file digests unchanged. Windows source CI runs
+it **after** packaging/verifying the .NET worker. No speed
+threshold is imposed on a timing-only diagnostic.
+
+Decision: MSBuild open and compilation dominate this small
+fixture. Do not cache Roslyn project/compilation or bypass
+xUnit build: transitive MSBuild imports/project references,
+NuGet assets, SDK/toolchain, runtime environment and unsaved
+documents are not yet covered by a coherent dependency closure.
+The next engineering candidate is a read-only closure/invalidation
+study (D-072), not a release optimization. D-066 browser
+manual PENDING, own localhost app DEFERRED. Ordinary D-065
+VSIX remains installed and unchanged; no release approval.

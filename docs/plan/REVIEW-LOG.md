@@ -1438,3 +1438,69 @@ full-engine cache equivalence, and the new non-gating D-070
 Vitest cost measurement. This is a CI/source-only gate and
 not installed-VSIX or standalone-browser manual acceptance.
 D-070 NO-GO for regular Refresh cache remains in effect.
+
+## 2026-10-11 - D-071 Roslyn/xUnit stage cost profiling
+
+Before edits: GitHub main and clean primary Windows main both
+`20138b523c499a1660886a261bd27e8725f96bd2`.
+Previous D-070 documentation CI workflow `38119809453`
+completed **SUCCESS**.
+
+Added an optional `Profile` property on `WorkerRequest`;
+ordinary source callers omit it. Only the Roslyn `analyze`
+command emits an opt-in `FEATURE_PROJECTION_ROSLYN_PROFILE:`
+structured stderr JSON record with schema version 1,
+fixed stage names and numeric milliseconds. The JSON stdout
+response (test definitions/diagnostics) is unchanged.
+Instrumentation does not evaluate user code, cache MSBuild
+or change ordinary Refresh timing/publishing behavior.
+
+`scripts/measure-roslyn-phases.mjs 2` reads the existing
+xUnit v3 project, runs the old-shaped request without profile,
+then two profiled requests and two standard .NET builds.
+It rejects response diffs, missing/unsafe stage diagnostics,
+nonzero worker/build status and source input digest changes.
+No user source files or VS Code profile were edited.
+
+First local two-profile run: project-open 3,189.8/3,215.0ms;
+compilation 2,349.0/2,275.7ms; registration scan
+482.6/352.0ms; feature scan 587.8/525.8ms.
+Ordinary builds 3,324.7/2,375.0ms.
+Subsequent proof with the legacy request *omitting* `profile`:
+worker-output equality PASS; open 4,307.6/3,806.4ms;
+compilation 2,470.2/2,361.5ms; registration
+391.5/449.6ms; feature scan 606.3/625.1ms;
+ordinary builds 2,889.9/2,925.9ms.
+Times are elapsed local samples affected by warm caches,
+not validated performance improvements.
+
+Local `npm test`: **103/103 PASS**.
+`npm run build:dotnet-worker`: PASS, one pre-existing
+CS7022 compiler warning regarding global entry point.
+`npm run verify:packaged-worker`: PASS, 265 entries.
+Real D-063/D-064/D-065 portable dual-view source proof PASS.
+D-068 input drift proof PASS. The older D-069 cache
+remains opt-in and disabled in ordinary VS Code.
+
+D-071 conclusion: the expensive phases are MSBuild
+project opening and Roslyn compilation, with the separate
+normal `dotnet build` adding further cost. This is not
+evidence that reusing a compilation without a complete
+dependency closure would be sound. No skip-build switch,
+cache, new user-facing command, VSIX or release was created.
+Windows CI now runs this non-gating profile proof after
+packaging/validating the .NET worker; post-push result
+must be verified separately.
+
+Outstanding independent gate D-066: ordinary browser HTML
+source-link click still requires the single manual scenario;
+the user's own localhost app is explicitly deferred.
+
+Additional regression on the modified .NET worker:
+`node scripts/verify-usage-symbol-feasibility.mjs`
+**PASS**, two project scopes, three registered usages, no
+unsafe partial matches. `node scripts/verify-rename-feasibility.mjs`
+**PASS**, 7 proposed read-only edits, 0 mutations, negative
+fail-closed checks. The `profile` parameter remains absent
+from these real worker requests and does not change their
+read-only Roslyn behavior.
