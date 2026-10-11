@@ -330,3 +330,21 @@ match the VSIX; the old installation was backed up in ignored local
 artifacts (see REVIEW-LOG). Ordinary **on-disk install VERIFIED**,
 but Reload Window and browser/manual PASS remain PENDING.
 Own-app localhost integration was explicitly postponed. No release.
+
+## D-067 - P3 Refresh measurement without caching
+
+A source-only performance observation step after D-066.
+The optional full-engine phase profiler reports validate,
+Vitest/xUnit static and materialization/build, expand, join,
+render. The regular explicitly invoked Refresh now reports local
+durations to the existing Feature Projection output channel.
+No automatic workers, cache, new external server or source edits.
+
+Windows source tests **81/81 PASS**, real two-round benchmark PASS
+(3 Situations, identical evidence, no blocking diagnostics).
+A follow-up guarded benchmark verified source-input hashes unchanged.
+Real D-063/D-064/D-065 JSON/Markdown/HTML proof still PASS.
+See MASTER-PLAN section 24 and REVIEW-LOG D-067.
+The existing ordinary D-065 installation was **not** replaced.
+User browser acceptance remains PENDING; own-app localhost
+integration is deferred. No new VSIX/release.

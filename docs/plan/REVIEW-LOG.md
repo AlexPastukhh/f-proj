@@ -1235,3 +1235,37 @@ adds VS Code `__metadata` (not a candidate mismatch).
 ordinary UI/real browser source-link click and manual acceptance are
 still PENDING. No source-fixture edits, localhost settings/route/server,
 public release, tag, version bump or VSIX repackaging.
+
+## 2026-10-11 - D-067 P3 Refresh timing instrumentation and baseline
+
+Scope: timing observation only, **not** an incremental-cache rollout.
+Rechecked primary clean Windows main against remote `86ba62c`.
+Modified `src/core/fullEngine.ts` to accept optional `onTiming`
+samples for validation, per-source analysis/materialization/build,
+expand, join and render. Samples contain phase, elapsedMs and scoped
+source identifiers only. A throwing observer cannot break Refresh.
+Normal explicit VS Code Refresh logs phase durations in the existing
+Output channel. No additional workers, file writes, public commands,
+HTML changes, Run profiles or localhost integration.
+
+`test/refresh-timing.test.mjs`: results remain byte-semantic equal
+with and without observation in Restricted Mode/untrusted scope;
+the observer never enables workers, and a throwing sink is inert.
+`npm test`: **81/81 PASS** (previously 79).
+`node scripts/measure-refresh-baseline.mjs 2` **PASS** with actual
+trusted Vitest 5 + xUnit v3, three joined Situations, zero blocking
+diagnostics, unchanged evidence across sequential Refreshes.
+Full times 23,411.0 and 13,402.4 ms; per phase xUnit static
+7,884.1-10,264.8 ms, xUnit build 2,891.0-10,227.1 ms,
+Vitest materialize 1,979.8-2,059.2 ms. The current guarded
+benchmark also compares source-input SHA-256 digest before/after;
+one subsequent guarded run **PASS**, 13,062.9 ms (non-cached).
+These are two-run local sample observations, NOT a speed guarantee.
+No automatic/partial refresh or cache has been implemented.
+
+Independent regression `node scripts/verify-experimental-json-snapshot.mjs`
+**PASS** for D-063/D-064 and D-065 Markdown/HTML equivalence.
+Do not overwrite the ordinary installed D-065 VSIX without a new
+technical validation and explicit installation gate. D-066 browser
+click remains manual PENDING; user's own localhost integration
+DEFERRED. No release, version bump, tag or publication.

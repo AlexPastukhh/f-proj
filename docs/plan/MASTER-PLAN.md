@@ -1358,3 +1358,31 @@ installed technical aggregate. User's **own** localhost application
 integration is explicitly postponed; no path request, setting,
 server/iframe test or integration development in this phase.
 No browser manual PASS or release authorization was inferred.
+
+## 24. D-067 - P3 Refresh measurement before selective caching
+
+Source development step (2026-10-11): added opt-in phase timing
+to `runFullPrototype` and readable timings to the current local
+Feature Projection Output upon **explicit** Refresh, without
+changing Projection evidence, watchers, trust or publishing policy.
+`scripts/measure-refresh-baseline.mjs` profiles actual real fixture
+runs and checks same evidence, zero blocking diagnostics and no
+changes to fixture source inputs. `test/refresh-timing.test.mjs`
+confirms observer equivalence, untrusted worker avoidance and
+nonfatal thrown observer. Source 81/81 PASS; real P3 benchmark and
+D-063/D-064/D-065 fixture regression PASS (REVIEW-LOG D-067).
+
+Two measured real engine runs: 23.4s first, 13.4s repeat.
+Almost all time spent in external workers, chiefly Roslyn analysis
+and xUnit project build; join/render negligible on this fixture.
+No claims yet about performance of larger user repositories.
+**NEXT P3 engineering decision:** design and prove correct
+source/config/project dependency invalidation and changed-input
+checks before any cache. Cache reuse must not make stale, blocking
+or Restricted Mode snapshots appear Fresh. Do not re-materialize
+on file change without an explicit Refresh.
+
+Installed D-065 candidate remains unchanged by this source-only
+step. Standalone browser acceptance (D-066) still PENDING;
+integration with user's own localhost application DEFERRED.
+No new public VSIX/release/version/tag.

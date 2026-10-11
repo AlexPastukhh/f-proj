@@ -1501,3 +1501,44 @@ yet verified. Localhost app path/route/iframe intentionally DEFERRED
 at the user's instruction; do not request or configure it now.
 No manual browser PASS, new implementation, release or publication.
 Evidence and local backup hash: REVIEW-LOG D-066 continuation.
+
+## D-067 - P3 explicit Refresh phase timing baseline (2026-10-11)
+
+Status: SOURCE/REAL FIXTURE PROOF; incremental caching NOT implemented.
+With the user's direction to continue development after D-066, added
+optional read-only `FullRunOptions.onTiming` measurements for validated
+config, per-scope Vitest/xUnit static/materialization/build phases,
+expansion, join and Markdown rendering. Each record has phase,
+elapsed milliseconds and at most FeatureSpace/source IDs: no raw
+assertion source, diagnostic messages, file snippets, external
+telemetry, storage or extra worker invocation. The observer's errors
+are swallowed rather than changing analysis/fail-closed results.
+Normal VS Code Refresh records phase times in its existing local
+Feature Projection Output; it remains explicit and manual.
+
+Two sequential real fixture runs (Windows, same source):
+full engine 23,411.0 ms then 13,402.4 ms; Vitest materialization
+1,979.8-2,059.2 ms; xUnit static 7,884.1-10,264.8 ms;
+xUnit build 2,891.0-10,227.1 ms; xUnit materialization
+556.8-873.2 ms; expand/join/render each <= 33.4 ms.
+Measurements are illustrative, not general user-project SLA.
+
+`npm test` **81/81 PASS** (+2 observer semantics/trust checks).
+`node scripts/measure-refresh-baseline.mjs 2` **PASS**:
+3 concrete Situations, zero blocking diagnostics and identical
+joined output/diagnostics on consecutive trusted real runs.
+The benchmark checks fixture source-input hashes before and after.
+Existing D-063/D-064/D-065 real fixture regression is also rerun.
+
+Decision: optimize only with evidence. The dominant sample cost is
+C# analysis/build, not Projection rendering; do NOT enable persistent
+caches, reuse stale runtime cases, skip verification of changed inputs,
+or auto-run workers from file-watch events. Future limited proof must
+design invalidation keys for source/config/project/transitive inputs
+and dirty editor states, demonstrate equal results against uncached
+runs, and preserve Stale/Restricted/blocking fail-closed behavior.
+
+D-065 ordinary installed candidate stays unchanged. This is a source
+change requiring no immediate replacement VSIX/manual clicks.
+D-066 standalone-browser check remains PENDING, own localhost-app
+integration DEFERRED, public release unapproved.

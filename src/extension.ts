@@ -668,6 +668,8 @@ export function activate(context: any) {
         dotnetWorkerDll,
         vitestNodeRuntime,
         log,
+        onTiming: sample => log(`refresh-timing: phase=${sample.phase} durationMs=${sample.elapsedMs.toFixed(1)}` +
+          (sample.sourceId ? ` featureSpace=${sample.featureSpaceId} source=${sample.sourceId}` : '')),
       });
 
       // A single JSON-compatible semantic document drives BOTH views.
