@@ -1542,3 +1542,36 @@ D-065 ordinary installed candidate stays unchanged. This is a source
 change requiring no immediate replacement VSIX/manual clicks.
 D-066 standalone-browser check remains PENDING, own localhost-app
 integration DEFERRED, public release unapproved.
+
+## D-068 - Conservative dependency drift probe without cache reuse
+
+Status: Windows SOURCE PROOF PASS; GitHub CI to verify after push.
+Developed bounded `observeRefreshInputs` and
+`compareObservedRefreshInputs` as **opt-in** pure read-only probes,
+not extension cache wiring. Content-hashes known files in each
+FeatureSpace framework project/source root and hashes the effective
+configuration, with distinct observed-change/observed-unchanged/
+unverifiable outcomes. Every result explicitly refuses reuse
+(`reusePermitted:false`). No results are cached or skipped.
+
+Safety rationale: xUnit/MSBuild and Vitest can depend on packages,
+targets/configs and source outside those roots; ignored build,
+node_modules and other generated trees are explicitly NOT in the
+observed closure. Files can change while scanning. Dirty editor
+state must be explicitly supplied and empty, and even that does
+not prove completeness of external/runtime dependencies.
+No user-facing Fresh or trust changes may rely on this fingerprint.
+
+Verified eight new unit tests: content edits with preserved timestamp
+and length, additions/deletions/renames, project props and config,
+scope isolation, dirty/unknown/untrusted editor state, escapes/
+missing paths, excluded package trees, junctions and duplicate
+scope IDs. Source suite **89/89 PASS**.
+Real two-source Vitest+xUnit fixture probe **PASS** with stable
+hashes and no authorized reuse. Existing real D-063/D-064/D-065
+Projection proof **PASS**. Added both proof stages to the Windows CI
+workflow; remote result requires separate post-push confirmation.
+
+D-065 ordinary VS Code installation not touched; no VSIX, external
+localhost server, JSON Export, Rename, or release. D-066 standalone
+browser manual gate PENDING; own localhost app integration DEFERRED.

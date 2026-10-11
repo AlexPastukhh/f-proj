@@ -348,3 +348,20 @@ See MASTER-PLAN section 24 and REVIEW-LOG D-067.
 The existing ordinary D-065 installation was **not** replaced.
 User browser acceptance remains PENDING; own-app localhost
 integration is deferred. No new VSIX/release.
+
+## D-068 - Known-input drift and invalidation probe (source-only)
+
+Source-only D-068 adds a conservative content-hash observer for
+configured FeatureSpace project/source input trees and effective
+configuration. It detects known file changes, refuses unknown
+or dirty editors, links and escapes, and always returns
+`reusePermitted:false`. Excluded dependencies and generated
+trees remain outside its observed coverage. No cache is enabled.
+Windows `npm test` **89/89 PASS**; the real two-scope input
+probe and prior D-063/D-064/D-065 fixture proofs **PASS**.
+GitHub Windows CI includes the new proof step, with post-push
+status tracked in REVIEW-LOG.
+
+Existing ordinary D-065 installation unchanged; D-066 manual
+standalone browser check still PENDING. Own localhost application
+integration DEFERRED; no release or new VSIX.

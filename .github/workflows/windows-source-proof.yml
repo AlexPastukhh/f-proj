@@ -54,6 +54,8 @@ jobs:
         run: node scripts/verify-rename-feasibility.mjs
       - name: Internal JSON, metadata disclosure, and Portable Markdown/HTML fixture proof
         run: node scripts/verify-experimental-json-snapshot.mjs
+      - name: D-068 known-input drift probe (no cache reuse)
+        run: node scripts/verify-refresh-input-probe.mjs
       - name: Package .NET worker and verify payload
         shell: pwsh
         run: |

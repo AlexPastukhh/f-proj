@@ -1269,3 +1269,42 @@ Do not overwrite the ordinary installed D-065 VSIX without a new
 technical validation and explicit installation gate. D-066 browser
 click remains manual PENDING; user's own localhost integration
 DEFERRED. No release, version bump, tag or publication.
+
+## 2026-10-11 - D-068 known-input change detection, fail-closed
+
+Before edits, Windows and GitHub main both `ba4ce71`, clean.
+D-067 GitHub Windows source CI:
+https://github.com/AlexPastukhh/f-proj/actions/runs/38116082933
+**SUCCESS** (verified against the exact commit).
+
+Implemented `src/core/refreshInputProbe.ts` as a standalone
+read-only known-input snapshot. It hashes canonical effective
+configuration and file bytes/relative paths from each configured
+frameworkProject/source root (includes build props and manifests).
+New, removed and renamed files and content changes with identical
+length/mtime are observable. Path escapes, symlinks/junctions,
+missing projects, unknown/dirty editors, untrusted workspaces
+and duplicate identities cannot be treated as known-stable.
+Existing project dependency/build dirs are intentionally excluded,
+so even `observed-unchanged` is **not** a safety claim for reuse.
+All results return `reusePermitted:false`; no active cache or
+VS Code Refresh hook was added.
+
+Evidence: `npm test` **89/89 PASS** (+8 source unit tests).
+`node scripts/verify-refresh-input-probe.mjs` **PASS**, real
+Vitest5/xUnit3 fixture scopes=2, hashes unchanged between
+observations, dirty state unknown refused, no writes.
+`node scripts/verify-experimental-json-snapshot.mjs` **PASS**:
+3 joined Situations, 6 literal assertions, D-063/D-064/D-065
+shared Markdown/HTML equivalence and atomic HTML safety.
+New Windows CI step runs the real input probe on push.
+
+Known gaps: transitive project references outside workspace,
+nuget/node package contents/lock semantics, dynamic inputs,
+build output and tool/runtime versions, race-free snapshot
+consistency and dirty document integration. Therefore the next
+step may prototype a complete static-only subset with proven
+invalidation, but may not reuse Roslyn or Vitest runtime cases.
+
+No regular VS Code reinstall/new VSIX, no manual browser PASS,
+no own-app localhost integration or release.

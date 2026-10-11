@@ -1386,3 +1386,40 @@ Installed D-065 candidate remains unchanged by this source-only
 step. Standalone browser acceptance (D-066) still PENDING;
 integration with user's own localhost application DEFERRED.
 No new public VSIX/release/version/tag.
+
+## 25. D-068 - Known-input drift probe, no cache authorization
+
+Status: SOURCE + WINDOWS UNIT + REAL FIXTURE PROOF PASS;
+Windows GitHub CI and installed-candidate acceptance tracked separately.
+Added `src/core/refreshInputProbe.ts`, an opt-in **read-only,
+in-memory** observation of known input content hashes by
+FeatureSpace/source. The probe includes the entire configured
+frameworkProject and source root (also configured project/config file),
+and the canonical complete in-memory configuration. Added/removed/
+renamed files, same-mtime source edits, build props and config changes
+produce detected differences in known inputs. Duplicate scope IDs,
+untrusted or unknown dirty editor state, unsaved files, missing roots,
+traversal, symlinks/junctions and unreadable files fail as
+`unverifiable`, not Fresh. `node_modules`, build output and
+other generated directories are intentionally excluded for bounded
+observation; **their dependencies are not covered**.
+
+Every probe and comparison unconditionally returns
+`reusePermitted:false`, including when known files have unchanged
+hashes. No true transitive MSBuild/Node dependency closure,
+external packages/tool versions, in-flight filesystem consistency,
+or dirty-buffer integration has been proven. The source-only proof
+is NOT hooked to regular VS Code Refresh, and does not cache,
+skip workers, auto-refresh or publish output.
+
+`npm test` **89/89 PASS**, including eight new input-probe tests.
+Real `scripts/verify-refresh-input-probe.mjs` **PASS** on the
+maintained Vitest/xUnit source layout; D-063/D-064/D-065 real
+Projection proof also **PASS**. Windows CI includes the new proof.
+Next potential D-069: prove a complete and repeatable **static-only**
+subset of dependencies or conservative dependency graph first;
+no runtime/Roslyn result reuse without closure and trust guards.
+
+Ordinary D-065 install remains unchanged. D-066 standalone
+browser manual acceptance PENDING, user's localhost integration
+DEFERRED and release unauthorized.
